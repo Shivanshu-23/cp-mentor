@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -34,6 +34,11 @@ jwt:
   # Dev-only default so local startup needs no config — ALWAYS set JWT_SECRET in any shared/production environment.
   secret: ${JWT_SECRET:q6z/FQ8IwgZOdSM84R+oe068H8DP13ue2rmZor11UYlVVlhEZ8LIyWCpSDTUxr5569otzepV+cj1FySajgeC/A==}
   expiration: 86400000 # 24 hours
+
+# Comma-separated list of allowed frontend origins for CORS. In production
+# (e.g. Render), set ALLOWED_ORIGINS to your deployed Vercel URL.
+cors:
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200}
 
 # OpenAI — leave blank to use mock AI (no key needed to start)
 openai:
