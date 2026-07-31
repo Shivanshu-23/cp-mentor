@@ -69,6 +69,8 @@ public class ProblemService {
                 .topics(p.getTopics())
                 .exampleInput(p.getExampleInput())
                 .exampleOutput(p.getExampleOutput())
+                .leetcodeUrl(p.getSlug() != null && !p.getSlug().isBlank()
+                        ? "https://leetcode.com/problems/" + p.getSlug() + "/" : "")
                 .fetchedAt(p.getFetchedAt())
                 .build();
     }

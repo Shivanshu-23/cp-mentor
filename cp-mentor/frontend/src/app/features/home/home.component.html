@@ -1,11 +1,11 @@
-<div class="page-container">
+<div class="page-container page-fade-in">
 
   <!-- ── Hero / Daily Challenge ──────────────────────────────── -->
-  <div style="text-align:center;padding:40px 0 32px">
-    <div style="color:#58a6ff;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">
+  <div style="text-align:center;padding:48px 0 36px">
+    <div style="color:#58a6ff;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">
       {{ today }}
     </div>
-    <h1 style="font-size:36px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+    <h1 class="gradient-text" style="font-size:40px;font-weight:800;margin-bottom:10px;letter-spacing:-1px">
       Daily Challenge
     </h1>
     <p style="color:#8b949e;font-size:16px">Solve it. Understand it. Master it — with your AI mentor.</p>
@@ -29,6 +29,11 @@
           <span *ngFor="let t of daily.topics" class="topic-chip">{{ t }}</span>
         </div>
         <h2 style="font-size:26px;font-weight:700;color:#e6edf3;margin-bottom:12px">{{ daily.title }}</h2>
+        <a *ngIf="daily.leetcodeUrl" [href]="daily.leetcodeUrl" target="_blank" rel="noopener"
+           style="color:#58a6ff;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
+          <mat-icon style="font-size:16px;width:16px;height:16px">open_in_new</mat-icon>
+          View on LeetCode
+        </a>
       </div>
 
       <button mat-raised-button
@@ -78,16 +83,20 @@
 
     <div *ngIf="!loadingList">
       <div *ngFor="let p of problems"
-           class="glass-card"
-           style="cursor:pointer;transition:border-color 0.2s;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px"
-           (mouseenter)="$any($event.target).closest('.glass-card').style.borderColor='#58a6ff'"
-           (mouseleave)="$any($event.target).closest('.glass-card').style.borderColor='#30363d'">
+           class="glass-card hover-lift"
+           style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px">
 
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span style="color:#8b949e;font-size:12px">#{{ p.leetcodeId }}</span>
             <span style="font-size:15px;font-weight:600;color:#e6edf3">{{ p.title }}</span>
             <span class="badge" [class]="difficultyClass(p.difficulty)">{{ p.difficulty }}</span>
+            <a *ngIf="p.leetcodeUrl" [href]="p.leetcodeUrl" target="_blank" rel="noopener"
+               (click)="$event.stopPropagation()"
+               style="color:#58a6ff;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:3px">
+              <mat-icon style="font-size:14px;width:14px;height:14px">open_in_new</mat-icon>
+              LeetCode
+            </a>
           </div>
           <div style="margin-top:6px">
             <span *ngFor="let t of p.topics" class="topic-chip">{{ t }}</span>

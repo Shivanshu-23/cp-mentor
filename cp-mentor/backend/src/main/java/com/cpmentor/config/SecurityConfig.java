@@ -47,8 +47,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/videos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/ai/**").permitAll()
                 .requestMatchers("/api/v1/daily-challenge/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/company-problems/companies").permitAll()
-                    .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/company-problems", "/api/v1/company-problems/**").permitAll()
+                .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -32,7 +32,8 @@ public class LeetCodeFetchService {
 
     private static final String GRAPHQL_URL = "https://leetcode.com/graphql";
 
-    // ← removed "constraints" — not in LeetCode's QuestionNode schema
+    // "constraints" isn't a separate field on LeetCode's QuestionNode — it's embedded
+    // in the "Constraints:" <ul> inside the HTML `content` field, parsed out below.
     private static final String QUERY =
         "{\"query\":\"query questionOfToday { activeDailyCodingChallengeQuestion { date link question { questionId questionFrontendId title titleSlug difficulty content topicTags { name } exampleTestcases } } }\"}";
 
@@ -105,7 +106,9 @@ public class LeetCodeFetchService {
         String title         = question.path("title").asText();
         String slug          = question.path("titleSlug").asText();
         String difficultyStr = question.path("difficulty").asText("Easy");
-        String content       = stripHtml(question.path("content").asText(""));
+        String rawContent    = question.path("content").asText("");
+        String content       = stripHtml(rawContent);
+        String constraints   = extractConstraints(rawContent);
         String examples      = question.path("exampleTestcases").asText("");
 
         List<String> topics = new ArrayList<>();
@@ -122,7 +125,7 @@ public class LeetCodeFetchService {
         Problem problem = problemRepository.findByLeetcodeId(leetcodeId).orElseGet(() ->
             Problem.builder()
                 .leetcodeId(leetcodeId).title(title).slug(slug).difficulty(difficulty)
-                .description(content).constraints("").topics(topics)
+                .description(content).constraints(constraints).topics(topics)
                 .exampleInput(parseFirstInput(examples)).exampleOutput("")
                 .fetchedAt(LocalDateTime.now()).build());
 
@@ -130,6 +133,7 @@ public class LeetCodeFetchService {
         problem.setDifficulty(difficulty);
         problem.setTopics(topics);
         if (!content.isBlank()) problem.setDescription(content);
+        if (!constraints.isBlank()) problem.setConstraints(constraints);
         problem = problemRepository.save(problem);
 
         DailyChallenge saved = dailyChallengeRepository.save(DailyChallenge.builder()
@@ -159,7 +163,9 @@ public class LeetCodeFetchService {
 
     private String stripHtml(String html) {
         if (html == null || html.isBlank()) return "";
-        return html.replaceAll("<[^>]+>", " ").replaceAll("&lt;", "<")
+        // Preserve exponents like 10^5 before the generic tag-strip below blanks <sup> out
+        return html.replaceAll("(?i)<sup>", "^").replaceAll("(?i)</sup>", "")
+                .replaceAll("<[^>]+>", " ").replaceAll("&lt;", "<")
                 .replaceAll("&gt;", ">").replaceAll("&amp;", "&")
                 .replaceAll("&nbsp;", " ").replaceAll("&#39;", "'")
                 .replaceAll("&quot;", "\"").replaceAll("\\s{2,}", " ").trim();
@@ -168,5 +174,31 @@ public class LeetCodeFetchService {
     private String parseFirstInput(String examples) {
         if (examples == null || examples.isBlank()) return "";
         return examples.split("\n")[0];
+    }
+
+    private String extractConstraints(String rawHtml) {
+        if (rawHtml == null || rawHtml.isBlank()) return "";
+
+        int headingIdx = indexOfIgnoreCase(rawHtml, "constraints");
+        if (headingIdx < 0) return "";
+
+        int ulStart = rawHtml.indexOf("<ul>", headingIdx);
+        if (ulStart < 0) return "";
+        int ulEnd = rawHtml.indexOf("</ul>", ulStart);
+        if (ulEnd < 0) return "";
+
+        String listHtml = rawHtml.substring(ulStart, ulEnd + "</ul>".length());
+        var liMatcher = java.util.regex.Pattern.compile("(?is)<li>(.*?)</li>").matcher(listHtml);
+
+        StringBuilder sb = new StringBuilder();
+        while (liMatcher.find()) {
+            String item = stripHtml(liMatcher.group(1));
+            if (!item.isBlank()) sb.append("• ").append(item).append("\n");
+        }
+        return sb.toString().trim();
+    }
+
+    private int indexOfIgnoreCase(String haystack, String needle) {
+        return haystack.toLowerCase().indexOf(needle.toLowerCase());
     }
 }

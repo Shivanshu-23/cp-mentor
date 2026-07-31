@@ -5,7 +5,8 @@ import { Observable } from 'rxjs';
 export interface Problem {
   id: number; leetcodeId: string; title: string; slug: string;
   difficulty: 'EASY'|'MEDIUM'|'HARD'; description: string; constraints: string;
-  topics: string[]; exampleInput: string; exampleOutput: string; fetchedAt: string;
+  topics: string[]; exampleInput: string; exampleOutput: string;
+  leetcodeUrl: string; fetchedAt: string;
 }
 export interface Approach {
   name: string; idea: string; timeComplexity: string; spaceComplexity: string;

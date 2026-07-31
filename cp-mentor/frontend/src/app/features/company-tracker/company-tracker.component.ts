@@ -37,7 +37,6 @@ export class CompanyTrackerComponent implements OnInit {
 
   // Filters
   selectedCompany = 'amazon';
-  selectedTimeframe = 'all';
   selectedDifficulty = 'all';
 
   // Pagination
@@ -49,15 +48,9 @@ export class CompanyTrackerComponent implements OnInit {
   // Stats
   stats = { solved: 0, attempted: 0, seen: 0, total: 0 };
 
-  timeframes = [
-    { value: 'all',          label: 'All Time' },
-    { value: 'six-months',   label: 'Last 6 Months' },
-    { value: 'thirty-days',  label: 'Last 30 Days' }
-  ];
-
   difficulties = ['all', 'Easy', 'Medium', 'Hard'];
 
-  tickLabels = ['Not Started', 'Seen', 'Attempted', 'Solved'];
+  tickLabels = ['Not Started', 'Attempted', 'Revisited', 'Revised'];
   tickColors = ['#484f58', '#d29922', '#58a6ff', '#3fb950'];
   tickIcons  = ['radio_button_unchecked', 'visibility', 'code', 'check_circle'];
 
@@ -91,7 +84,7 @@ export class CompanyTrackerComponent implements OnInit {
     this.loading = true;
     const params = new URLSearchParams({
       company: this.selectedCompany,
-      timeframe: this.selectedTimeframe,
+      timeframe: 'all',
       difficulty: this.selectedDifficulty,
       page: this.page.toString(),
       size: this.pageSize.toString()
@@ -130,7 +123,7 @@ export class CompanyTrackerComponent implements OnInit {
       next: res => {
         problem.tickCount = res.tickCount;
         if (res.tickCount === 3) {
-          this.snack.open(`✅ "${problem.title}" marked as solved!`, '', { duration: 2000 });
+          this.snack.open(`✅ "${problem.title}" marked as ${this.tickLabels[3].toLowerCase()}!`, '', { duration: 2000 });
           this.stats.solved++;
         }
       },

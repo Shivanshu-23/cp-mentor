@@ -20,5 +20,6 @@ public class ProblemDTO {
     private List<String> topics;
     private String exampleInput;
     private String exampleOutput;
+    private String leetcodeUrl;
     private LocalDateTime fetchedAt;
 }
