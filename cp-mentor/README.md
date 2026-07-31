@@ -1,5 +1,7 @@
 # AI Competitive Programming Mentor
 
+[![GitHub repo](https://img.shields.io/badge/GitHub-cp--mentor-181717?logo=github)](https://github.com/Shivanshu-23/cp-mentor)
+
 Production-grade AI-powered CP Mentor — Java 21 + Spring Boot 3 + Angular 17 + Material UI
 
 ---
