@@ -1,75 +1,250 @@
-# CLAUDE.md
+# AI Competitive Programming Mentor — Claude Code Context
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Overview
+Production-grade full-stack AI-powered web app that fetches LeetCode daily challenges,
+analyzes them with AI (Gemini/OpenAI/Claude), and tracks company-wise DSA progress.
 
-## Repository layout
+## Tech Stack
+- **Backend**: Java 21, Spring Boot 3.2.3, Spring Security + JWT, Spring Data JPA, H2 (dev), Maven
+- **Frontend**: Angular 17, Angular Material UI, RxJS, TypeScript
+- **AI**: Google Gemini API (primary), OpenAI GPT-4o, Anthropic Claude (fallback chain)
+- **External APIs**: LeetCode GraphQL, YouTube Data API v3, GitHub raw CSV
+- **Port**: Backend → 8080, Frontend → 4200
 
-This repo is not a git repository and currently contains a single project, `cp-mentor/` — an AI-powered competitive-programming mentor app with a Spring Boot backend and an Angular frontend. All commands below assume `cp-mentor/` as the base unless noted.
-
-## Commands
-
-### Backend (`cp-mentor/backend`, Java 21 + Spring Boot 3 + Maven)
-
-```bash
-cd cp-mentor/backend
-mvn spring-boot:run              # run the API on :8080 (H2 in-memory DB, no external services needed)
-mvn test                         # run tests
-mvn test -Dtest=ClassName#method # run a single test
-mvn clean package                # build the jar
+## Project Location
+```
+/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor/
+├── backend/    ← Spring Boot
+└── frontend/   ← Angular 17
 ```
 
-There are currently no test classes under `src/test/java` — the test source tree exists but is empty.
-
-### Frontend (`cp-mentor/frontend`, Angular 17 + Material)
-
+## How to Run
 ```bash
-cd cp-mentor/frontend
-npm install
-npm start        # ng serve --proxy-config proxy.conf.json, on :4200, proxies /api → :8080
-npm run build     # production build
-npm run watch     # dev build in watch mode
+# Backend (Terminal 1)
+cd "/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor/backend"
+mvn spring-boot:run
+
+# Backend with Gemini AI
+GEMINI_API_KEY=<your-gemini-key> mvn spring-boot:run
+
+# Frontend (Terminal 2)
+cd "/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor/frontend"
+npx ng serve --proxy-config proxy.conf.json --open
+
+# Kill port 8080 if already in use
+sudo kill -9 $(sudo lsof -t -i:8080)
 ```
 
-There is no configured lint or test script in `package.json` (default Angular CLI scaffolding was not extended with `test`/`lint`).
+## Package Structure (Backend)
+```
+com.cpmentor/
+├── config/
+│   ├── SecurityConfig.java          ← Spring Security, JWT, CORS
+│   └── AppConfig.java               ← WebClient, OpenAPI beans
+├── auth/
+│   ├── controller/AuthController.java
+│   ├── service/AuthService.java
+│   ├── service/CustomUserDetailsService.java
+│   ├── entity/User.java
+│   ├── repository/UserRepository.java
+│   ├── dto/AuthDTOs.java
+│   ├── filter/JwtAuthFilter.java
+│   └── util/JwtUtil.java
+├── problem/
+│   ├── controller/ProblemController.java
+│   ├── service/ProblemService.java
+│   ├── entity/Problem.java
+│   ├── repository/ProblemRepository.java
+│   └── dto/ProblemDTO.java
+├── ai/
+│   ├── controller/AIController.java
+│   ├── service/AIService.java        ← Gemini + OpenAI + Claude + Mock
+│   └── dto/AIAnalysisDTO.java
+├── ingestion/
+│   ├── entity/DailyChallenge.java
+│   ├── repository/DailyChallengeRepository.java
+│   ├── service/LeetCodeFetchService.java   ← HttpURLConnection, GraphQL
+│   └── scheduler/
+│       ├── DailyChallengeScheduler.java
+│       └── DailyChallengeController.java
+├── youtube/
+│   ├── service/YouTubeService.java
+│   ├── controller/VideoController.java
+│   └── dto/VideoDTO.java
+├── company/
+│   ├── entity/CompanyProblem.java
+│   ├── entity/UserProblemProgress.java
+│   ├── repository/CompanyProblemRepository.java
+│   ├── repository/UserProblemProgressRepository.java
+│   ├── service/CompanyDataLoaderService.java  ← loads from GitHub CSV
+│   ├── service/CompanyProblemService.java
+│   ├── controller/CompanyProblemController.java
+│   └── dto/CompanyProblemDTO.java
+├── common/
+│   └── DataInitializer.java         ← seeds 3 problems on startup
+└── exception/
+    └── GlobalExceptionHandler.java
+```
 
-### Running both together
+## REST API Endpoints
+```
+# Auth (public)
+POST /api/v1/auth/register
+POST /api/v1/auth/login
 
-`cp-mentor/start.sh` starts the backend, polls `/v3/api-docs` until it's up, then starts `ng serve --open`. It prompts interactively for `OPENAI_API_KEY` / `YOUTUBE_API_KEY` (blank is fine — falls back to mock data).
+# Problems (public GET)
+GET  /api/v1/problems/daily
+GET  /api/v1/problems/{id}
+GET  /api/v1/problems?page=&size=
 
-### Useful URLs when running
+# AI Analysis (public GET)
+GET  /api/v1/ai/analyze/{problemId}
 
-- Frontend: http://localhost:4200
-- Backend: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- H2 console: http://localhost:8080/h2-console (JDBC URL `jdbc:h2:mem:cpmentor`, user `sa`, blank password)
+# Videos (public)
+GET  /api/v1/videos?topic=
 
-## Architecture
+# Daily Challenge
+GET  /api/v1/daily-challenge/status
+POST /api/v1/daily-challenge/fetch
 
-### Backend package-by-feature structure
+# Company Tracker (needs JWT fix — see CURRENT BUGS)
+GET  /api/v1/company-problems?company=amazon&timeframe=all&page=0&size=50
+POST /api/v1/company-problems/{leetcodeId}/tick
+GET  /api/v1/company-problems/companies
+GET  /api/v1/company-problems/stats
+POST /api/v1/company-problems/reload/{company}
 
-Under `com.cpmentor`, each feature is its own top-level package with its own `controller/service/repository/entity/dto` subpackages (not layered globally by type):
+# Dev tools
+GET  /swagger-ui.html
+GET  /h2-console   (JDBC: jdbc:h2:mem:cpmentor, user: sa, pass: blank)
+```
 
-- `auth` — JWT registration/login. `JwtAuthFilter` (a `OncePerRequestFilter`) sits in front of Spring Security; `JwtUtil` issues/validates tokens; `SecurityConfig` wires the filter chain, CORS (only `http://localhost:4200` is allowed), and stateless sessions.
-- `problem` — core `Problem` entity/CRUD, seeded by `common/DataInitializer` on first boot (3 sample problems: Two Sum, Longest Substring, Best Time to Buy/Sell Stock) so the app is usable without any external data source.
-- `ai` — `AIService` is the single entry point for problem analysis (`/api/v1/ai/analyze/{id}`). It tries providers in a fixed fallback chain: **Gemini → OpenAI → Claude → mock**, each gated by whether the corresponding API key is non-blank (`gemini.api-key` / `openai.api-key` / `claude.api-key`). Gemini itself falls back across models (`gemini-1.5-flash` → `gemini-1.5-flash-8b` → `gemini-2.0-flash`). All three providers are called with raw `HttpURLConnection` (no SDK), and responses are parsed as a single big JSON blob (summary, 3-level explanations, brute/better/optimal solutions with code, interview tips, flash cards, etc.) matching the `AIAnalysisDTO` shape — the prompt in `buildPrompt()` and the DTO fields must stay in sync. When every provider is absent/fails, `buildMockAnalysis()` returns a static placeholder response, so the endpoint always returns 200.
-- `company` — company-wise interview question tracking. `CompanyDataLoaderService` asynchronously fetches CSVs (`ID,URL,Title,Difficulty,AcceptanceRate%,Frequency%`) from the public GitHub repo `snehasishroy/leetcode-companywise-interview-questions` for a hardcoded list of companies × timeframes (`all`/`six-months`/`thirty-days`) on `ApplicationReadyEvent`, skipping any company/timeframe already loaded. `UserProblemProgress` tracks per-user solve state against these problems.
-- `ingestion` — `DailyChallengeScheduler` fetches LeetCode's daily challenge via `LeetCodeFetchService` on app startup and on two scheduled crons (`0 30 18 * * ?` and `0 30 19 * * ?` UTC — timed for LeetCode's midnight-UTC reset plus a safety retry at IST midnight).
-- `youtube` — fetches tutorial video suggestions per problem/topic; also falls back to mock data when `youtube.api-key` is blank.
-- `exception` — `GlobalExceptionHandler` for centralized error responses.
+## Security Rules (SecurityConfig.java)
+```java
+// Currently PUBLIC:
+/api/v1/auth/**
+/h2-console/**
+/swagger-ui/** and /v3/api-docs/**
+GET /api/v1/problems/**
+GET /api/v1/videos/**
+GET /api/v1/ai/**
+/api/v1/daily-challenge/**
 
-Note: a handful of literal directories named things like `{entity,repository,dto,service,controller}` exist under `com/cpmentor/` (leftover from a brace-expansion `mkdir` that didn't expand) — these are empty and not part of the real package structure; ignore them.
+// Everything else → requires JWT Bearer token
+```
 
-Config-driven provider fallback is the main architectural idiom to be aware of: `AIService` and `YouTubeService` both treat "external API key not configured" as a normal state, not an error, and silently degrade to mock output rather than failing the request. When adding a new field to an AI analysis response, it must be added in three places kept in sync: the prompt's requested-keys list in `AIService.buildPrompt()`, the parsing in `parseJsonResponse()`, and `AIAnalysisDTO`.
+## ⚠️ CURRENT BUGS TO FIX
 
-Security: all endpoints are open (`permitAll`) except `POST`/mutating routes, per `SecurityConfig` — `/api/v1/auth/**`, all `GET /api/v1/problems/**`, `GET /api/v1/videos/**`, `GET /api/v1/ai/**`, `/api/v1/daily-challenge/**`, and `GET /api/v1/company-problems/companies` require no auth; everything else requires a valid JWT bearer token.
+### BUG 1 — Company Tracker shows 0 problems (PRIORITY)
+**Root cause**: `GET /api/v1/company-problems` requires JWT but frontend calls it without login.
+**Fix**: In `SecurityConfig.java`, add this line in the `authorizeHttpRequests` block:
+```java
+.requestMatchers(HttpMethod.GET, "/api/v1/company-problems/**").permitAll()
+```
+Add it after the existing `.requestMatchers(HttpMethod.GET, "/api/v1/ai/**").permitAll()` line.
 
-`gemini.api-key` follows the same `${ENV_VAR:}` pattern as `openai.api-key` / `claude.api-key` (`GEMINI_API_KEY`) — a previous version of this file had it hardcoded in plaintext; that key has been rotated and removed from source. Never hardcode provider keys in `application.yml` going forward.
+**Verify fix works**:
+```bash
+curl -s "http://localhost:8080/api/v1/company-problems?company=amazon&timeframe=all&page=0&size=3" | python3 -m json.tool | grep totalElements
+```
+Should return `"totalElements": 847` or similar (not 0).
 
-### Frontend structure
+### BUG 2 — Companies dropdown shows old 17 companies from snehasishroy repo
+**Root cause**: CompanyDataLoaderService still pointed to snehasishroy repo on first load.
+Data is cached in H2 now. Fix: restart backend and trigger manual reload.
+```bash
+curl -X POST http://localhost:8080/api/v1/company-problems/reload/amazon
+```
 
-Angular 17, NgModule-based (not standalone components), Material UI. `src/app/`:
+### BUG 3 — Gemini API key quota exhausted
+**Root cause**: Free tier daily quota hit.
+**Workaround**: Create new key at https://aistudio.google.com/app/apikey → "Create API key in new project"
+**Key format**: Must start with `AIzaSy...` (not `AQ.Ab8...`)
+**Set it**: `export GEMINI_API_KEY=AIzaSy_YOUR_KEY` before running mvn
 
-- `core/` — `services/` (`auth.service.ts`, `problem.service.ts`), `interceptors/auth.interceptor.ts` (attaches JWT to outgoing requests), `guards/auth.guard.ts` (route protection).
-- `features/` — one folder per routed page: `home` (daily problem + list), `analysis` (4-tab AI analysis view: explanation / solutions / interview tips / revision notes — mirrors `AIAnalysisDTO`'s shape), `login`, `register`, `company-tracker`.
+## AI Service — Provider Chain
+```java
+// AIService.java — priority order
+1. Gemini 1.5 Flash   (free, 15 req/min)
+2. Gemini 1.5 Flash 8B (free, separate quota)
+3. Gemini 2.0 Flash   (free, separate quota)
+4. OpenAI GPT-4o-mini  (if OPENAI_API_KEY set)
+5. Claude Haiku        (if CLAUDE_API_KEY set)
+6. Mock response       (always works, no key needed)
+```
 
-Routing (`app-routing.module.ts`) is flat, one route per feature component; `/api` calls are proxied to `localhost:8080` in dev via `proxy.conf.json`.
+## Company Data Source
+```
+GitHub repo: https://github.com/Shivanshu-23/leetcode-companywise-interview-questions
+Raw URL pattern: https://raw.githubusercontent.com/Shivanshu-23/leetcode-companywise-interview-questions/master/{company}/{timeframe}.csv
+CSV format: ID,URL,Title,Difficulty,Acceptance %,Frequency %
+Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, one-year.csv
+```
+
+## Frontend Structure (Angular)
+```
+src/app/
+├── core/
+│   ├── services/
+│   │   ├── auth.service.ts        ← login, register, JWT localStorage
+│   │   └── problem.service.ts     ← all API calls + interfaces
+│   ├── interceptors/
+│   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
+│   └── guards/
+│       └── auth.guard.ts
+├── features/
+│   ├── home/                      ← daily problem + problem bank
+│   ├── analysis/                  ← 5-tab AI analysis page
+│   ├── login/
+│   ├── register/
+│   └── company-tracker/           ← company-wise DSA tracker with tick marks
+└── app.module.ts                  ← all declarations + Material imports
+```
+
+## Key Design Decisions
+- **H2 in-memory DB**: resets on every restart — accounts and progress lost. Next step: MySQL
+- **Stateless JWT**: no sessions. Token stored in localStorage, sent via interceptor
+- **@Lazy AuthenticationManager**: breaks circular dependency (JwtAuthFilter → AuthService → SecurityConfig)
+- **@Async company loader**: GitHub CSV fetch doesn't block app startup
+- **Strategy Pattern for AI**: swap Gemini/OpenAI/Claude via env var, no code change
+- **HttpURLConnection**: used instead of WebClient for LeetCode GraphQL and Gemini — avoids serialization bugs
+
+## Known Patterns / Gotchas
+- LeetCode GraphQL has no `constraints` field on QuestionNode — removed from query
+- Gemini uses `X-goog-api-key` header (not `?key=` URL param)
+- YAML values with special chars (`.`, `_`) need quotes: `api-key: "AQ.Ab8..."` 
+- `@Scheduled` cron for midnight IST = `"0 30 18 * * ?"` (UTC timezone)
+- `mvn clean spring-boot:run` needed when .class files are stale
+- Port conflict: `sudo kill -9 $(sudo lsof -t -i:8080)` before restart
+
+## Environment Variables
+```bash
+GEMINI_API_KEY=    # Google Gemini (free) — get from aistudio.google.com/app/apikey
+OPENAI_API_KEY=    # Optional — GPT-4o-mini fallback
+CLAUDE_API_KEY=    # Optional — Claude Haiku fallback
+YOUTUBE_API_KEY=   # Optional — real YouTube search (mock works without it)
+JWT_SECRET=        # Optional — default is hardcoded 512-bit key (change in prod)
+```
+
+## What's Working ✅
+- JWT Auth (register/login/logout)
+- LeetCode daily problem fetch (real problems via GraphQL, midnight scheduler)
+- AI Analysis — Gemini/OpenAI/Claude with fallback + mock
+- YouTube videos tab (curated mock + real API)
+- Company-wise DSA tracker UI (data loads from GitHub, tick marks)
+- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker
+- Swagger UI at /swagger-ui.html
+
+## What's Pending ❌
+- [ ] Fix SecurityConfig to allow GET /api/v1/company-problems/** publicly (BUG 1)
+- [ ] MySQL + Redis — replace H2 for persistence
+- [ ] Docker Compose — containerize everything
+- [ ] Bookmarks + Notes + History
+- [ ] GitHub Actions CI/CD
+- [ ] Push project to GitHub
+
+## Next Steps Priority
+1. Fix SecurityConfig (BUG 1) — 2 line change
+2. MySQL + Redis setup
+3. Docker Compose
+4. Push to GitHub
