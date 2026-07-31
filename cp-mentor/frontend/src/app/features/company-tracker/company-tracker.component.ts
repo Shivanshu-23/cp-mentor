@@ -39,6 +39,7 @@ export class CompanyTrackerComponent implements OnInit {
   // Filters
   selectedCompany = 'amazon';
   selectedDifficulty = 'all';
+  selectedTimeframe = 'all';
   searchTerm = '';
 
   // Pagination
@@ -51,6 +52,14 @@ export class CompanyTrackerComponent implements OnInit {
   stats = { solved: 0, attempted: 0, seen: 0, total: 0 };
 
   difficulties = ['all', 'Easy', 'Medium', 'Hard'];
+  timeframes = ['all', 'thirty-days', 'three-months', 'six-months', 'more-than-six-months'];
+  private timeframeLabels: Record<string, string> = {
+    'all': 'All Time',
+    'thirty-days': 'Last 30 Days',
+    'three-months': 'Last 3 Months',
+    'six-months': 'Last 6 Months',
+    'more-than-six-months': 'More Than 6 Months'
+  };
 
   tickLabels = ['Not Started', 'Attempted', 'Revisited', 'Revised'];
   tickColors = ['#484f58', '#d29922', '#58a6ff', '#3fb950'];
@@ -92,7 +101,7 @@ export class CompanyTrackerComponent implements OnInit {
     this.loading = true;
     const params = new URLSearchParams({
       company: this.selectedCompany,
-      timeframe: 'all',
+      timeframe: this.selectedTimeframe,
       difficulty: this.selectedDifficulty,
       page: this.page.toString(),
       size: this.pageSize.toString()
@@ -174,9 +183,13 @@ export class CompanyTrackerComponent implements OnInit {
     return c.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  timeframeLabel(t: string): string {
+    return this.timeframeLabels[t] ?? t;
+  }
+
   private defaultCompanies(): string[] {
     return ['amazon','google','microsoft','meta','apple','uber','netflix',
             'bloomberg','adobe','atlassian','linkedin','oracle','salesforce',
-            'walmart','paypal','goldman-sachs','morgan-stanley','jpmorgan'];
+            'walmart-labs','paypal','goldman-sachs','morgan-stanley','jpmorgan'];
   }
 }

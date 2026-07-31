@@ -44,6 +44,7 @@
 
   &.filter-search { flex: 2; }
   &.filter-company { flex: 2; }
+  &.filter-timeframe { flex: 1; min-width: 170px; }
   &.filter-difficulty { flex: 1; min-width: 150px; }
 }
 

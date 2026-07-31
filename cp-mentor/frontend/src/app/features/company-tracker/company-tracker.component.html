@@ -48,6 +48,14 @@
         </select>
       </div>
 
+      <!-- Timeframe -->
+      <div class="filter-group filter-timeframe">
+        <div class="filter-label">Timeframe</div>
+        <select [(ngModel)]="selectedTimeframe" (change)="onFilterChange()" class="glass-select">
+          <option *ngFor="let t of timeframes" [value]="t">{{ timeframeLabel(t) }}</option>
+        </select>
+      </div>
+
       <!-- Difficulty -->
       <div class="filter-group filter-difficulty">
         <div class="filter-label">Difficulty</div>
