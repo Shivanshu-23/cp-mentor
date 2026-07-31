@@ -1,0 +1,194 @@
+<div class="page-container">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div style="text-align:center;padding:32px 0 24px">
+    <h1 style="font-size:32px;font-weight:800;background:linear-gradient(135deg,#58a6ff,#3fb950);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">
+      Company-Wise DSA Tracker
+    </h1>
+    <p style="color:#8b949e;font-size:15px">Track your progress on company-specific LeetCode problems</p>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────────── -->
+  <div *ngIf="auth.isLoggedIn()" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+    <div class="glass-card" style="padding:16px;text-align:center;border-left:3px solid #3fb950">
+      <div style="font-size:28px;font-weight:800;color:#3fb950">{{ stats.solved }}</div>
+      <div style="color:#8b949e;font-size:13px;margin-top:4px">✅ Solved</div>
+    </div>
+    <div class="glass-card" style="padding:16px;text-align:center;border-left:3px solid #58a6ff">
+      <div style="font-size:28px;font-weight:800;color:#58a6ff">{{ stats.attempted }}</div>
+      <div style="color:#8b949e;font-size:13px;margin-top:4px">💻 Attempted</div>
+    </div>
+    <div class="glass-card" style="padding:16px;text-align:center;border-left:3px solid #d29922">
+      <div style="font-size:28px;font-weight:800;color:#d29922">{{ stats.seen }}</div>
+      <div style="color:#8b949e;font-size:13px;margin-top:4px">👁 Seen</div>
+    </div>
+    <div class="glass-card" style="padding:16px;text-align:center;border-left:3px solid #bc8cff">
+      <div style="font-size:28px;font-weight:800;color:#bc8cff">{{ stats.total }}</div>
+      <div style="color:#8b949e;font-size:13px;margin-top:4px">📊 Total Tracked</div>
+    </div>
+  </div>
+
+  <!-- ── Filters ────────────────────────────────────────────── -->
+  <div class="glass-card" style="padding:20px;margin-bottom:20px">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
+
+      <!-- Company selector -->
+      <div style="flex:2;min-width:200px">
+        <div style="color:#8b949e;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Company</div>
+        <select [(ngModel)]="selectedCompany" (change)="onFilterChange()"
+          style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 14px;color:#e6edf3;font-size:14px;cursor:pointer">
+          <option *ngFor="let c of companies" [value]="c">{{ companyLabel(c) }}</option>
+        </select>
+      </div>
+
+      <!-- Timeframe -->
+      <div style="flex:1;min-width:150px">
+        <div style="color:#8b949e;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Timeframe</div>
+        <select [(ngModel)]="selectedTimeframe" (change)="onFilterChange()"
+          style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 14px;color:#e6edf3;font-size:14px;cursor:pointer">
+          <option *ngFor="let t of timeframes" [value]="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+
+      <!-- Difficulty -->
+      <div style="flex:1;min-width:130px">
+        <div style="color:#8b949e;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Difficulty</div>
+        <select [(ngModel)]="selectedDifficulty" (change)="onFilterChange()"
+          style="width:100%;background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:10px 14px;color:#e6edf3;font-size:14px;cursor:pointer">
+          <option *ngFor="let d of difficulties" [value]="d">{{ d === 'all' ? 'All Levels' : d }}</option>
+        </select>
+      </div>
+
+      <!-- Count -->
+      <div style="flex-shrink:0;padding-bottom:2px">
+        <div style="background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:10px 16px;color:#8b949e;font-size:13px;white-space:nowrap">
+          {{ totalElements }} problems
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div *ngIf="loading" style="text-align:center;padding:60px">
+    <mat-spinner diameter="44" style="margin:0 auto"></mat-spinner>
+    <p style="color:#8b949e;margin-top:16px">Loading {{ companyLabel(selectedCompany) }} problems...</p>
+  </div>
+
+  <!-- ── Problem Table ──────────────────────────────────────── -->
+  <div *ngIf="!loading">
+
+    <!-- Table header -->
+    <div style="display:grid;grid-template-columns:60px 1fr 100px 90px 90px 120px;gap:8px;padding:10px 16px;background:#161b22;border:1px solid #30363d;border-radius:10px 10px 0 0;font-size:11px;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:1px">
+      <div>#</div>
+      <div>Title</div>
+      <div>Difficulty</div>
+      <div>Acceptance</div>
+      <div>Frequency</div>
+      <div style="text-align:center">Progress</div>
+    </div>
+
+    <!-- Problem rows -->
+    <div *ngFor="let p of problems; let i = index"
+      style="display:grid;grid-template-columns:60px 1fr 100px 90px 90px 120px;gap:8px;padding:12px 16px;border:1px solid #21262d;border-top:none;align-items:center;transition:background 0.15s"
+      [style.background]="p.tickCount === 3 ? 'rgba(31,77,46,0.2)' : (i % 2 === 0 ? '#0d1117' : '#161b22')"
+      (mouseenter)="$any($event.currentTarget).style.background = p.tickCount === 3 ? 'rgba(31,77,46,0.3)' : '#1c2128'"
+      (mouseleave)="$any($event.currentTarget).style.background = p.tickCount === 3 ? 'rgba(31,77,46,0.2)' : (i % 2 === 0 ? '#0d1117' : '#161b22')">
+
+      <!-- ID -->
+      <div style="color:#8b949e;font-size:13px;font-family:'JetBrains Mono',monospace">
+        {{ p.leetcodeId }}
+      </div>
+
+      <!-- Title -->
+      <div>
+        <span (click)="openProblem(p.url)"
+          style="color:#58a6ff;font-size:14px;font-weight:500;cursor:pointer;text-decoration:none"
+          (mouseenter)="$any($event.target).style.textDecoration='underline'"
+          (mouseleave)="$any($event.target).style.textDecoration='none'">
+          {{ p.title }}
+        </span>
+      </div>
+
+      <!-- Difficulty -->
+      <div>
+        <span [style.color]="diffColor(p.difficulty)"
+              [style.background]="diffBg(p.difficulty)"
+              style="border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600">
+          {{ p.difficulty }}
+        </span>
+      </div>
+
+      <!-- Acceptance -->
+      <div style="color:#8b949e;font-size:13px;font-family:'JetBrains Mono',monospace">
+        {{ p.acceptanceRate }}
+      </div>
+
+      <!-- Frequency -->
+      <div style="color:#8b949e;font-size:13px;font-family:'JetBrains Mono',monospace">
+        {{ p.frequency }}
+      </div>
+
+      <!-- Progress / Tick Marks -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:4px">
+
+        <!-- 3 tick circles -->
+      <div *ngFor="let level of [1,2,3]"
+          (click)="level === 1 ? tick(p) : null"
+          [style.background]="p.tickCount >= level ? tickColors[level-1] + '33' : '#1c2128'"
+          [style.border]="'2px solid ' + (p.tickCount >= level ? tickColors[level-1] : '#30363d')"
+          [matTooltip]="tickLabels[level-1]">
+
+          <mat-icon [style.color]="p.tickCount >= level ? tickColors[level-1] : '#484f58'">
+              {{ p.tickCount >= level ? 'check' : 'remove' }}
+          </mat-icon>
+
+      </div>
+
+        <!-- Click to cycle label -->
+        <button mat-icon-button (click)="tick(p)"
+          [style.color]="tickColors[p.tickCount]"
+          [matTooltip]="'Click to mark: ' + tickLabels[(p.tickCount + 1) % 4]"
+          style="width:28px;height:28px;line-height:28px">
+          <mat-icon style="font-size:16px;width:16px;height:16px">{{ tickIcons[p.tickCount] }}</mat-icon>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="problems.length === 0 && !loading"
+      style="text-align:center;padding:80px;border:1px solid #21262d;border-top:none;border-radius:0 0 10px 10px">
+      <mat-icon style="font-size:48px;width:48px;height:48px;color:#484f58;margin-bottom:16px">inventory_2</mat-icon>
+      <p style="color:#8b949e;font-size:16px;margin-bottom:8px">No problems loaded yet</p>
+      <p style="color:#484f58;font-size:13px">Data loads automatically from GitHub on startup. Try refreshing in a moment.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalPages > 1"
+      style="display:flex;align-items:center;justify-content:space-between;padding:16px;border:1px solid #21262d;border-top:none;border-radius:0 0 10px 10px;background:#161b22">
+      <button mat-stroked-button (click)="prevPage()" [disabled]="page === 0"
+        style="color:#58a6ff;border-color:#30363d">
+        <mat-icon>chevron_left</mat-icon> Previous
+      </button>
+      <span style="color:#8b949e;font-size:13px">
+        Page {{ page + 1 }} of {{ totalPages }} · {{ totalElements }} problems
+      </span>
+      <button mat-stroked-button (click)="nextPage()" [disabled]="page >= totalPages - 1"
+        style="color:#58a6ff;border-color:#30363d">
+        Next <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Login prompt -->
+  <div *ngIf="!auth.isLoggedIn()"
+    style="margin-top:20px;background:#1c1f3b;border:1px solid #388bfd;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:12px">
+    <mat-icon style="color:#58a6ff">login</mat-icon>
+    <span style="color:#8b949e;font-size:14px">
+      <a routerLink="/login" style="color:#58a6ff;font-weight:600;text-decoration:none">Login</a>
+      to save your progress — tick marks persist per problem across sessions.
+    </span>
+  </div>
+
+</div>

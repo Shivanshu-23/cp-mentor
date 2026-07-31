@@ -1,0 +1,18 @@
+# Backend (Maven / Java)
+cp-mentor/backend/target/
+*.class
+*.log
+
+# Frontend (Angular / Node)
+cp-mentor/frontend/node_modules/
+cp-mentor/frontend/.angular/
+cp-mentor/frontend/dist/
+npm-debug.log*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
