@@ -70,7 +70,7 @@ public class AuthService {
                 .token(token)
                 .tokenType("Bearer")
                 .expiresIn(86400)
-                .username(user.getUsername())
+                .username(user.getDisplayUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .build();

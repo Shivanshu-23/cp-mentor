@@ -58,7 +58,14 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // use email as principal
+        return email; // UserDetails contract: email is the Spring Security principal
+    }
+
+    // Lombok can't generate a getUsername() for the `username` field above since
+    // the UserDetails override already claims that method name — expose it separately
+    // so API responses can show the user's chosen display name instead of their email.
+    public String getDisplayUsername() {
+        return username;
     }
 
     @Override public boolean isAccountNonExpired()  { return true; }
