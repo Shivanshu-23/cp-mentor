@@ -234,6 +234,12 @@
   ::ng-deep .mat-expansion-panel-body {
     padding: 0 20px 16px;
   }
+
+  ::ng-deep mat-panel-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+  }
 }
 
 .panel-icon {
