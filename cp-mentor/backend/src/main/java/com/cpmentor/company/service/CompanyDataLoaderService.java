@@ -41,7 +41,7 @@ public class CompanyDataLoaderService {
     private static final List<String> COMPANIES = List.of(
         "amazon", "google", "microsoft", "meta", "apple",
         "uber", "netflix", "bloomberg", "adobe", "atlassian",
-        "linkedin", "oracle", "salesforce", "walmart", "paypal",
+        "linkedin", "oracle", "salesforce", "walmart-labs", "paypal",
         "goldman-sachs", "morgan-stanley", "jpmorgan"
     );
 

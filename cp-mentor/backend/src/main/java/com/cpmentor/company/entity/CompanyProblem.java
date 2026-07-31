@@ -5,7 +5,7 @@ import lombok.*;
 
 @Entity
 @Table(name = "company_problems",
-       uniqueConstraints = @UniqueConstraint(columnNames = {"leetcode_id", "company"}))
+       uniqueConstraints = @UniqueConstraint(columnNames = {"leetcode_id", "company", "timeframe"}))
 @Data
 @Builder
 @NoArgsConstructor
