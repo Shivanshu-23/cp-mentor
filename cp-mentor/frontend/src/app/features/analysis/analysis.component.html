@@ -1,59 +1,56 @@
 <div class="page-container page-fade-in">
-  <button mat-button (click)="location.back()" style="color:#8b949e;margin-bottom:16px">
+  <button mat-button (click)="location.back()" class="back-btn">
     <mat-icon>arrow_back</mat-icon> Back
   </button>
 
   <!-- Loading -->
-  <div *ngIf="loading" style="text-align:center;padding:80px">
+  <div *ngIf="loading" class="loading-block">
     <mat-spinner diameter="56" style="margin:0 auto"></mat-spinner>
-    <p style="color:#8b949e;margin-top:20px;font-size:16px">🤖 AI Mentor is analyzing...</p>
-    <p style="color:#484f58;font-size:13px;margin-top:8px">Pattern recognition · Solutions · Interview tips · Videos</p>
+    <p class="loading-title">🤖 AI Mentor is analyzing...</p>
+    <p class="loading-sub">Pattern recognition · Solutions · Interview tips · Videos</p>
   </div>
 
   <ng-container *ngIf="!loading && analysis && problem">
 
     <!-- Header -->
-    <div class="glass-card" style="border-left:4px solid #bc8cff">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px">
+    <div class="glass-card analysis-header">
+      <div class="header-top">
         <div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-            <span style="color:#8b949e;font-size:13px">#{{ problem.leetcodeId }}</span>
+          <div class="header-meta-row">
+            <span class="header-id">#{{ problem.leetcodeId }}</span>
             <span class="badge" [class]="diffClass(problem.difficulty)">{{ problem.difficulty }}</span>
             <span *ngFor="let t of problem.topics" class="topic-chip">{{ t }}</span>
           </div>
-          <h1 style="font-size:24px;font-weight:800;color:#e6edf3;margin-bottom:6px">{{ problem.title }}</h1>
-          <a *ngIf="problem.leetcodeUrl" [href]="problem.leetcodeUrl" target="_blank" rel="noopener"
-             style="color:#58a6ff;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
-            <mat-icon style="font-size:16px;width:16px;height:16px">open_in_new</mat-icon>
+          <h1 class="header-title">{{ problem.title }}</h1>
+          <a *ngIf="problem.leetcodeUrl" [href]="problem.leetcodeUrl" target="_blank" rel="noopener" class="header-lc-link">
+            <mat-icon>open_in_new</mat-icon>
             View on LeetCode
           </a>
         </div>
-        <div style="background:#1c2128;border:1px solid #30363d;border-radius:10px;padding:10px 16px;font-size:12px;color:#8b949e;text-align:right">
-          <div>Model: <span style="color:#bc8cff">{{ analysis.modelUsed }}</span></div>
-          <div style="margin-top:4px">Cache: <span [style.color]="analysis.fromCache?'#3fb950':'#d29922'">{{ analysis.fromCache ? 'HIT' : 'MISS' }}</span></div>
+        <div class="model-cache-box">
+          <div>Model: <span class="model-name">{{ analysis.modelUsed }}</span></div>
+          <div class="cache-line">Cache: <span [class]="analysis.fromCache ? 'cache-hit' : 'cache-miss'">{{ analysis.fromCache ? 'HIT' : 'MISS' }}</span></div>
         </div>
       </div>
       <!-- Pattern banner -->
-      <div style="background:linear-gradient(135deg,#1c1f3b,#1a2433);border:1px solid #388bfd;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px">
-        <mat-icon style="color:#58a6ff;font-size:28px;width:28px;height:28px">lightbulb</mat-icon>
+      <div class="pattern-banner">
+        <mat-icon>lightbulb</mat-icon>
         <div>
-          <div style="color:#8b949e;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Recognized Pattern</div>
-          <div style="color:#58a6ff;font-size:15px;font-weight:700">{{ analysis.recognizedPattern }}</div>
+          <div class="pattern-label">Recognized Pattern</div>
+          <div class="pattern-value">{{ analysis.recognizedPattern }}</div>
         </div>
       </div>
     </div>
 
     <!-- Data Structures + Algorithms row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-      <div class="glass-card" style="padding:16px 20px">
+    <div class="ds-algo-row">
+      <div class="glass-card">
         <div class="section-title"><mat-icon>storage</mat-icon>Data Structures</div>
-        <span *ngFor="let ds of analysis.requiredDataStructures"
-          style="display:inline-block;background:#1f2d1f;border:1px solid #3fb950;color:#3fb950;border-radius:6px;padding:4px 12px;margin:3px;font-size:13px">{{ ds }}</span>
+        <span *ngFor="let ds of analysis.requiredDataStructures" class="ds-chip">{{ ds }}</span>
       </div>
-      <div class="glass-card" style="padding:16px 20px">
+      <div class="glass-card">
         <div class="section-title"><mat-icon>functions</mat-icon>Algorithms</div>
-        <span *ngFor="let a of analysis.requiredAlgorithms"
-          style="display:inline-block;background:#1f1f2d;border:1px solid #bc8cff;color:#bc8cff;border-radius:6px;padding:4px 12px;margin:3px;font-size:13px">{{ a }}</span>
+        <span *ngFor="let a of analysis.requiredAlgorithms" class="algo-chip">{{ a }}</span>
       </div>
     </div>
 
@@ -62,54 +59,72 @@
 
       <!-- TAB 1: Explanation -->
       <mat-tab label="💡 Explanation">
-        <div style="padding:24px 0">
+        <div class="tab-content">
           <mat-accordion>
             <mat-expansion-panel [expanded]="true">
-              <mat-expansion-panel-header><mat-panel-title style="color:#3fb950;font-weight:600">🟢 Beginner</mat-panel-title></mat-expansion-panel-header>
-              <p style="line-height:1.9;color:#c9d1d9;white-space:pre-wrap">{{ analysis.easyExplanation }}</p>
+              <mat-expansion-panel-header><mat-panel-title class="panel-title-beginner">🟢 Beginner</mat-panel-title></mat-expansion-panel-header>
+              <p class="explanation-body">{{ analysis.easyExplanation }}</p>
             </mat-expansion-panel>
             <mat-expansion-panel>
-              <mat-expansion-panel-header><mat-panel-title style="color:#d29922;font-weight:600">🟡 Intermediate</mat-panel-title></mat-expansion-panel-header>
-              <p style="line-height:1.9;color:#c9d1d9;white-space:pre-wrap">{{ analysis.mediumExplanation }}</p>
+              <mat-expansion-panel-header><mat-panel-title class="panel-title-intermediate">🟡 Intermediate</mat-panel-title></mat-expansion-panel-header>
+              <p class="explanation-body">{{ analysis.mediumExplanation }}</p>
             </mat-expansion-panel>
             <mat-expansion-panel>
-              <mat-expansion-panel-header><mat-panel-title style="color:#f85149;font-weight:600">🔴 Expert</mat-panel-title></mat-expansion-panel-header>
-              <p style="line-height:1.9;color:#c9d1d9;white-space:pre-wrap">{{ analysis.advancedExplanation }}</p>
+              <mat-expansion-panel-header><mat-panel-title class="panel-title-expert">🔴 Expert</mat-panel-title></mat-expansion-panel-header>
+              <p class="explanation-body">{{ analysis.advancedExplanation }}</p>
             </mat-expansion-panel>
           </mat-accordion>
           <div *ngIf="analysis.dryRun" class="glass-card" style="margin-top:20px">
             <div class="section-title"><mat-icon>play_arrow</mat-icon>Dry Run</div>
-            <div class="code-block" style="color:#a5d6ff">{{ analysis.dryRun }}</div>
+            <div class="code-block dry-run-block">{{ analysis.dryRun }}</div>
           </div>
           <div *ngIf="analysis.visualization" class="glass-card">
             <div class="section-title"><mat-icon>bar_chart</mat-icon>Visualization</div>
-            <div class="code-block" style="color:#ffa657">{{ analysis.visualization }}</div>
+            <div class="code-block viz-block">{{ analysis.visualization }}</div>
           </div>
         </div>
       </mat-tab>
 
       <!-- TAB 2: Solutions -->
       <mat-tab label="💻 Solutions">
-        <div style="padding:24px 0">
-          <div *ngFor="let a of approaches" class="glass-card" [style.border-left]="'4px solid '+a.color">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+        <div class="tab-content">
+          <div *ngFor="let a of approaches" class="glass-card approach-card" [style.border-left]="'4px solid '+a.color">
+            <div class="approach-head">
               <div>
-                <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px" [style.color]="a.color">{{ a.label }}</div>
-                <div style="font-size:17px;font-weight:700;color:#e6edf3">{{ a.data.name }}</div>
-                <div style="color:#8b949e;font-size:14px;margin-top:4px">{{ a.data.idea }}</div>
+                <div class="approach-label" [style.color]="a.color">{{ a.label }}</div>
+                <div class="approach-name">{{ a.data.name }}</div>
+                <div class="approach-idea">{{ a.data.idea }}</div>
               </div>
-              <div class="complexity-row" style="flex-shrink:0">
+              <div class="complexity-row approach-complexity">
                 <div class="complexity-badge"><span class="label">Time</span><span class="value">{{ a.data.timeComplexity }}</span></div>
                 <div class="complexity-badge"><span class="label">Space</span><span class="value">{{ a.data.spaceComplexity }}</span></div>
               </div>
             </div>
+
             <div *ngIf="a.data.pseudoCode">
-              <div style="color:#8b949e;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Pseudocode</div>
-              <div class="code-block" style="color:#ffa657">{{ a.data.pseudoCode }}</div>
+              <div class="code-section-label">Pseudocode</div>
+              <div class="code-block-numbered">
+                <button type="button" class="code-copy-btn" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+                <div class="code-lines">
+                  <div class="code-line" *ngFor="let line of a.data.pseudoCode.split('\n'); let i = index">
+                    <span class="line-no">{{ i + 1 }}</span>
+                    <span class="line-text pseudo-block">{{ line }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div *ngIf="a.data.javaCode" style="margin-top:16px">
-              <div style="color:#8b949e;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Java</div>
-              <div class="code-block">{{ a.data.javaCode }}</div>
+
+            <div *ngIf="a.data.javaCode" class="java-block">
+              <div class="code-section-label">Java</div>
+              <div class="code-block-numbered">
+                <button type="button" class="code-copy-btn" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+                <div class="code-lines">
+                  <div class="code-line" *ngFor="let line of a.data.javaCode.split('\n'); let i = index">
+                    <span class="line-no">{{ i + 1 }}</span>
+                    <span class="line-text">{{ line }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -117,32 +132,29 @@
 
       <!-- TAB 3: Interview -->
       <mat-tab label="🎯 Interview">
-        <div style="padding:24px 0">
-          <div class="glass-card">
+        <div class="tab-content">
+          <div class="glass-card" style="border-left:3px solid var(--accent-yellow)">
             <div class="section-title"><mat-icon>tips_and_updates</mat-icon>Interview Tips</div>
-            <p style="line-height:1.9;color:#c9d1d9;white-space:pre-wrap">{{ analysis.interviewTips }}</p>
+            <p class="explanation-body">{{ analysis.interviewTips }}</p>
           </div>
           <div class="glass-card">
-            <div class="section-title"><mat-icon style="color:#f85149">error_outline</mat-icon>Common Mistakes</div>
-            <div *ngFor="let m of analysis.commonMistakes; let i=index"
-              style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #21262d">
-              <span style="background:#3d1f1f;color:#f85149;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">{{i+1}}</span>
-              <span style="color:#c9d1d9;font-size:14px;line-height:1.7">{{ m }}</span>
+            <div class="section-title"><mat-icon style="color:var(--accent-red)">error_outline</mat-icon>Common Mistakes</div>
+            <div *ngFor="let m of analysis.commonMistakes; let i=index" class="mistake-item">
+              <span class="mistake-num">{{ i + 1 }}</span>
+              <span class="mistake-text">{{ m }}</span>
             </div>
           </div>
           <div class="glass-card" *ngIf="analysis.companiesAsking?.length">
             <div class="section-title"><mat-icon>business</mat-icon>Companies Asking This</div>
-            <div style="display:flex;flex-wrap:wrap;gap:10px">
-              <span *ngFor="let c of analysis.companiesAsking"
-                style="background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:6px 14px;font-size:13px;color:#e6edf3;font-weight:500">{{ c }}</span>
+            <div class="companies-wrap">
+              <span *ngFor="let c of analysis.companiesAsking" class="company-pill">{{ c }}</span>
             </div>
           </div>
           <div class="glass-card" *ngIf="analysis.edgeCases?.length">
-            <div class="section-title"><mat-icon style="color:#d29922">warning</mat-icon>Edge Cases</div>
-            <div *ngFor="let e of analysis.edgeCases"
-              style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #21262d">
-              <mat-icon style="color:#d29922;font-size:18px;flex-shrink:0">arrow_right</mat-icon>
-              <div class="code-block" style="padding:6px 12px;font-size:13px;flex:1;margin:0">{{ e }}</div>
+            <div class="section-title"><mat-icon style="color:var(--accent-yellow)">warning</mat-icon>Edge Cases</div>
+            <div *ngFor="let e of analysis.edgeCases" class="edge-case-row">
+              <mat-icon>arrow_right</mat-icon>
+              <div class="code-block">{{ e }}</div>
             </div>
           </div>
         </div>
@@ -150,32 +162,40 @@
 
       <!-- TAB 4: Revision -->
       <mat-tab label="📚 Revision">
-        <div style="padding:24px 0">
-          <div class="glass-card" style="border-left:4px solid #3fb950">
+        <div class="tab-content">
+          <div class="glass-card revision-card">
             <div class="section-title"><mat-icon>sticky_note_2</mat-icon>Quick Revision Notes</div>
-            <div class="code-block" style="color:#3fb950;font-size:14px;line-height:2">{{ analysis.revisionNotes }}</div>
+            <div class="code-block revision-block">{{ analysis.revisionNotes }}</div>
           </div>
+
           <div class="glass-card" *ngIf="analysis.flashCards?.length">
             <div class="section-title"><mat-icon>flash_on</mat-icon>Flash Cards</div>
-            <div *ngFor="let card of analysis.flashCards"
-              style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:12px 16px;margin-bottom:10px;font-size:13px;line-height:1.8;color:#c9d1d9">{{ card }}</div>
+            <div *ngFor="let card of analysis.flashCards; let i = index" class="flip-card">
+              <div class="flip-card-inner">
+                <div class="flip-card-front">Flash Card #{{ i + 1 }} — hover to reveal</div>
+                <div class="flip-card-back">{{ card }}</div>
+              </div>
+            </div>
           </div>
+
           <div class="glass-card" *ngIf="analysis.practiceOrder?.length">
             <div class="section-title"><mat-icon>trending_up</mat-icon>Practice Order</div>
-            <div *ngFor="let step of analysis.practiceOrder; let i=index"
-              style="display:flex;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid #21262d">
-              <span style="background:#1f2d1f;color:#3fb950;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">{{i+1}}</span>
-              <span style="color:#c9d1d9;font-size:14px">{{ step }}</span>
+            <div class="progress-steps">
+              <div *ngFor="let step of analysis.practiceOrder; let i=index" class="progress-step">
+                <span class="step-circle">{{ i + 1 }}</span>
+                <span class="step-text">{{ step }}</span>
+              </div>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" *ngIf="analysis.whenToUseThisAlgorithm">
-            <div class="glass-card" style="border-left:3px solid #3fb950">
-              <div class="section-title" style="color:#3fb950"><mat-icon>check_circle</mat-icon>When TO Use</div>
-              <p style="color:#c9d1d9;font-size:14px;line-height:1.8">{{ analysis.whenToUseThisAlgorithm }}</p>
+
+          <div class="when-grid" *ngIf="analysis.whenToUseThisAlgorithm">
+            <div class="glass-card when-yes">
+              <div class="section-title"><mat-icon>check_circle</mat-icon>When TO Use</div>
+              <p class="when-text">{{ analysis.whenToUseThisAlgorithm }}</p>
             </div>
-            <div class="glass-card" style="border-left:3px solid #f85149">
-              <div class="section-title" style="color:#f85149"><mat-icon>cancel</mat-icon>When NOT To Use</div>
-              <p style="color:#c9d1d9;font-size:14px;line-height:1.8">{{ analysis.whenNotToUseThisAlgorithm }}</p>
+            <div class="glass-card when-no">
+              <div class="section-title"><mat-icon>cancel</mat-icon>When NOT To Use</div>
+              <p class="when-text">{{ analysis.whenNotToUseThisAlgorithm }}</p>
             </div>
           </div>
         </div>
@@ -183,44 +203,39 @@
 
       <!-- TAB 5: Videos (lazy loaded) -->
       <mat-tab label="📺 Videos">
-        <div style="padding:24px 0">
+        <div class="tab-content">
 
           <!-- Loading spinner -->
-          <div *ngIf="loadingVideos" style="text-align:center;padding:60px">
+          <div *ngIf="loadingVideos" class="loading-block">
             <mat-spinner diameter="44" style="margin:0 auto"></mat-spinner>
-            <p style="color:#8b949e;margin-top:16px">Fetching curated tutorials...</p>
+            <p class="loading-title">Fetching curated tutorials...</p>
           </div>
 
           <!-- Video grid -->
           <div *ngIf="!loadingVideos">
 
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+            <div class="videos-head">
               <div>
                 <div class="section-title" style="margin-bottom:4px"><mat-icon style="color:#ff0000">play_circle</mat-icon>Curated Tutorials</div>
-                <p style="color:#8b949e;font-size:13px">Handpicked from top competitive programming educators</p>
+                <p class="videos-sub">Handpicked from top competitive programming educators</p>
               </div>
               <!-- Channel whitelist badge -->
-              <div style="background:#1c2128;border:1px solid #30363d;border-radius:8px;padding:8px 14px;font-size:12px;color:#8b949e">
+              <div class="channel-badge">
                 ✅ Channels: NeetCode · take U forward · Abdul Bari · William Fiset · Errichto
               </div>
             </div>
 
             <!-- Video cards grid -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
-              <div *ngFor="let v of videos"
-                (click)="openVideo(v.url)"
-                class="video-card">
+            <div class="video-grid">
+              <div *ngFor="let v of videos" (click)="openVideo(v.url)" class="video-card">
 
                 <!-- Thumbnail -->
                 <div class="video-thumb">
-                  <img [src]="v.thumbnailUrl" [alt]="v.title"
-                    style="width:100%;height:168px;object-fit:cover;display:block"
+                  <img [src]="v.thumbnailUrl" [alt]="v.title" class="video-thumb-img"
                     onerror="this.src='https://via.placeholder.com/320x168/0d1117/58a6ff?text=Video'">
 
                   <!-- Duration badge -->
-                  <div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.85);color:#fff;font-size:12px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px;font-weight:600">
-                    {{ v.duration }}
-                  </div>
+                  <div class="video-duration">{{ v.duration }}</div>
 
                   <!-- Play overlay -->
                   <div class="video-play-overlay">
@@ -229,28 +244,24 @@
                 </div>
 
                 <!-- Video info -->
-                <div style="padding:12px 14px">
-                  <div style="font-size:14px;font-weight:600;color:#e6edf3;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
-                    {{ v.title }}
-                  </div>
-                  <div style="display:flex;align-items:center;justify-content:space-between">
-                    <div style="display:flex;align-items:center;gap:6px">
-                      <div style="width:20px;height:20px;background:linear-gradient(135deg,#ff0000,#cc0000);border-radius:50%;display:flex;align-items:center;justify-content:center">
-                        <mat-icon style="color:#fff;font-size:12px;width:12px;height:12px">play_arrow</mat-icon>
+                <div class="video-info">
+                  <div class="video-title-clamp">{{ v.title }}</div>
+                  <div class="video-meta-row">
+                    <div class="video-channel">
+                      <div class="channel-dot">
+                        <mat-icon>play_arrow</mat-icon>
                       </div>
-                      <span style="font-size:13px;font-weight:600;color:#c9d1d9">{{ v.channelTitle }}</span>
+                      <span>{{ v.channelTitle }}</span>
                     </div>
-                    <div style="font-size:12px;color:#8b949e;display:flex;align-items:center;gap:4px">
-                      <mat-icon style="font-size:14px;width:14px;height:14px">visibility</mat-icon>
+                    <div class="video-views">
+                      <mat-icon>visibility</mat-icon>
                       {{ v.viewCount }} views
                     </div>
                   </div>
 
                   <!-- Whitelisted badge -->
-                  <div style="margin-top:8px;display:flex;align-items:center;gap:4px">
-                    <span style="background:#1f2d1f;color:#3fb950;border:1px solid #3fb950;border-radius:4px;font-size:11px;padding:2px 7px;font-weight:500">
-                      ✓ Curated
-                    </span>
+                  <div class="video-footer-row">
+                    <span class="curated-badge">✓ Curated</span>
                     <span *ngIf="v.topic" class="topic-chip" style="font-size:11px;padding:2px 8px">{{ v.topic }}</span>
                   </div>
                 </div>
@@ -258,8 +269,8 @@
             </div>
 
             <!-- Empty state -->
-            <div *ngIf="videos.length === 0 && !loadingVideos" style="text-align:center;padding:60px;color:#8b949e">
-              <mat-icon style="font-size:48px;width:48px;height:48px;margin-bottom:16px">video_library</mat-icon>
+            <div *ngIf="videos.length === 0 && !loadingVideos" class="videos-empty">
+              <mat-icon>video_library</mat-icon>
               <p>No videos found for this topic.</p>
             </div>
 

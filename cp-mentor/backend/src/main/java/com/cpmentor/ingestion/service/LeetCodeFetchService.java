@@ -109,6 +109,7 @@ public class LeetCodeFetchService {
         String rawContent    = question.path("content").asText("");
         String content       = stripHtml(rawContent);
         String constraints   = extractConstraints(rawContent);
+        String exampleOutput = extractFirstExampleOutput(rawContent);
         String examples      = question.path("exampleTestcases").asText("");
 
         List<String> topics = new ArrayList<>();
@@ -126,7 +127,7 @@ public class LeetCodeFetchService {
             Problem.builder()
                 .leetcodeId(leetcodeId).title(title).slug(slug).difficulty(difficulty)
                 .description(content).constraints(constraints).topics(topics)
-                .exampleInput(parseFirstInput(examples)).exampleOutput("")
+                .exampleInput(parseFirstInput(examples)).exampleOutput(exampleOutput)
                 .fetchedAt(LocalDateTime.now()).build());
 
         problem.setTitle(title);
@@ -134,6 +135,7 @@ public class LeetCodeFetchService {
         problem.setTopics(topics);
         if (!content.isBlank()) problem.setDescription(content);
         if (!constraints.isBlank()) problem.setConstraints(constraints);
+        if (!exampleOutput.isBlank()) problem.setExampleOutput(exampleOutput);
         problem = problemRepository.save(problem);
 
         DailyChallenge saved = dailyChallengeRepository.save(DailyChallenge.builder()
@@ -196,6 +198,30 @@ public class LeetCodeFetchService {
             if (!item.isBlank()) sb.append("• ").append(item).append("\n");
         }
         return sb.toString().trim();
+    }
+
+    // exampleTestcases from GraphQL only carries raw inputs — the matching output for the
+    // first example lives in the "Output:" line of the first <pre> block in `content`.
+    private String extractFirstExampleOutput(String rawHtml) {
+        if (rawHtml == null || rawHtml.isBlank()) return "";
+
+        int preStart = rawHtml.indexOf("<pre>");
+        if (preStart < 0) return "";
+        int preEnd = rawHtml.indexOf("</pre>", preStart);
+        if (preEnd < 0) return "";
+
+        String preText = stripHtml(rawHtml.substring(preStart, preEnd + "</pre>".length()));
+
+        int outIdx = indexOfIgnoreCase(preText, "Output:");
+        if (outIdx < 0) return "";
+        int afterOut = outIdx + "Output:".length();
+
+        int explainIdx = indexOfIgnoreCase(preText.substring(afterOut), "Explanation:");
+        String output = explainIdx >= 0
+                ? preText.substring(afterOut, afterOut + explainIdx)
+                : preText.substring(afterOut);
+
+        return output.trim();
     }
 
     private int indexOfIgnoreCase(String haystack, String needle) {

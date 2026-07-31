@@ -178,7 +178,7 @@ curl -X POST http://localhost:8080/api/v1/company-problems/reload/amazon
 GitHub repo: https://github.com/Shivanshu-23/leetcode-companywise-interview-questions
 Raw URL pattern: https://raw.githubusercontent.com/Shivanshu-23/leetcode-companywise-interview-questions/master/{company}/{timeframe}.csv
 CSV format: ID,URL,Title,Difficulty,Acceptance %,Frequency %
-Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, one-year.csv
+Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, more-than-six-months.csv
 ```
 
 ## Frontend Structure (Angular)

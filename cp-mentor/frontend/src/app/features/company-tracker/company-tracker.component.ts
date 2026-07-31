@@ -26,7 +26,8 @@ export interface PageResponse<T> {
 
 @Component({
   selector: 'app-company-tracker',
-  templateUrl: './company-tracker.component.html'
+  templateUrl: './company-tracker.component.html',
+  styleUrls: ['./company-tracker.component.scss']
 })
 export class CompanyTrackerComponent implements OnInit {
 
@@ -38,6 +39,7 @@ export class CompanyTrackerComponent implements OnInit {
   // Filters
   selectedCompany = 'amazon';
   selectedDifficulty = 'all';
+  searchTerm = '';
 
   // Pagination
   page = 0;
@@ -78,6 +80,12 @@ export class CompanyTrackerComponent implements OnInit {
         this.loadProblems();
       }
     });
+  }
+
+  get filteredProblems(): CompanyProblem[] {
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) return this.problems;
+    return this.problems.filter(p => p.title.toLowerCase().includes(term));
   }
 
   loadProblems(): void {

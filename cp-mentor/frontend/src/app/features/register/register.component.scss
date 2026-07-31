@@ -1,0 +1,11 @@
+.auth-border { max-width: 440px; }
+
+.form-field-spaced { width: 100%; margin-bottom: 12px; }
+.form-field-spaced-lg { width: 100%; margin-bottom: 24px; }
+
+.auth-footer {
+  text-align: center;
+  padding: 16px;
+
+  span { color: var(--text-lo); font-size: 14px; }
+}

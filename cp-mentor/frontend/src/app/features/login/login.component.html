@@ -1,21 +1,22 @@
-<div class="page-fade-in" style="display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 64px);padding:24px">
-  <mat-card style="width:100%;max-width:420px">
+<div class="page-fade-in auth-page">
+  <div class="auth-border">
+  <mat-card>
     <mat-card-header style="margin-bottom:24px">
-      <mat-card-title class="gradient-text" style="font-size:26px;font-weight:800;letter-spacing:-0.5px">Sign In</mat-card-title>
+      <mat-card-title class="gradient-text auth-title">Sign In</mat-card-title>
       <mat-card-subtitle>Welcome back to AI CP Mentor</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content class="auth-input-glow">
       <form [formGroup]="form" (ngSubmit)="submit()">
 
-        <mat-form-field appearance="outline" style="width:100%;margin-bottom:16px">
+        <mat-form-field appearance="outline" class="form-field-spaced">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" autocomplete="email">
           <mat-icon matSuffix>email</mat-icon>
           <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="width:100%;margin-bottom:24px">
+        <mat-form-field appearance="outline" class="form-field-spaced-lg">
           <mat-label>Password</mat-label>
           <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" autocomplete="current-password">
           <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
@@ -25,7 +26,7 @@
 
         <button mat-raised-button color="primary" type="submit"
                 [disabled]="form.invalid || loading"
-                style="width:100%;height:48px;font-size:16px">
+                class="auth-submit-btn">
           <mat-spinner *ngIf="loading" diameter="24" style="display:inline-block;margin-right:8px"></mat-spinner>
           {{ loading ? 'Signing in...' : 'Sign In' }}
         </button>
@@ -33,11 +34,12 @@
       </form>
     </mat-card-content>
 
-    <mat-card-actions style="text-align:center;padding:16px">
-      <span style="color:#8b949e;font-size:14px">
+    <mat-card-actions class="auth-footer">
+      <span>
         Don't have an account?
-        <a routerLink="/register" style="color:#58a6ff;text-decoration:none;font-weight:600"> Sign Up</a>
+        <a routerLink="/register" class="auth-footer-link"> Sign Up</a>
       </span>
     </mat-card-actions>
   </mat-card>
+  </div>
 </div>

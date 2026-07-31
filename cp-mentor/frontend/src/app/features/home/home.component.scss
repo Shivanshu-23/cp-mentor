@@ -1,0 +1,232 @@
+.hero {
+  text-align: center;
+  padding: 48px 0 36px;
+
+  .hero-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-blue);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      box-shadow: 0 0 0 rgba(63, 185, 80, 0.6);
+      animation: livePulse 2s ease-out infinite;
+    }
+  }
+
+  .hero-title {
+    font-size: 44px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+    background-size: 200% auto;
+    animation: heroGradientMove 4s ease-in-out infinite;
+  }
+
+  .hero-tagline {
+    color: var(--text-lo);
+    font-size: 16px;
+  }
+}
+
+@keyframes heroGradientMove {
+  0%   { background-position: 0% center; }
+  50%  { background-position: 100% center; }
+  100% { background-position: 0% center; }
+}
+
+@keyframes livePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.6); }
+  70%  { box-shadow: 0 0 0 6px rgba(63, 185, 80, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+}
+
+.loading-block {
+  text-align: center;
+  padding: 60px;
+
+  p { color: var(--text-lo); margin-top: 16px; }
+}
+
+.daily-card {
+  border-left: 4px solid var(--accent-blue);
+  position: relative;
+}
+
+.daily-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.daily-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+
+  .daily-id { font-size: 13px; color: var(--text-lo); font-weight: 500; }
+}
+
+.daily-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-hi);
+  margin-bottom: 12px;
+}
+
+.daily-lc-link {
+  color: var(--accent-blue);
+  font-size: 13px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { text-decoration: underline; }
+}
+
+.analyze-btn {
+  background: linear-gradient(135deg, #238636, #2ea043) !important;
+  color: #fff !important;
+  font-weight: 600;
+  height: 44px;
+  padding: 0 24px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(46, 160, 67, 0.35) !important;
+
+  &:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 24px rgba(46, 160, 67, 0.5) !important;
+  }
+}
+
+.daily-description {
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+
+  .fade-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, var(--bg-0));
+  }
+}
+
+.io-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .io-col { flex: 1; min-width: 200px; }
+
+  .io-label {
+    color: var(--text-lo);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .io-block { font-size: 13px; padding: 10px 14px; }
+  .io-output { color: var(--accent-green); }
+}
+
+.constraints-details {
+  margin-top: 16px;
+
+  summary {
+    color: var(--text-lo);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+    &:hover { color: var(--text-hi); }
+  }
+
+  pre {
+    color: var(--text-lo);
+    font-size: 12px;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+}
+
+.bank-section { margin-top: 40px; }
+
+.bank-count {
+  color: var(--text-lo);
+  font-size: 13px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.bank-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.bank-row-main {
+  flex: 1;
+  min-width: 0;
+
+  .bank-row-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .bank-id { color: var(--text-lo); font-size: 12px; }
+    .bank-title { font-size: 15px; font-weight: 600; color: var(--text-hi); }
+  }
+
+  .bank-lc-link {
+    color: var(--accent-blue);
+    font-size: 12px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    &:hover { text-decoration: underline; }
+  }
+
+  .bank-topics { margin-top: 6px; }
+}
+
+.analyze-outline-btn {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue) !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

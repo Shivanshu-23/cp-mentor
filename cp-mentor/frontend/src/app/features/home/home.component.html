@@ -1,110 +1,98 @@
 <div class="page-container page-fade-in">
 
   <!-- ── Hero / Daily Challenge ──────────────────────────────── -->
-  <div style="text-align:center;padding:48px 0 36px">
-    <div style="color:#58a6ff;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">
-      {{ today }}
-    </div>
-    <h1 class="gradient-text" style="font-size:40px;font-weight:800;margin-bottom:10px;letter-spacing:-1px">
-      Daily Challenge
-    </h1>
-    <p style="color:#8b949e;font-size:16px">Solve it. Understand it. Master it — with your AI mentor.</p>
+  <div class="hero">
+    <div class="hero-date"><span class="live-dot"></span>{{ today }}</div>
+    <h1 class="gradient-text hero-title">Daily Challenge</h1>
+    <p class="hero-tagline">Solve it. Understand it. Master it — with your AI mentor.</p>
   </div>
 
   <!-- Loading spinner -->
-  <div *ngIf="loadingDaily" style="text-align:center;padding:60px">
+  <div *ngIf="loadingDaily" class="loading-block">
     <mat-spinner diameter="48" style="margin:0 auto"></mat-spinner>
-    <p style="color:#8b949e;margin-top:16px">Loading today's problem...</p>
+    <p>Loading today's problem...</p>
   </div>
 
   <!-- Daily Problem Card -->
-  <div *ngIf="daily && !loadingDaily" class="glass-card"
-       style="border-left:4px solid #58a6ff;position:relative">
+  <div *ngIf="daily && !loadingDaily" class="glass-card daily-card">
 
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div class="daily-card-head">
       <div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap">
-          <span style="font-size:13px;color:#8b949e;font-weight:500">#{{ daily.leetcodeId }}</span>
+        <div class="daily-meta-row">
+          <span class="daily-id">#{{ daily.leetcodeId }}</span>
           <span class="badge" [class]="difficultyClass(daily.difficulty)">{{ daily.difficulty }}</span>
           <span *ngFor="let t of daily.topics" class="topic-chip">{{ t }}</span>
         </div>
-        <h2 style="font-size:26px;font-weight:700;color:#e6edf3;margin-bottom:12px">{{ daily.title }}</h2>
-        <a *ngIf="daily.leetcodeUrl" [href]="daily.leetcodeUrl" target="_blank" rel="noopener"
-           style="color:#58a6ff;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px">
-          <mat-icon style="font-size:16px;width:16px;height:16px">open_in_new</mat-icon>
+        <h2 class="daily-title">{{ daily.title }}</h2>
+        <a *ngIf="daily.leetcodeUrl" [href]="daily.leetcodeUrl" target="_blank" rel="noopener" class="daily-lc-link">
+          <mat-icon>open_in_new</mat-icon>
           View on LeetCode
         </a>
       </div>
 
-      <button mat-raised-button
-              (click)="analyze(daily.id)"
-              style="background:linear-gradient(135deg,#238636,#2ea043);color:#fff;font-weight:600;height:44px;padding:0 24px;white-space:nowrap">
+      <button mat-raised-button (click)="analyze(daily.id)" class="analyze-btn">
         <mat-icon style="margin-right:6px">auto_awesome</mat-icon>
         Get AI Analysis
       </button>
     </div>
 
     <!-- Description preview -->
-    <div style="background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px;margin:16px 0;font-size:14px;line-height:1.8;color:#c9d1d9;white-space:pre-wrap;max-height:200px;overflow:hidden;position:relative">
+    <div class="daily-description">
       {{ daily.description | slice:0:600 }}
-      <div style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,#0d1117)"></div>
+      <div class="fade-bottom"></div>
     </div>
 
     <!-- Example -->
-    <div *ngIf="daily.exampleInput" style="display:flex;gap:16px;flex-wrap:wrap">
-      <div style="flex:1;min-width:200px">
-        <div style="color:#8b949e;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Input</div>
-        <div class="code-block" style="font-size:13px;padding:10px 14px">{{ daily.exampleInput }}</div>
+    <div *ngIf="daily.exampleInput" class="io-row">
+      <div class="io-col">
+        <div class="io-label">Input</div>
+        <div class="code-block io-block">{{ daily.exampleInput }}</div>
       </div>
-      <div style="flex:1;min-width:200px">
-        <div style="color:#8b949e;font-size:12px;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:1px">Output</div>
-        <div class="code-block" style="font-size:13px;padding:10px 14px;color:#3fb950">{{ daily.exampleOutput }}</div>
+      <div class="io-col">
+        <div class="io-label">Output</div>
+        <div class="code-block io-block io-output">{{ daily.exampleOutput }}</div>
       </div>
     </div>
 
     <!-- Constraints -->
-    <details style="margin-top:16px">
-      <summary style="color:#8b949e;font-size:13px;cursor:pointer;user-select:none">View Constraints</summary>
-      <pre style="color:#8b949e;font-size:12px;margin-top:8px;white-space:pre-wrap;line-height:1.7">{{ daily.constraints }}</pre>
+    <details class="constraints-details">
+      <summary>View Constraints</summary>
+      <pre>{{ daily.constraints }}</pre>
     </details>
   </div>
 
   <!-- ── Problem Bank ─────────────────────────────────────────── -->
-  <div style="margin-top:40px">
+  <div class="bank-section">
     <div class="section-title">
       <mat-icon>list</mat-icon>
       Problem Bank
-      <span style="color:#8b949e;font-size:13px;font-weight:400;margin-left:4px">({{ totalProblems }} problems)</span>
+      <span class="bank-count">({{ totalProblems }} problems)</span>
     </div>
 
-    <div *ngIf="loadingList" style="text-align:center;padding:40px">
+    <div *ngIf="loadingList" class="loading-block">
       <mat-spinner diameter="36" style="margin:0 auto"></mat-spinner>
     </div>
 
     <div *ngIf="!loadingList">
-      <div *ngFor="let p of problems"
-           class="glass-card hover-lift"
-           style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px">
+      <div *ngFor="let p of problems" class="glass-card hover-lift gradient-border-hover bank-row">
 
-        <div style="flex:1;min-width:0">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-            <span style="color:#8b949e;font-size:12px">#{{ p.leetcodeId }}</span>
-            <span style="font-size:15px;font-weight:600;color:#e6edf3">{{ p.title }}</span>
+        <div class="bank-row-main">
+          <div class="bank-row-top">
+            <span class="bank-id">#{{ p.leetcodeId }}</span>
+            <span class="bank-title">{{ p.title }}</span>
             <span class="badge" [class]="difficultyClass(p.difficulty)">{{ p.difficulty }}</span>
             <a *ngIf="p.leetcodeUrl" [href]="p.leetcodeUrl" target="_blank" rel="noopener"
-               (click)="$event.stopPropagation()"
-               style="color:#58a6ff;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:3px">
-              <mat-icon style="font-size:14px;width:14px;height:14px">open_in_new</mat-icon>
+               (click)="$event.stopPropagation()" class="bank-lc-link">
+              <mat-icon>open_in_new</mat-icon>
               LeetCode
             </a>
           </div>
-          <div style="margin-top:6px">
+          <div class="bank-topics">
             <span *ngFor="let t of p.topics" class="topic-chip">{{ t }}</span>
           </div>
         </div>
 
-        <button mat-stroked-button (click)="analyze(p.id)"
-                style="color:#58a6ff;border-color:#58a6ff;white-space:nowrap;flex-shrink:0">
+        <button mat-stroked-button (click)="analyze(p.id)" class="analyze-outline-btn">
           <mat-icon>auto_awesome</mat-icon>
           Analyze
         </button>

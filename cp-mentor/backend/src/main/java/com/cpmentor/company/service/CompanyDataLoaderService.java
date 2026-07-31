@@ -35,7 +35,7 @@ public class CompanyDataLoaderService {
     private final CompanyProblemRepository repository;
 
     private static final String BASE_URL =
-        "https://raw.githubusercontent.com/snehasishroy/leetcode-companywise-interview-questions/master/";
+        "https://raw.githubusercontent.com/Shivanshu-23/leetcode-companywise-interview-questions/master/";
 
     // Top companies to load — add more as needed
     private static final List<String> COMPANIES = List.of(
@@ -45,7 +45,9 @@ public class CompanyDataLoaderService {
         "goldman-sachs", "morgan-stanley", "jpmorgan"
     );
 
-    private static final List<String> TIMEFRAMES = List.of("all", "six-months", "thirty-days");
+    private static final List<String> TIMEFRAMES = List.of(
+        "all", "six-months", "three-months", "thirty-days", "more-than-six-months"
+    );
 
     @EventListener(ApplicationReadyEvent.class)
     @Async

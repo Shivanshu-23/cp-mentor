@@ -5,7 +5,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProblemService, Problem, AIAnalysis, VideoDTO } from '../../core/services/problem.service';
 import { forkJoin } from 'rxjs';
 
-@Component({ selector: 'app-analysis', templateUrl: './analysis.component.html' })
+@Component({
+  selector: 'app-analysis',
+  templateUrl: './analysis.component.html',
+  styleUrls: ['./analysis.component.scss']
+})
 export class AnalysisComponent implements OnInit {
   problem: Problem | null = null;
   analysis: AIAnalysis | null = null;

@@ -1,28 +1,29 @@
-<div class="page-fade-in" style="display:flex;justify-content:center;align-items:center;min-height:calc(100vh - 64px);padding:24px">
-  <mat-card style="width:100%;max-width:440px">
+<div class="page-fade-in auth-page">
+  <div class="auth-border">
+  <mat-card>
     <mat-card-header style="margin-bottom:24px">
-      <mat-card-title class="gradient-text" style="font-size:26px;font-weight:800;letter-spacing:-0.5px">Create Account</mat-card-title>
+      <mat-card-title class="gradient-text auth-title">Create Account</mat-card-title>
       <mat-card-subtitle>Join AI CP Mentor and level up your problem solving</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content class="auth-input-glow">
       <form [formGroup]="form" (ngSubmit)="submit()">
 
-        <mat-form-field appearance="outline" style="width:100%;margin-bottom:12px">
+        <mat-form-field appearance="outline" class="form-field-spaced">
           <mat-label>Username</mat-label>
           <input matInput formControlName="username" autocomplete="username">
           <mat-icon matSuffix>person</mat-icon>
           <mat-error *ngIf="form.get('username')?.hasError('minlength')">Min 3 characters</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="width:100%;margin-bottom:12px">
+        <mat-form-field appearance="outline" class="form-field-spaced">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email" autocomplete="email">
           <mat-icon matSuffix>email</mat-icon>
           <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" style="width:100%;margin-bottom:24px">
+        <mat-form-field appearance="outline" class="form-field-spaced-lg">
           <mat-label>Password</mat-label>
           <input matInput formControlName="password"
                  [type]="hidePassword ? 'password' : 'text'"
@@ -36,7 +37,7 @@
 
         <button mat-raised-button color="primary" type="submit"
                 [disabled]="form.invalid || loading"
-                style="width:100%;height:48px;font-size:16px;margin-top:8px">
+                class="auth-submit-btn" style="margin-top:8px">
           <mat-spinner *ngIf="loading" diameter="24" style="display:inline-block;margin-right:8px"></mat-spinner>
           {{ loading ? 'Creating account...' : 'Create Account' }}
         </button>
@@ -44,11 +45,12 @@
       </form>
     </mat-card-content>
 
-    <mat-card-actions style="text-align:center;padding:16px">
-      <span style="color:#8b949e;font-size:14px">
+    <mat-card-actions class="auth-footer">
+      <span>
         Already have an account?
-        <a routerLink="/login" style="color:#58a6ff;text-decoration:none;font-weight:600"> Sign In</a>
+        <a routerLink="/login" class="auth-footer-link"> Sign In</a>
       </span>
     </mat-card-actions>
   </mat-card>
+  </div>
 </div>
