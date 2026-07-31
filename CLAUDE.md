@@ -1,4 +1,4 @@
-# AI Competitive Programming Mentor — Claude Code Context
+# NovaCode — Claude Code Context
 
 ## Project Overview
 Production-grade full-stack AI-powered web app that fetches LeetCode daily challenges,

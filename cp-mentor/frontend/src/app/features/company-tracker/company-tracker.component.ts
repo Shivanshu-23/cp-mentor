@@ -183,6 +183,35 @@ export class CompanyTrackerComponent implements OnInit {
     return c.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   }
 
+  // Two-tone brand colors per company for the title logo badge. Unlisted
+  // companies (e.g. newly added ones not yet covered here) fall back to the
+  // original blue-purple gradient.
+  private readonly companyColors: Record<string, [string, string]> = {
+    'amazon':          ['#FF9900', '#CC7A00'],
+    'google':          ['#4285F4', '#1A56C4'],
+    'microsoft':       ['#00A4EF', '#0078D4'],
+    'meta':            ['#0866FF', '#0047B3'],
+    'apple':           ['#3A3A3C', '#1C1C1E'],
+    'uber':            ['#2B2B2B', '#000000'],
+    'netflix':         ['#E50914', '#A3050F'],
+    'bloomberg':       ['#2B2B2B', '#000000'],
+    'adobe':           ['#FA0F00', '#C40B00'],
+    'atlassian':       ['#0052CC', '#00327A'],
+    'linkedin':        ['#0A66C2', '#004182'],
+    'oracle':          ['#C74634', '#8E2F22'],
+    'salesforce':      ['#00A1E0', '#00789E'],
+    'walmart-labs':    ['#0071DC', '#004F9A'],
+    'paypal':          ['#003087', '#001D54'],
+    'goldman-sachs':   ['#7399C6', '#3D5A85'],
+    'morgan-stanley':  ['#4A7A9D', '#003057'],
+    'jpmorgan':        ['#8A6D3B', '#5A4632']
+  };
+
+  companyLogoGradient(company: string): string {
+    const [c1, c2] = this.companyColors[company] ?? ['#58a6ff', '#bc8cff'];
+    return `linear-gradient(135deg, ${c1}, ${c2})`;
+  }
+
   timeframeLabel(t: string): string {
     return this.timeframeLabels[t] ?? t;
   }

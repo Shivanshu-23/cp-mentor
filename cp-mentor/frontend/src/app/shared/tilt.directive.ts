@@ -7,12 +7,15 @@ export class TiltDirective {
   @Input() tiltMax = 10;
   @Input() tiltScale = 1.03;
 
+  private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {
     this.renderer.addClass(this.el.nativeElement, 'tilt-el');
   }
 
   @HostListener('mousemove', ['$event'])
   onMouseMove(e: MouseEvent): void {
+    if (this.reducedMotion) return;
     const rect = this.el.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;

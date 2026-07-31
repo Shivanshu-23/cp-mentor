@@ -35,6 +35,7 @@ import { RegisterComponent } from './features/register/register.component';
 import { HomeComponent } from './features/home/home.component';
 import { AnalysisComponent } from './features/analysis/analysis.component';
 import { CompanyTrackerComponent } from './features/company-tracker/company-tracker.component';
+import { TiltDirective } from './shared/tilt.directive';
 
 @NgModule({
   declarations: [
@@ -43,7 +44,8 @@ import { CompanyTrackerComponent } from './features/company-tracker/company-trac
     RegisterComponent,
     HomeComponent,
     AnalysisComponent,
-    CompanyTrackerComponent
+    CompanyTrackerComponent,
+    TiltDirective
   ],
   imports: [
     BrowserModule,

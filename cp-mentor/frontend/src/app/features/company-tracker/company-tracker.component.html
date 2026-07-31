@@ -100,7 +100,7 @@
 
       <!-- Title -->
       <div class="row-title-cell">
-        <div class="company-logo-circle">{{ companyLabel(selectedCompany).charAt(0) }}</div>
+        <div class="company-logo-circle" [style.background]="companyLogoGradient(selectedCompany)">{{ companyLabel(selectedCompany).charAt(0) }}</div>
         <span (click)="openProblem(p.url)" class="row-title-link">{{ p.title }}</span>
       </div>
 

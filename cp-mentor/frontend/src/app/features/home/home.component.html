@@ -2,9 +2,12 @@
 
   <!-- ── Hero / Daily Challenge ──────────────────────────────── -->
   <div class="hero">
-    <div class="hero-date"><span class="live-dot"></span>{{ today }}</div>
-    <h1 class="gradient-text hero-title">Daily Challenge</h1>
-    <p class="hero-tagline">Solve it. Understand it. Master it — with your AI mentor.</p>
+    <canvas #heroCanvas class="hero-3d-canvas"></canvas>
+    <div class="hero-content">
+      <div class="hero-date"><span class="live-dot"></span>{{ today }}</div>
+      <h1 class="gradient-text hero-title">Daily Challenge</h1>
+      <p class="hero-tagline">Great coders aren't born. They're built — one problem at a time.</p>
+    </div>
   </div>
 
   <!-- Loading spinner -->
@@ -14,7 +17,7 @@
   </div>
 
   <!-- Daily Problem Card -->
-  <div *ngIf="daily && !loadingDaily" class="glass-card daily-card">
+  <div *ngIf="daily && !loadingDaily" class="glass-card daily-card" appTilt [tiltMax]="4">
 
     <div class="daily-card-head">
       <div>
@@ -24,16 +27,16 @@
           <span *ngFor="let t of daily.topics" class="topic-chip">{{ t }}</span>
         </div>
         <h2 class="daily-title">{{ daily.title }}</h2>
-        <a *ngIf="daily.leetcodeUrl" [href]="daily.leetcodeUrl" target="_blank" rel="noopener" class="daily-lc-link">
-          <mat-icon>open_in_new</mat-icon>
-          View on LeetCode
-        </a>
+        <button type="button" (click)="openChatGptAnalysis(daily)" class="analysis-link">
+          <mat-icon>auto_awesome</mat-icon>
+          Do Analysis
+        </button>
       </div>
 
-      <button mat-raised-button (click)="analyze(daily.id)" class="analyze-btn">
-        <mat-icon style="margin-right:6px">auto_awesome</mat-icon>
-        Get AI Analysis
-      </button>
+      <a *ngIf="daily.leetcodeUrl" mat-raised-button [href]="daily.leetcodeUrl" target="_blank" rel="noopener" class="leetcode-cta-btn">
+        <mat-icon style="margin-right:6px">open_in_new</mat-icon>
+        View on LeetCode
+      </a>
     </div>
 
     <!-- Description preview -->
@@ -61,43 +64,60 @@
     </details>
   </div>
 
-  <!-- ── Problem Bank ─────────────────────────────────────────── -->
-  <div class="bank-section">
+  <!-- ── Free Learning Roadmap ─────────────────────────────────── -->
+  <div class="resources-section">
     <div class="section-title">
-      <mat-icon>list</mat-icon>
-      Problem Bank
-      <span class="bank-count">({{ totalProblems }} problems)</span>
+      <mat-icon>rocket_launch</mat-icon>
+      Free DSA + Java + Spring Boot Roadmap
+      <span class="section-sub">A no-cost path to crack any company, anywhere.</span>
     </div>
 
-    <div *ngIf="loadingList" class="loading-block">
-      <mat-spinner diameter="36" style="margin:0 auto"></mat-spinner>
-    </div>
+    <mat-accordion class="resources-accordion" multi>
+      <mat-expansion-panel *ngFor="let section of resourceSections">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">{{ section.icon }}</mat-icon>
+            {{ section.title }}
+          </mat-panel-title>
+        </mat-expansion-panel-header>
 
-    <div *ngIf="!loadingList">
-      <div *ngFor="let p of problems" class="glass-card hover-lift gradient-border-hover bank-row">
-
-        <div class="bank-row-main">
-          <div class="bank-row-top">
-            <span class="bank-id">#{{ p.leetcodeId }}</span>
-            <span class="bank-title">{{ p.title }}</span>
-            <span class="badge" [class]="difficultyClass(p.difficulty)">{{ p.difficulty }}</span>
-            <a *ngIf="p.leetcodeUrl" [href]="p.leetcodeUrl" target="_blank" rel="noopener"
-               (click)="$event.stopPropagation()" class="bank-lc-link">
-              <mat-icon>open_in_new</mat-icon>
-              LeetCode
+        <div class="resource-row" *ngFor="let row of section.rows">
+          <div class="resource-row-main">
+            <a *ngIf="row.url" [href]="row.url" target="_blank" rel="noopener" class="resource-label-link">
+              <mat-icon>open_in_new</mat-icon>{{ row.label }}
             </a>
+            <span *ngIf="!row.url" class="resource-label-text">{{ row.label }}</span>
+            <span class="necessity-badge" [class]="necessityClass(row.necessity)">{{ row.necessity }}</span>
           </div>
-          <div class="bank-topics">
-            <span *ngFor="let t of p.topics" class="topic-chip">{{ t }}</span>
-          </div>
+          <div class="resource-use-for">{{ row.useFor }}</div>
+          <div class="resource-approach"><mat-icon>arrow_forward</mat-icon>{{ row.approach }}</div>
         </div>
 
-        <button mat-stroked-button (click)="analyze(p.id)" class="analyze-outline-btn">
-          <mat-icon>auto_awesome</mat-icon>
-          Analyze
-        </button>
-      </div>
-    </div>
+        <p *ngIf="section.note" class="resource-note">
+          <mat-icon>info</mat-icon>{{ section.note }}
+        </p>
+      </mat-expansion-panel>
+
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon class="panel-icon">flag</mat-icon>
+            The Actual Game Plan
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+
+        <ol class="game-plan-list">
+          <li *ngFor="let step of gamePlan">
+            {{ step.text }}
+            <a *ngIf="step.linkUrl" [href]="step.linkUrl" target="_blank" rel="noopener">{{ step.linkLabel }}</a>
+          </li>
+        </ol>
+
+        <p class="resource-note">
+          <mat-icon>verified</mat-icon>Everything above is 100% free and legally available.
+        </p>
+      </mat-expansion-panel>
+    </mat-accordion>
   </div>
 
 </div>
