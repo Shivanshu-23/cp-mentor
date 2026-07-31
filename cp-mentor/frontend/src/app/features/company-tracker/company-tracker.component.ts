@@ -61,7 +61,7 @@ export class CompanyTrackerComponent implements OnInit {
     'more-than-six-months': 'More Than 6 Months'
   };
 
-  tickLabels = ['Not Started', 'Attempted', 'Revisited', 'Revised'];
+  tickLabels = ['Not Started', 'Seen', 'Attempted', 'Solved'];
   tickColors = ['#484f58', '#d29922', '#58a6ff', '#3fb950'];
   tickIcons  = ['radio_button_unchecked', 'visibility', 'code', 'check_circle'];
 
