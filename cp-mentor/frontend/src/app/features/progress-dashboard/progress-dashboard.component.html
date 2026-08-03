@@ -1,0 +1,81 @@
+<div class="page-container page-fade-in">
+
+  <div class="dash-header">
+    <h1 class="gradient-text dash-title">Progress Dashboard</h1>
+    <p class="dash-sub">A problem only counts toward your total once its trigger has survived at least one spaced-repetition review.</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-block">
+    <mat-spinner diameter="40" style="margin:0 auto"></mat-spinner>
+  </div>
+
+  <ng-container *ngIf="!loading && stats">
+
+    <!-- Top stat row -->
+    <div class="stats-row">
+      <div class="glass-card hover-lift stat-card">
+        <div class="stat-value">{{ totalSolved }}</div>
+        <div class="stat-label">Problems Solved (verified)</div>
+      </div>
+      <div class="glass-card hover-lift stat-card">
+        <div class="stat-value">{{ stats.triggersDueToday }}</div>
+        <div class="stat-label">Triggers Due Today</div>
+      </div>
+      <div class="glass-card hover-lift stat-card">
+        <div class="stat-value">{{ stats.patternsMastered }}</div>
+        <div class="stat-label">Patterns Mastered</div>
+      </div>
+      <div class="glass-card hover-lift stat-card">
+        <div class="stat-value">{{ stats.retentionRatePercent }}%</div>
+        <div class="stat-label">Retention Rate</div>
+      </div>
+    </div>
+
+    <!-- Difficulty breakdown -->
+    <div class="glass-card section-card">
+      <div class="section-title"><mat-icon>bar_chart</mat-icon>Problems Solved by Difficulty</div>
+      <div class="difficulty-row" *ngIf="difficultyEntries.length; else noDifficulty">
+        <div class="difficulty-chip" *ngFor="let d of difficultyEntries">
+          <span class="badge" [class]="d.key.toLowerCase()">{{ d.key }}</span>
+          <span class="difficulty-count">{{ d.value }}</span>
+        </div>
+      </div>
+      <ng-template #noDifficulty>
+        <p class="section-hint">No verified solves yet — complete a solve session and let its trigger survive one review cycle (2 days).</p>
+      </ng-template>
+    </div>
+
+    <!-- Solve time + submissions -->
+    <div class="two-col">
+      <div class="glass-card section-card">
+        <div class="section-title"><mat-icon>timer</mat-icon>Solve Time</div>
+        <div class="metric-row">
+          <div><span class="metric-value">{{ formatDuration(stats.averageSolveTimeSecondsOverall) }}</span><span class="metric-label">Overall Average</span></div>
+          <div><span class="metric-value">{{ formatDuration(stats.averageSolveTimeSecondsRecent) }}</span><span class="metric-label">Last 5 Sessions</span></div>
+        </div>
+        <div class="trend-row">
+          <mat-icon>{{ trendIcon(stats.solveTimeTrend) }}</mat-icon>
+          <span>{{ trendLabel(stats.solveTimeTrend) }}</span>
+        </div>
+      </div>
+
+      <div class="glass-card section-card">
+        <div class="section-title"><mat-icon>replay</mat-icon>Submissions &amp; Unaided Rate</div>
+        <div class="metric-row">
+          <div><span class="metric-value">{{ stats.averageSubmissionsPerProblem }}</span><span class="metric-label">Avg Submissions (target 1)</span></div>
+          <div><span class="metric-value">{{ stats.unaidedSolveRatePercent }}%</span><span class="metric-label">Solved Unaided</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weak patterns -->
+    <div class="glass-card section-card" *ngIf="stats.weakPatterns.length">
+      <div class="section-title warning-title"><mat-icon>warning</mat-icon>Weak Patterns (failed in the last 14 days)</div>
+      <div class="weak-patterns">
+        <a *ngFor="let slug of stats.weakPatterns" [routerLink]="['/patterns', slug]" class="weak-pattern-chip">{{ slug }}</a>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

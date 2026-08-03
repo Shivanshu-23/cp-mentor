@@ -11,6 +11,8 @@ import { PatternDetailComponent } from './features/pattern-library/pattern-detai
 import { ConstraintAnalyzerComponent } from './features/constraint-analyzer/constraint-analyzer.component';
 import { SolveSessionListComponent } from './features/solve-session/solve-session-list.component';
 import { SolveSessionWorksheetComponent } from './features/solve-session/solve-session-worksheet.component';
+import { RecallDrillComponent } from './features/recall-drill/recall-drill.component';
+import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -24,6 +26,8 @@ const routes: Routes = [
   { path: 'constraint-analyzer', component: ConstraintAnalyzerComponent },
   { path: 'solve', component: SolveSessionListComponent, canActivate: [AuthGuard] },
   { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
+  { path: 'recall-drill', component: RecallDrillComponent, canActivate: [AuthGuard] },
+  { path: 'progress', component: ProgressDashboardComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'home' }
 
 ];

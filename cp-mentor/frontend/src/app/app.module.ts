@@ -40,6 +40,8 @@ import { PatternDetailComponent } from './features/pattern-library/pattern-detai
 import { ConstraintAnalyzerComponent } from './features/constraint-analyzer/constraint-analyzer.component';
 import { SolveSessionListComponent } from './features/solve-session/solve-session-list.component';
 import { SolveSessionWorksheetComponent } from './features/solve-session/solve-session-worksheet.component';
+import { RecallDrillComponent } from './features/recall-drill/recall-drill.component';
+import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 import { TiltDirective } from './shared/tilt.directive';
 
 @NgModule({
@@ -55,6 +57,8 @@ import { TiltDirective } from './shared/tilt.directive';
     ConstraintAnalyzerComponent,
     SolveSessionListComponent,
     SolveSessionWorksheetComponent,
+    RecallDrillComponent,
+    ProgressDashboardComponent,
     TiltDirective
   ],
   imports: [

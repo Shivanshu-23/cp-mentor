@@ -23,6 +23,12 @@
     <a mat-button routerLink="/solve" routerLinkActive="active-link" *ngIf="isLoggedIn">
       <mat-icon>edit_note</mat-icon> Solve Sessions
     </a>
+    <a mat-button routerLink="/recall-drill" routerLinkActive="active-link" *ngIf="isLoggedIn">
+      <mat-icon>psychology</mat-icon> Recall Drill
+    </a>
+    <a mat-button routerLink="/progress" routerLinkActive="active-link" *ngIf="isLoggedIn">
+      <mat-icon>bar_chart</mat-icon> Progress
+    </a>
   </nav>
 
   <ng-container *ngIf="isLoggedIn; else guestNav">

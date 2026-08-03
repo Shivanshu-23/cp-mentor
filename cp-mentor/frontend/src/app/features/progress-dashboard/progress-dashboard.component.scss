@@ -1,0 +1,90 @@
+.dash-header {
+  text-align: center;
+  padding: 32px 0 24px;
+
+  .dash-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .dash-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
+}
+
+.loading-block { text-align: center; padding: 60px; }
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+
+  @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  padding: 16px;
+  text-align: center;
+
+  .stat-value { font-size: 28px; font-weight: 800; color: var(--accent-blue); }
+  .stat-label { color: var(--text-lo); font-size: 12px; margin-top: 4px; }
+}
+
+.section-card { padding: 20px 24px; margin-bottom: 16px; }
+
+.section-hint { color: var(--text-muted); font-size: 13px; }
+
+.difficulty-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+.difficulty-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+
+  .difficulty-count { font-size: 20px; font-weight: 800; color: var(--text-hi); }
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
+}
+
+.metric-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 12px;
+
+  .metric-value { display: block; font-size: 22px; font-weight: 800; color: var(--text-hi); }
+  .metric-label { display: block; font-size: 12px; color: var(--text-lo); margin-top: 2px; }
+}
+
+.trend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-lo);
+  font-size: 13px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+
+  mat-icon { color: var(--accent-blue); font-size: 18px; width: 18px; height: 18px; }
+}
+
+.warning-title { color: var(--accent-yellow); }
+
+.weak-patterns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.weak-pattern-chip {
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  border-radius: 10px;
+  padding: 6px 14px;
+  font-size: 13px;
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+
+  &:hover { background: rgba(248, 81, 73, 0.2); }
+}

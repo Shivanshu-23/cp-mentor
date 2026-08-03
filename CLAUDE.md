@@ -117,11 +117,18 @@ com.cpmentor/
 │   ├── service/SolveSessionService.java          ← Phase 4: ownership-checked CRUD + duration calc
 │   ├── entity/SolveSession.java                  ← Phase 4: the solve worksheet, 5 phases worth of fields
 │   ├── repository/SolveSessionRepository.java
+│   ├── controller/TriggerEntryController.java    ← Phase 5: /api/v1/method/triggers + /stats, JWT-private
+│   ├── service/TriggerEntryService.java          ← Phase 5: spaced-repetition scheduling (see gotchas)
+│   ├── service/StatsService.java                 ← Phase 5: progress dashboard aggregation
+│   ├── entity/TriggerEntry.java                  ← Phase 5: column is `trigger_text` not `trigger`
+│   │                                                (TRIGGER is a MySQL reserved word)
+│   ├── repository/TriggerEntryRepository.java
 │   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO,
 │             ConstraintAnalysisRequest/Response, EdgeCaseRequest/Response,
 │             PatternIdentificationRequest/Response, PatternCandidateDTO, HintRequest/Response,
 │             SolveSessionCreateRequest, SolveSessionUpdateRequest, SolveSessionCompleteRequest,
-│             SolveSessionResponse)
+│             SolveSessionResponse, TriggerEntryCreateRequest, TriggerEntryResponse,
+│             TriggerReviewRequest, StatsResponse)
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -167,6 +174,10 @@ POST   /api/v1/method/sessions                (Phase 4, JWT — start a solve se
 PATCH  /api/v1/method/sessions/{id}           (Phase 4, JWT — partial autosave, owner-only)
 POST   /api/v1/method/sessions/{id}/complete  (Phase 4, JWT — sets endedAt, computes durationSeconds)
 GET    /api/v1/method/sessions[/{id}]         (Phase 4, JWT — list (paginated, ?difficulty=/?solvedUnaided=) or fetch one, owner-only)
+POST /api/v1/method/triggers                  (Phase 5, JWT — log a trigger entry, schedules first review in 2 days)
+GET  /api/v1/method/triggers[/due]            (Phase 5, JWT — all entries, or only those due for the recall drill)
+POST /api/v1/method/triggers/{id}/review      (Phase 5, JWT — {result: PASS|FAIL|SKIPPED}, owner-only)
+GET  /api/v1/method/stats                     (Phase 5, JWT — progress dashboard metrics)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -250,7 +261,8 @@ src/app/
 │   │   ├── problem.service.ts     ← all API calls + interfaces
 │   │   ├── pattern.service.ts     ← Pattern Library (Phase 1) + identify-pattern/hint (Phase 3)
 │   │   ├── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
-│   │   └── solve-session.service.ts        ← Phase 4 API calls + interfaces
+│   │   ├── solve-session.service.ts        ← Phase 4 API calls + interfaces
+│   │   └── trigger.service.ts              ← Phase 5 API calls + interfaces (triggers + stats)
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
@@ -267,11 +279,16 @@ src/app/
 │   │                                                    Recognition/Mistakes/Problems/Follow-ups)
 │   ├── constraint-analyzer/       ← Phase 2: /constraint-analyzer — form + results + printable checklist
 │   │   └── constraint-analyzer.component.ts/html/scss
-│   └── solve-session/             ← Phase 4: /solve (list+start) + /solve/:id (worksheet), AuthGuard-ed
-│       ├── solve-session-list.component.ts/html/scss
-│       └── solve-session-worksheet.component.ts/html/scss  ← 5-step stepper, live timer w/
-│                                                               difficulty cap, autosave via PATCH,
-│                                                               consumes Phase 3's identify-pattern/hint
+│   ├── solve-session/             ← Phase 4: /solve (list+start) + /solve/:id (worksheet), AuthGuard-ed
+│   │   ├── solve-session-list.component.ts/html/scss
+│   │   └── solve-session-worksheet.component.ts/html/scss  ← 5-step stepper, live timer w/
+│   │                                                           difficulty cap, autosave via PATCH,
+│   │                                                           consumes Phase 3's identify-pattern/hint
+│   ├── recall-drill/              ← Phase 5: /recall-drill — due entries, type-then-reveal, self-grade
+│   │   └── recall-drill.component.ts/html/scss  ← also accepts ?leetcodeId/&title/&patternSlug
+│   │                                                query params from the Solve Session completion screen
+│   └── progress-dashboard/        ← Phase 5: /progress — all StatsResponse metrics
+│       └── progress-dashboard.component.ts/html/scss
 └── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
                                        every feature here is declared directly in AppModule;
                                        this codebase doesn't use per-feature NgModules)
@@ -359,6 +376,25 @@ src/app/
   are the first entirely-private pages, so they're the first to actually use `canActivate:
   [AuthGuard]`. Follow this precedent for any future fully-private route; keep the inline-check
   pattern for pages with a public read path.
+- **`TRIGGER` is a reserved word in MySQL** — `TriggerEntry.trigger` maps to column
+  `trigger_text`, not `trigger`. Caught at migration-design time this round (learned the hard
+  way with `PRIMARY KEY` requirements in Phase 0/1 — checking reserved words upfront now before
+  writing each new migration).
+- **`TriggerEntry.lastReviewedAt` is not in the original spec's field list** — documented
+  extension. `createdAt` alone can't tell you when the most recent review happened, which the
+  "weak patterns: any FAIL in last 14 days" stat needs. Same category of deliberate addition as
+  `SolveSession.patternSlug`.
+- **Retention rate and "patterns mastered" reflect CURRENT entry state, not full review
+  history.** `TriggerEntry` stores only `lastReviewResult` (singular), not a log of every past
+  review — so "3+ PASS entries" for a pattern means 3+ *distinct trigger entries* currently
+  showing PASS, not 3 cumulative passes on the same entry over time (an entry that went
+  PASS→PASS→FAIL only ever counts as its current FAIL state). This matches the spec's literal
+  wording ("3+ PASS entries") but is worth knowing if the numbers look lower than expected after
+  a lot of back-and-forth reviewing on the same few entries.
+- **Recall drill sends the trigger content to the frontend upfront** (`GET /triggers/due` returns
+  full entries, not title-only) — the frontend just doesn't render it until "Reveal" is clicked.
+  This is a UX-only gate, not a security boundary; fine for a solo self-study tool, would need
+  rethinking if this ever became multi-party (e.g. a shared quiz).
 
 ## Environment Variables
 ```bash
@@ -407,8 +443,16 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   gate — the pasted problem statement isn't shown back until it's locked in. Live timer with a
   difficulty-based cap (15/35/55 min) and overrun warning. Autosaves via PATCH per step. JWT-only
   via `AuthGuard` (first route in the app to actually use it — see gotchas).
+- Practice Method Phase 5 — Trigger Log + Spaced Repetition. `POST /triggers` logs a trigger
+  (first review in 2 days); `GET /triggers/due` + self-graded PASS/FAIL/SKIPPED review
+  (stage 0->1->2->3-retired on PASS, resets to 0 on FAIL, +1 day on SKIPPED) at `/recall-drill`
+  — type the approach from memory, then reveal. `GET /stats` -> `/progress` dashboard: problems
+  solved by difficulty (gated on trigger reviewStage >= 1 — see gotchas), solve time trend,
+  avg submissions, unaided rate, patterns mastered, weak patterns (FAIL in last 14 days),
+  triggers due today, retention rate. Solve Session completion screen links into the drill
+  pre-filled with leetcodeId/title/patternSlug.
 - Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
-  Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions
+  Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions, Recall Drill, Progress
 - Swagger UI at /swagger-ui.html
 - `docker-compose.yml` (cp-mentor root) — one-command local MySQL
 - **Live on the free stack**: Vercel (frontend) + Render free web service (backend) + Aiven
@@ -416,15 +460,16 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   after a quiet period is slow (cold start), that's expected.
 
 ## What's Pending ❌
-- [ ] Practice Method Phases 5-6 — spaced repetition/trigger log, interview follow-up bank,
-      company cross-link, PDF export
+- [ ] Practice Method Phase 6 — interview follow-up bank surfaced on session completion
+      (`Pattern.interviewFollowUps` already exists from Phase 1, needs wiring to the completion
+      screen via `SolveSession.patternSlug`), company cross-link (filter company problems by
+      pattern), printable export for worksheet + trigger log
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. Practice Method Phase 5 — Trigger Log + Spaced Repetition (TriggerEntry entity, recall drill
-   page, progress dashboard)
+1. Practice Method Phase 6 — interview follow-ups + company cross-link + printable export
 2. Redis setup
 3. Docker Compose for backend + frontend

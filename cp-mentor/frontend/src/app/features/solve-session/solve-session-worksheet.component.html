@@ -46,9 +46,16 @@
           <div class="summary-stat"><span class="value">{{ session.highestHintLevel }}/4</span><span class="label">Highest Hint</span></div>
           <div class="summary-stat"><span class="value">{{ session.solvedUnaided ? 'Yes' : 'No' }}</span><span class="label">Solved Unaided</span></div>
         </div>
-        <button mat-stroked-button routerLink="/solve" class="back-to-list-btn">
-          <mat-icon>list</mat-icon> Back to Sessions
-        </button>
+        <div class="completion-actions">
+          <button mat-raised-button color="primary"
+                  [routerLink]="['/recall-drill']"
+                  [queryParams]="{leetcodeId: session.leetcodeId, title: session.title, patternSlug: session.patternSlug}">
+            <mat-icon>psychology</mat-icon> Log a Trigger for Spaced Repetition
+          </button>
+          <button mat-stroked-button routerLink="/solve" class="back-to-list-btn">
+            <mat-icon>list</mat-icon> Back to Sessions
+          </button>
+        </div>
       </div>
     </ng-container>
 
