@@ -896,3 +896,4 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
 2. Redis setup
 3. Docker Compose for backend + frontend
 4. GitHub Actions CI/CD
+
