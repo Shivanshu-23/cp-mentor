@@ -893,3 +893,12 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
     }
   }
 }
+
+// ── Print ────────────────────────────────────────────────────────────
+// `.no-print` is applied both globally (navbar lives in AppComponent, outside
+// any feature component's view encapsulation) and re-declared per-component
+// for elements that are local to that component's own template.
+@media print {
+  .no-print, .navbar-glow-line, .app-navbar { display: none !important; }
+  body { background: #fff !important; }
+}

@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/daily-challenge/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/company-problems", "/api/v1/company-problems/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/method/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/method/analyze-constraints", "/api/v1/method/edge-cases").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

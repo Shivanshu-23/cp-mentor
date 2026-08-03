@@ -1,13 +1,20 @@
 package com.cpmentor.method.controller;
 
+import com.cpmentor.method.dto.ConstraintAnalysisRequest;
+import com.cpmentor.method.dto.ConstraintAnalysisResponse;
+import com.cpmentor.method.dto.EdgeCaseRequest;
+import com.cpmentor.method.dto.EdgeCaseResponse;
 import com.cpmentor.method.dto.PatternDetailDTO;
 import com.cpmentor.method.dto.PatternProblemDTO;
 import com.cpmentor.method.dto.PatternSummaryDTO;
 import com.cpmentor.method.dto.ResourceDTO;
 import com.cpmentor.method.entity.Pattern;
+import com.cpmentor.method.service.ConstraintAnalyzerService;
+import com.cpmentor.method.service.EdgeCaseGeneratorService;
 import com.cpmentor.method.service.PatternService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +31,8 @@ import java.util.List;
 public class PatternController {
 
     private final PatternService patternService;
+    private final ConstraintAnalyzerService constraintAnalyzerService;
+    private final EdgeCaseGeneratorService edgeCaseGeneratorService;
 
     @GetMapping("/patterns")
     @Operation(summary = "List patterns (paginated, optionally filtered by category)")
@@ -50,5 +59,18 @@ public class PatternController {
     public ResponseEntity<List<ResourceDTO>> getResources(
             @RequestParam(required = false) String patternSlug) {
         return ResponseEntity.ok(patternService.getResources(patternSlug));
+    }
+
+    @PostMapping("/analyze-constraints")
+    @Operation(summary = "Map a max input size (n) + flags to a target complexity and candidate techniques")
+    public ResponseEntity<ConstraintAnalysisResponse> analyzeConstraints(
+            @Valid @RequestBody ConstraintAnalysisRequest request) {
+        return ResponseEntity.ok(constraintAnalyzerService.analyze(request));
+    }
+
+    @PostMapping("/edge-cases")
+    @Operation(summary = "Generate an edge-case checklist for an input type + flags, optionally merged with a pattern's own checklist")
+    public ResponseEntity<EdgeCaseResponse> edgeCases(@Valid @RequestBody EdgeCaseRequest request) {
+        return ResponseEntity.ok(edgeCaseGeneratorService.generate(request));
     }
 }

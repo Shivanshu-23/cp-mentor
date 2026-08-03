@@ -105,7 +105,10 @@ com.cpmentor/
 │   ├── repository/PatternRepository.java
 │   ├── repository/PatternProblemRepository.java
 │   ├── repository/ResourceRepository.java
-│   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO)
+│   ├── service/ConstraintAnalyzerService.java   ← Phase 2: pure logic, n -> complexity + techniques
+│   ├── service/EdgeCaseGeneratorService.java     ← Phase 2: pure logic, type+flags -> checklist
+│   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO,
+│             ConstraintAnalysisRequest/Response, EdgeCaseRequest/Response)
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -143,6 +146,8 @@ GET  /api/v1/method/patterns                 (paginated, ?category=ARRAY|STRING|
 GET  /api/v1/method/patterns/{slug}
 GET  /api/v1/method/patterns/{slug}/problems (ordered by orderIndex — learning order, not random)
 GET  /api/v1/method/resources                (?patternSlug= for pattern-scoped, omit for the 8 global ones)
+POST /api/v1/method/analyze-constraints       (Phase 2 — {n, sorted, negativesAllowed, duplicatesAllowed, valuesBounded, maxValue} -> target complexity + ordered technique list + overflow warning)
+POST /api/v1/method/edge-cases                (Phase 2 — {inputType, ...flags, patternSlug?} -> edge-case checklist, merges in a known pattern's own checklist)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -160,6 +165,7 @@ GET /api/v1/videos/**
 GET /api/v1/ai/**
 /api/v1/daily-challenge/**
 GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
+POST /api/v1/method/analyze-constraints, /api/v1/method/edge-cases   // Phase 2 — stateless reference logic, no writes
 
 // Everything else → requires JWT Bearer token
 ```
@@ -218,7 +224,8 @@ src/app/
 │   ├── services/
 │   │   ├── auth.service.ts        ← login, register, JWT localStorage
 │   │   ├── problem.service.ts     ← all API calls + interfaces
-│   │   └── pattern.service.ts     ← Pattern Library API calls + interfaces (Phase 1)
+│   │   ├── pattern.service.ts     ← Pattern Library API calls + interfaces (Phase 1)
+│   │   └── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
@@ -229,10 +236,12 @@ src/app/
 │   ├── login/
 │   ├── register/
 │   ├── company-tracker/           ← company-wise DSA tracker with tick marks
-│   └── pattern-library/           ← Phase 1: pattern grid (/patterns) + detail (/patterns/:slug)
-│       ├── pattern-library.component.ts/html/scss   ← searchable/filterable grid
-│       └── pattern-detail.component.ts/html/scss    ← 6-tab detail (Intuition/Template/
-│                                                        Recognition/Mistakes/Problems/Follow-ups)
+│   ├── pattern-library/           ← Phase 1: pattern grid (/patterns) + detail (/patterns/:slug)
+│   │   ├── pattern-library.component.ts/html/scss   ← searchable/filterable grid
+│   │   └── pattern-detail.component.ts/html/scss    ← 6-tab detail (Intuition/Template/
+│   │                                                    Recognition/Mistakes/Problems/Follow-ups)
+│   └── constraint-analyzer/       ← Phase 2: /constraint-analyzer — form + results + printable checklist
+│       └── constraint-analyzer.component.ts/html/scss
 └── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
                                        every feature here is declared directly in AppModule;
                                        this codebase doesn't use per-feature NgModules)
@@ -276,6 +285,14 @@ src/app/
   "complexity" field if the content is a full explanatory sentence rather than bare Big-O notation
   (e.g. `pattern.time_complexity`/`space_complexity` are `VARCHAR(512)`, not `VARCHAR(64)`) —
   MySQL truncation errors surface at insert time, not migration time.
+- **Every table needs an explicit primary key, including `@ElementCollection` join tables.**
+  Managed MySQL (Aiven, and most others) runs with `sql_require_primary_key=ON` for replication
+  safety — a table with only an FK + value column (no PK) fails with MySQL error 3750 at
+  migration time. Hit both `problem_topics` (V1) and all six `pattern_*` element-collection
+  tables (V2) before an `id BIGINT AUTO_INCREMENT PRIMARY KEY` was added to each. This only
+  ever surfaces against a real managed MySQL instance — local docker MySQL and H2 don't enforce
+  it, so it won't show up until a real deploy. Any new `@ElementCollection` table in future
+  migrations needs the same treatment.
 
 ## Environment Variables
 ```bash
@@ -311,24 +328,28 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   intuition, Java template, recognition/anti-triggers, common mistakes, edge cases, interview
   follow-ups, and 2-4 real LeetCode problems in learning order; searchable grid + 6-tab detail
   page at `/patterns`; 8 global learning resources (Striver sheets, NeetCode, etc.)
+- Practice Method Phase 2 — Constraint Analyser (n + flags -> target complexity + ordered
+  technique list + overflow warning) and Edge-Case Checklist Generator (input type + flags ->
+  checklist, merges in a known pattern's own edge cases); pure logic, zero AI/DB-write cost;
+  `/constraint-analyzer` page with printable results
 - Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
-  Pattern Library (grid + detail)
+  Pattern Library (grid + detail), Constraint Analyzer
 - Swagger UI at /swagger-ui.html
 - `docker-compose.yml` (cp-mentor root) — one-command local MySQL
+- **Live on the free stack**: Vercel (frontend) + Render free web service (backend) + Aiven
+  free MySQL (persistence). Render free tier spins down after 15 min idle — first request
+  after a quiet period is slow (cold start), that's expected.
 
 ## What's Pending ❌
-- [ ] Practice Method Phase 2 — Constraint Analyser + Edge-Case Checklist Generator (pure logic,
-      no AI) — `POST /api/v1/method/analyze-constraints`, `POST /api/v1/method/edge-cases`
 - [ ] Practice Method Phases 3-6 — AI pattern identification + progressive hints, solve sessions,
       spaced repetition/trigger log, interview follow-up bank, company cross-link, PDF export
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
-- [ ] Push project to GitHub
 
 ## Next Steps Priority
-1. Practice Method Phase 2 — Constraint Analyser + Edge-Case Checklist Generator
+1. Practice Method Phase 3 — AI pattern identification + progressive hints (extends AIService,
+   never leaks a solution at levels 1-3 — see the feature spec's non-negotiable rule)
 2. Redis setup
 3. Docker Compose for backend + frontend
-4. Push to GitHub
