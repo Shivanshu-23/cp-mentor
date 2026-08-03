@@ -1,0 +1,11 @@
+[
+  {
+    "date": "2026-08-03",
+    "scope": "single-page",
+    "target": "frontend/src/app/features/company-tracker/",
+    "macrostructure": "Index-First (adapted — utility data table, not a marketing page)",
+    "theme": "app-preserved (existing dark theme tokens, not a catalog pick)",
+    "enrichment": "none",
+    "brief": "NovaCode Company Tracker — redesign craft pass, not a visual rebuild"
+  }
+]

@@ -168,10 +168,6 @@ export class CompanyTrackerComponent implements OnInit {
     });
   }
 
-  openProblem(url: string): void {
-    window.open(url, '_blank', 'noopener');
-  }
-
   prevPage(): void {
     if (this.page > 0) { this.page--; this.loadProblems(); }
   }

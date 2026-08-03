@@ -9,20 +9,32 @@
   <!-- ── Stats Row ──────────────────────────────────────────── -->
   <div *ngIf="auth.isLoggedIn()" class="stats-row">
     <div class="glass-card hover-lift stat-card stat-solved">
-      <div class="stat-value">{{ stats.solved }}</div>
-      <div class="stat-label">✅ Solved</div>
+      <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ stats.solved }}</div>
+        <div class="stat-label">Solved</div>
+      </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-attempted">
-      <div class="stat-value">{{ stats.attempted }}</div>
-      <div class="stat-label">💻 Attempted</div>
+      <div class="stat-icon"><mat-icon>code</mat-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ stats.attempted }}</div>
+        <div class="stat-label">Attempted</div>
+      </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-seen">
-      <div class="stat-value">{{ stats.seen }}</div>
-      <div class="stat-label">👁 Seen</div>
+      <div class="stat-icon"><mat-icon>visibility</mat-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ stats.seen }}</div>
+        <div class="stat-label">Seen</div>
+      </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-total">
-      <div class="stat-value">{{ stats.total }}</div>
-      <div class="stat-label">📊 Total Tracked</div>
+      <div class="stat-icon"><mat-icon>bar_chart</mat-icon></div>
+      <div class="stat-body">
+        <div class="stat-value">{{ stats.total }}</div>
+        <div class="stat-label">Total Tracked</div>
+      </div>
     </div>
   </div>
 
@@ -110,7 +122,7 @@
       <!-- Title -->
       <div class="row-title-cell">
         <div class="company-logo-circle" [style.background]="companyLogoGradient(selectedCompany)">{{ companyLabel(selectedCompany).charAt(0) }}</div>
-        <span (click)="openProblem(p.url)" class="row-title-link">{{ p.title }}</span>
+        <a [href]="p.url" target="_blank" rel="noopener" class="row-title-link">{{ p.title }}</a>
       </div>
 
       <!-- Difficulty -->
@@ -129,9 +141,9 @@
       <!-- Progress / Tick Marks -->
       <div class="progress-cell">
 
-        <!-- 3 tick circles -->
+        <!-- 3 tick circles — visual indicator only; the button below is the single
+             accessible control (avoids two overlapping click targets for one action) -->
         <div *ngFor="let level of [1,2,3]" class="tick-circle"
-            (click)="level === 1 ? tick(p) : null"
             [style.background]="p.tickCount >= level ? tickColors[level-1] + '33' : 'rgba(28,33,40,0.6)'"
             [style.border]="'2px solid ' + (p.tickCount >= level ? tickColors[level-1] : 'var(--border)')"
             [matTooltip]="tickLabels[level]">
