@@ -1,4 +1,12 @@
-@use '@angular/material' as mat;
+// NovaCode v2 design system — tokens first, then the Material theme built
+// from them, then self-hosted fonts. Everything below this point is the
+// pre-v2 app-wide token/utility layer, kept as-is for now: existing pages
+// still consume --bg-0 etc. directly and haven't been migrated to the new
+// --surface-*/--accent tokens yet (that migration is out of Phase A's
+// scope — see CLAUDE.md).
+@use 'styles/tokens';
+@use 'styles/material-theme';
+@use 'styles/fonts';
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 

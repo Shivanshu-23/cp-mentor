@@ -1,0 +1,197 @@
+/* Hallmark note: this is a NEW component, built directly against the v2
+ * tokens (--surface-*, --accent, hairline borders) rather than the app's
+ * pre-existing --bg-0/glass-card system — it's the first real usage of the
+ * new design language outside the /styleguide reference page.
+ */
+.cp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.cp-palette {
+  position: fixed;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, 92vw);
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-3);
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-2);
+  z-index: 1001;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.cp-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-hairline);
+  flex-shrink: 0;
+}
+
+.cp-prompt {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: var(--text-base);
+  flex-shrink: 0;
+}
+
+.cp-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+
+  &::placeholder { color: var(--text-muted); }
+}
+
+.cp-caret {
+  width: 7px;
+  height: 16px;
+  background: var(--accent);
+  animation: cpBlink 1s step-end infinite;
+  flex-shrink: 0;
+  margin-left: -8px;
+}
+
+@keyframes cpBlink {
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-caret { animation: none; }
+}
+
+.cp-esc-hint {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  flex-shrink: 0;
+}
+
+.cp-results {
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
+
+.cp-results-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-4);
+}
+
+.cp-result-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition-property: background-color;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out);
+
+  &.active, &:hover {
+    background: var(--accent-dim);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+}
+
+.cp-result-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.cp-result-row.active .cp-result-icon,
+.cp-result-row:hover .cp-result-icon {
+  color: var(--accent);
+}
+
+.cp-result-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cp-result-label {
+  font-size: var(--text-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-result-sublabel {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cp-result-kind {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.cp-empty {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+}
+
+.cp-footer {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border-hairline);
+  flex-shrink: 0;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  kbd {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    background: var(--surface-1);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-sm);
+    padding: 1px 5px;
+  }
+}

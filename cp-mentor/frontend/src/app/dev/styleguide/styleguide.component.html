@@ -1,0 +1,95 @@
+<div class="sg-page">
+  <header class="sg-header">
+    <p class="sg-eyebrow">$ novacode --styleguide</p>
+    <h1>Design tokens</h1>
+    <p class="sg-sub">Dev-only reference. Not linked from the app nav.</p>
+  </header>
+
+  <section class="sg-section">
+    <h2>Surfaces</h2>
+    <div class="sg-swatch-row">
+      <div class="sg-swatch" *ngFor="let s of surfaces" [style.background]="'var(' + s.token + ')'">
+        <span class="sg-swatch-label">{{ s.name }}</span>
+        <span class="sg-swatch-token">{{ s.token }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Accent &amp; state</h2>
+    <div class="sg-swatch-row">
+      <div class="sg-swatch sg-swatch--on-accent" *ngFor="let s of accents" [style.background]="'var(' + s.token + ')'">
+        <span class="sg-swatch-label">{{ s.name }}</span>
+        <span class="sg-swatch-token">{{ s.token }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Text</h2>
+    <div class="sg-text-rows">
+      <p *ngFor="let t of textColors" [style.color]="'var(' + t.token + ')'">{{ t.name }} — the quick brown fox jumps over the lazy dog</p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Type scale</h2>
+    <div class="sg-type-rows">
+      <p *ngFor="let t of typeScale" [style.font-size]="'var(--text-' + t + ')'" class="sg-type-row">
+        <span class="sg-type-token">--text-{{ t }}</span>NovaCode
+      </p>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Monospace</h2>
+    <p class="sg-mono-sample">const trace = generateTrace(input); // --font-mono</p>
+  </section>
+
+  <section class="sg-section">
+    <h2>Spacing — 4px scale</h2>
+    <div class="sg-spacing-rows">
+      <div class="sg-spacing-row" *ngFor="let s of spacing">
+        <span class="sg-spacing-token">--space-{{ s }}</span>
+        <div class="sg-spacing-bar" [style.width]="'var(--space-' + s + ')'"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Radius</h2>
+    <div class="sg-swatch-row">
+      <div class="sg-radius-box" *ngFor="let r of radii" [style.border-radius]="'var(--radius-' + r + ')'">
+        --radius-{{ r }}
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Motion</h2>
+    <div class="sg-motion-row">
+      <button type="button" class="sg-motion-chip" *ngFor="let d of durations" [style.transition-duration]="'var(--duration-' + d + ')'">
+        --duration-{{ d }}
+      </button>
+    </div>
+    <p class="sg-hint">Hover a chip. All use --ease-out. Durations collapse to 0ms under prefers-reduced-motion.</p>
+  </section>
+
+  <section class="sg-section">
+    <h2>Material components (themed + density -3)</h2>
+    <div class="sg-mat-row">
+      <button mat-raised-button color="primary">Primary</button>
+      <button mat-stroked-button color="primary">Stroked</button>
+      <button mat-button color="primary">Text</button>
+      <button mat-icon-button color="primary"><mat-icon>terminal</mat-icon></button>
+    </div>
+    <div class="sg-mat-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Search patterns</mat-label>
+        <input matInput placeholder="two pointer">
+      </mat-form-field>
+      <mat-checkbox checked="true">Enabled</mat-checkbox>
+      <mat-spinner diameter="24"></mat-spinner>
+    </div>
+  </section>
+</div>

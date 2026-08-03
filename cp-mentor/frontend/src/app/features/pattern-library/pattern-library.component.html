@@ -47,6 +47,7 @@
         <div class="search-input-wrapper" [class.has-clear]="searchTerm">
           <mat-icon class="search-icon">search</mat-icon>
           <input type="text" class="search-input" placeholder="Search by name or trigger phrase..."
+                 data-shortcut-search
                  [(ngModel)]="searchTerm">
           <button type="button" class="search-clear-btn" *ngIf="searchTerm" (click)="searchTerm=''" aria-label="Clear search">
             <mat-icon>close</mat-icon>

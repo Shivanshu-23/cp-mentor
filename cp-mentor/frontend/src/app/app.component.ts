@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { Router } from '@angular/router';
+import { KeyboardShortcutsService } from './core/services/keyboard-shortcuts.service';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,11 @@ export class AppComponent implements OnInit {
   isLoggedIn = false;
   username = '';
 
-  constructor(public authService: AuthService, private router: Router) {}
+  constructor(
+    public authService: AuthService,
+    private router: Router,
+    private keyboardShortcuts: KeyboardShortcutsService
+  ) {}
 
   ngOnInit(): void {
     this.authService.isLoggedIn$().subscribe(v => {
@@ -18,6 +23,7 @@ export class AppComponent implements OnInit {
       const user = this.authService.getUser();
       this.username = user?.username ?? '';
     });
+    this.keyboardShortcuts.init();
   }
 
   logout(): void {

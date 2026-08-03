@@ -1,0 +1,14 @@
+<div class="ho-backdrop" *ngIf="isOpen" (click)="close()"></div>
+
+<div class="ho-panel" *ngIf="isOpen" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="ho-header">
+    <h2>Keyboard shortcuts</h2>
+    <button type="button" class="ho-close" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="ho-row" *ngFor="let s of shortcuts">
+    <kbd class="ho-keys">{{ s.keys }}</kbd>
+    <span class="ho-desc">{{ s.description }}</span>
+  </div>
+</div>

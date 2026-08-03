@@ -1,0 +1,46 @@
+<div class="cp-backdrop" *ngIf="isOpen" (click)="close()"></div>
+
+<div class="cp-palette" *ngIf="isOpen" role="dialog" aria-modal="true" aria-label="Command palette">
+  <div class="cp-input-row">
+    <span class="cp-prompt">$</span>
+    <input
+      #paletteInput
+      class="cp-input"
+      type="text"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Search patterns, problems, companies, or jump to a page…"
+      [(ngModel)]="query"
+      (ngModelChange)="refresh()">
+    <span class="cp-caret" aria-hidden="true"></span>
+    <kbd class="cp-esc-hint">Esc</kbd>
+  </div>
+
+  <div class="cp-results" *ngIf="results.length; else cpEmpty">
+    <div class="cp-results-label">{{ isRecentView ? 'Recent' : 'Results' }}</div>
+    <button
+      type="button"
+      class="cp-result-row"
+      *ngFor="let item of results; let i = index"
+      [class.active]="i === activeIndex"
+      (mouseenter)="activeIndex = i"
+      (click)="select(item)">
+      <mat-icon class="cp-result-icon">{{ item.icon }}</mat-icon>
+      <span class="cp-result-text">
+        <span class="cp-result-label">{{ item.label }}</span>
+        <span class="cp-result-sublabel" *ngIf="item.sublabel">{{ item.sublabel }}</span>
+      </span>
+      <span class="cp-result-kind">{{ kindLabel(item.kind) }}</span>
+    </button>
+  </div>
+
+  <ng-template #cpEmpty>
+    <div class="cp-empty">No matches for "{{ query }}"</div>
+  </ng-template>
+
+  <div class="cp-footer">
+    <span><kbd>&uarr;</kbd><kbd>&darr;</kbd> navigate</span>
+    <span><kbd>Enter</kbd> select</span>
+    <span><kbd>Esc</kbd> close</span>
+  </div>
+</div>

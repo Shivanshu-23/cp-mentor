@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
 import { PatternService, PatternSummary } from '../../core/services/pattern.service';
@@ -72,10 +73,16 @@ export class CompanyTrackerComponent implements OnInit {
     private http: HttpClient,
     private snack: MatSnackBar,
     public auth: AuthService,
-    private patternService: PatternService
+    private patternService: PatternService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    // Deep-link support for the command palette's company results
+    // (?company=amazon) — falls back to the default 'amazon' if absent.
+    const companyParam = this.route.snapshot.queryParamMap.get('company');
+    if (companyParam) this.selectedCompany = companyParam;
+
     this.loadCompanies();
     this.loadStats();
     this.patternService.getPatterns(undefined, 0, 100).subscribe({

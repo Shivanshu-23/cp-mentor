@@ -1,0 +1,104 @@
+// NovaCode v2 design tokens — the "terminal for DSA" system.
+// Reference points: Linear, Raycast, Vercel dashboard, Warp, tldraw.
+// Every colour/spacing/radius/type/motion value used anywhere in the app
+// must come from a token defined here. No hardcoded hex outside this file.
+//
+// Contrast notes (against --surface-0 #0A0A0A):
+//   --text-primary   ~16.4:1  (body text, always safe)
+//   --text-secondary  ~8.8:1  (body text, safe ≥7:1)
+//   --text-muted      ~5.6:1  (UI chrome only — labels/timestamps — NOT body copy;
+//                              passes the 4.5:1 UI-text bar, not the 7:1 body bar)
+//   --accent          ~15.3:1 (safe as text-on-dark or as a fill with --text-on-accent)
+
+:root {
+  // ── Surfaces ──────────────────────────────────────────────────────────
+  --surface-0: #0a0a0a; // page background
+  --surface-1: #141414; // elevated: cards, rows
+  --surface-2: #1c1c1c; // further elevated: menus, tooltips
+  --surface-3: #242424; // highest: dialogs, command palette, popovers
+
+  // ── Borders ───────────────────────────────────────────────────────────
+  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-hairline-strong: rgba(255, 255, 255, 0.16);
+
+  // ── Accent — exactly one, used sparingly ────────────────────────────
+  --accent: #c7f284; // electric lime
+  --accent-dim: rgba(199, 242, 132, 0.14); // low-opacity fill for hover/selected rows
+  --text-on-accent: #0a0a0a; // text placed on a solid --accent fill
+
+  // ── Semantic state — never used decoratively ───────────────────────
+  --state-success: #4ade80;
+  --state-warning: #fbbf24;
+  --state-error: #f87171;
+
+  // ── Text ─────────────────────────────────────────────────────────────
+  --text-primary: #f2f2f2;
+  --text-secondary: #b0b0b0;
+  --text-muted: #8a8a8a; // UI chrome only, see contrast note above
+
+  // ── Spacing — 4px base scale ─────────────────────────────────────────
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  // ── Radius — 4/6/8 only ──────────────────────────────────────────────
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  // ── Type ─────────────────────────────────────────────────────────────
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-xs: 0.6875rem; // 11px
+  --text-sm: 0.75rem; // 12px
+  --text-base: 0.8125rem; // 13px — dense dev-tool base, not the usual 16px web body
+  --text-md: 0.875rem; // 14px
+  --text-lg: 1rem; // 16px
+  --text-xl: 1.25rem; // 20px
+  --text-2xl: 1.5rem; // 24px
+  --text-3xl: 2rem; // 32px
+  --text-4xl: 2.5rem; // 40px
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  // ── Motion — 120–180ms, ease-out only ───────────────────────────────
+  --duration-fast: 120ms;
+  --duration-base: 150ms;
+  --duration-slow: 180ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  // ── Elevation — lightness steps + tight shadows, no glassmorphism ──
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --elevation-2: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  // ── Texture ──────────────────────────────────────────────────────────
+  --grain-opacity: 0.03;
+}
+
+// prefers-reduced-motion — global, non-negotiable per the design brief.
+// Consumers (including the future visualizer engine) must key off this class
+// on <html> rather than re-querying the media feature themselves, so a single
+// source of truth drives every animated surface in the app.
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}

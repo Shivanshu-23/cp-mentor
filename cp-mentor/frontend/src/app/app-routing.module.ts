@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
@@ -14,8 +14,21 @@ import { SolveSessionWorksheetComponent } from './features/solve-session/solve-s
 import { RecallDrillComponent } from './features/recall-drill/recall-drill.component';
 import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 
+// /styleguide is a dev-only design-token reference (Phase A). It's lazy-loaded
+// (loadComponent, standalone) so it ships as its own chunk, and the route is
+// only registered when isDevMode() is true — in a `ng build --configuration
+// production` bundle the route is unreachable via the router. The chunk file
+// itself still gets emitted to disk (Angular can't know at build time that
+// the runtime check will always be false in prod); true zero-file exclusion
+// would need the environment/fileReplacements system, which this codebase
+// doesn't otherwise use — see CLAUDE.md.
+const devOnlyRoutes: Routes = isDevMode()
+  ? [{ path: 'styleguide', loadComponent: () => import('./dev/styleguide/styleguide.component').then(m => m.StyleguideComponent) }]
+  : [];
+
 const routes: Routes = [
   { path: '', redirectTo: 'patterns', pathMatch: 'full' },
+  ...devOnlyRoutes,
   { path: 'home', component: HomeComponent },
   { path: 'analysis/:id', component: AnalysisComponent },
   { path: 'login', component: LoginComponent },

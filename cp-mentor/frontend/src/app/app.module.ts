@@ -44,6 +44,8 @@ import { SolveSessionWorksheetComponent } from './features/solve-session/solve-s
 import { RecallDrillComponent } from './features/recall-drill/recall-drill.component';
 import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 import { TiltDirective } from './shared/tilt.directive';
+import { CommandPaletteComponent } from './shared/command-palette/command-palette.component';
+import { HelpOverlayComponent } from './shared/command-palette/help-overlay.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,9 @@ import { TiltDirective } from './shared/tilt.directive';
     SolveSessionWorksheetComponent,
     RecallDrillComponent,
     ProgressDashboardComponent,
-    TiltDirective
+    TiltDirective,
+    CommandPaletteComponent,
+    HelpOverlayComponent
   ],
   imports: [
     BrowserModule,

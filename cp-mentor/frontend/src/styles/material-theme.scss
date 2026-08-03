@@ -1,0 +1,57 @@
+// Custom Angular Material theme built from the tokens in tokens.scss —
+// replaces the prebuilt indigo-pink.css. Material's "primary" and "accent"
+// roles both resolve to the same lime, matching the brief's "exactly one
+// accent colour" rule; "warn" reuses Material's own red palette (already a
+// complete, correctly-contrasted tonal ramp — no need to hand-roll one).
+@use 'sass:color';
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$lime-500: #c7f284;
+
+@function _tone($lightness) {
+  @return color.scale($lime-500, $lightness: $lightness);
+}
+
+$lime-palette: (
+  50: _tone(85%),
+  100: _tone(70%),
+  200: _tone(50%),
+  300: _tone(30%),
+  400: _tone(15%),
+  500: $lime-500,
+  600: _tone(-10%),
+  700: _tone(-20%),
+  800: _tone(-30%),
+  900: _tone(-40%),
+  A100: _tone(60%),
+  A200: _tone(40%),
+  A400: _tone(-5%),
+  A700: _tone(-25%),
+  contrast: (
+    50: #0a0a0a, 100: #0a0a0a, 200: #0a0a0a, 300: #0a0a0a, 400: #0a0a0a,
+    500: #0a0a0a, 600: #0a0a0a, 700: #0a0a0a, 800: #f2f2f2, 900: #f2f2f2,
+    A100: #0a0a0a, A200: #0a0a0a, A400: #0a0a0a, A700: #f2f2f2,
+  ),
+);
+
+$nova-primary: mat.define-palette($lime-palette);
+$nova-accent: mat.define-palette($lime-palette);
+$nova-warn: mat.define-palette(mat.$red-palette);
+
+$nova-theme: mat.define-dark-theme((
+  color: (
+    primary: $nova-primary,
+    accent: $nova-accent,
+    warn: $nova-warn,
+  ),
+  typography: mat.define-typography-config(
+    $font-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+  ),
+  // Compresses form fields toward Phase A's "dense-3" requirement across
+  // every Material component at once, instead of per-component overrides.
+  density: -3,
+));
+
+@include mat.all-component-themes($nova-theme);

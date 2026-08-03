@@ -1,0 +1,10 @@
+// Self-hosted fonts (@fontsource) — replaces the render-blocking Google
+// Fonts <link> in index.html. Same weights the app already used: Inter
+// 300/400/500/600/700, JetBrains Mono 400/500.
+@import '@fontsource/inter/300.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';

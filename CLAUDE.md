@@ -267,6 +267,14 @@ CSV format: ID,URL,Title,Difficulty,Acceptance %,Frequency %
 Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, more-than-six-months.csv
 ```
 
+## NovaCode v2 — Experience Layer (in progress)
+A separate, much larger spec ("NovaCode v2: Experience Layer, DSA Visualizers, and Method
+Content") is being implemented one phase at a time on top of the app described elsewhere in
+this file. **Phase A (Design System) and Phase D (Command Palette) are done; Phases B/C/E/F/G
+are not started.** See gotchas below for what that actually means in practice — most
+importantly, the rest of the app has *not* been reskinned yet; only new surfaces (the command
+palette, the dev-only styleguide) use the new tokens so far.
+
 ## Frontend Structure (Angular)
 ```
 src/app/
@@ -278,7 +286,12 @@ src/app/
 │   │   ├── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
 │   │   ├── solve-session.service.ts        ← Phase 4 API calls + interfaces
 │   │   ├── trigger.service.ts              ← Phase 5 API calls + interfaces (triggers + stats)
-│   │   └── leetcode-stats.service.ts       ← GET /api/v1/leetcode-stats, used by Home
+│   │   ├── leetcode-stats.service.ts       ← GET /api/v1/leetcode-stats, used by Home
+│   │   ├── command-palette.service.ts      ← v2 Phase D: item registry, fuzzy search, recent
+│   │   │                                      items (localStorage), all data from EXISTING
+│   │   │                                      endpoints (patterns/problems/companies) — no new
+│   │   │                                      backend surface for the palette itself
+│   │   └── keyboard-shortcuts.service.ts   ← v2 Phase D: global Cmd/Ctrl+K, g-chords, /, ?, Esc
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
@@ -308,10 +321,43 @@ src/app/
 │   │                                                query params from the Solve Session completion screen
 │   └── progress-dashboard/        ← Phase 5: /progress — all StatsResponse metrics
 │       └── progress-dashboard.component.ts/html/scss
+├── shared/
+│   ├── tilt.directive.ts
+│   └── command-palette/           ← v2 Phase D
+│       ├── command-palette.component.ts/html/scss  ← Cmd/Ctrl+K, built on the new tokens
+│       ├── help-overlay.component.ts/html/scss     ← "?" shortcuts overlay
+│       └── fuzzy-match.ts         ← dependency-free subsequence fuzzy matcher
+├── dev/
+│   └── styleguide/                ← v2 Phase A, dev-only (see gotchas — isDevMode() gated)
+│       └── styleguide.component.ts/html/scss  ← standalone, lazy-loaded, /styleguide
 └── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
                                        every feature here is declared directly in AppModule;
-                                       this codebase doesn't use per-feature NgModules)
+                                       this codebase doesn't use per-feature NgModules — the
+                                       styleguide component is the one deliberate exception,
+                                       standalone + lazy so it isn't in the initial bundle)
 ```
+
+## Design System (v2 Phase A) — `frontend/src/styles/`
+```
+tokens.scss          ← the ONLY place raw colour/spacing/radius/type/motion values may live.
+                         Near-black surfaces (--surface-0 #0A0A0A ... --surface-3), exactly one
+                         accent (--accent, electric lime #C7F284), semantic-only state colours
+                         (--state-success/warning/error), 4px spacing scale, radius 4/6/8 only,
+                         120–180ms motion durations, all zeroed under prefers-reduced-motion via
+                         a single :root media query other consumers should key off, not re-query
+material-theme.scss  ← replaces the old @angular/material/prebuilt-themes/indigo-pink.css.
+                         Custom Sass M2 theme: primary AND accent both resolve to the same lime
+                         palette (Material's 3-palette model doesn't map cleanly onto "exactly
+                         one accent" otherwise), warn reuses Material's own $red-palette,
+                         density: -3 for the "dense-3 form fields" requirement app-wide
+fonts.scss            ← self-hosted Inter (300/400/500/600/700) + JetBrains Mono (400/500) via
+                         @fontsource, replacing the render-blocking Google Fonts <link> in
+                         index.html (Material Icons stays remote — separate concern, an icon
+                         glyph font, not the type-pairing decision)
+```
+`styles.scss` (the pre-existing global stylesheet) now `@use`s all three at the top, in that
+order, then continues unchanged below — the old `--bg-0`/`--accent-blue`/`.glass-card` token and
+utility layer that every existing page consumes is still there and still fully in effect.
 
 **Default route is `/patterns`** (`app-routing.module.ts`, both `''` and `'**'`), not `/home` — Pattern
 Library is the landing page; Home (Daily Problem) is still a full page, just no longer the entry
@@ -464,6 +510,49 @@ point. Nav bar order in `app.component.html` follows: Pattern Library first, Dai
   consistently-applied brand element to satisfy a general anti-pattern rule would fragment the
   app's visual identity worse than it fixes, and wasn't in scope. Don't "fix" it unilaterally in a
   future single-page pass; it would need a project-wide decision.
+- **v2 Phase A did NOT reskin the existing app — this is a deliberate scope boundary, not an
+  oversight.** The DELIVERY line for that session said "show me tokens.scss, the themed Material
+  overrides, and the palette," not "migrate every page." Concretely: (1) real `<mat-*>`
+  components — buttons, checkboxes, spinners, form fields, tabs — now render in the new dark
+  lime theme app-wide immediately, because overriding Angular Material's theme is inherently
+  global; (2) the app's own custom classes (`.glass-card`, `.gradient-text`, badge/chip colours,
+  the whole `--bg-0`-family token set in `styles.scss`) are untouched and still render the
+  original blue/purple GitHub-dark look. The result right now is a deliberate **hybrid**: Material
+  chrome is lime/near-black, custom surfaces are still the old glass theme. This is expected, not
+  a bug — full migration of every page to the new tokens is future-phase work, not done yet.
+- **`/styleguide`'s "dev-only, tree-shaken from prod" claim is real but partial.** The route is
+  gated by `isDevMode()` in `app-routing.module.ts` and the component is standalone +
+  lazy-loaded (`loadComponent`), so: the route is genuinely unreachable via the Angular Router in
+  a production build (`isDevMode()` resolves via the CLI's standard `ngDevMode` production
+  stripping — the same mechanism every Angular app relies on for this exact pattern), and the
+  component's code is a separate lazy chunk, never part of the initial bundle. What it does
+  *not* do: prevent that lazy chunk file from being written to `dist/` — Angular can't know at
+  build time that the runtime check will always be false, so an unreferenced,
+  never-fetched-in-prod JS file still ships to the server. True zero-file exclusion would need
+  Angular's environment/fileReplacements system, which this codebase doesn't otherwise use and
+  wasn't adopted for one dev route. Low-severity either way — the page has no auth-gated or
+  sensitive content, it's just a token reference.
+- **Command palette data is 100% client-side, reusing existing endpoints** — `/api/v1/method/patterns`
+  (via `PatternService`), `/api/v1/problems` (via `ProblemService`), and
+  `/api/v1/company-problems/companies` (direct `HttpClient` call, matching how
+  `company-tracker.component.ts` already calls that same endpoint — no dedicated company service
+  file exists in this codebase yet). No new backend endpoints were added for Phase D; the spec's
+  own Phase D scope is entirely frontend.
+- **Company Tracker now reads an optional `?company=` query param on init** (added so the command
+  palette's company results actually deep-link somewhere) — small, backward-compatible addition;
+  falls back to the existing `'amazon'` default when absent.
+- **"Toggle theme" from the Phase D action list was deliberately omitted** — there is no second
+  (e.g. light) theme anywhere in the app, so a toggle would have nothing to switch to. Building
+  one wasn't in Phase A's scope either. Revisit if/when a second theme actually exists.
+- **Global keyboard shortcuts are intentionally partial in this phase.** `KeyboardShortcutsService`
+  wires up what's cheap and broadly correct right now: `Cmd/Ctrl+K` (palette, works even while
+  typing — standard convention), `/` (focuses `[data-shortcut-search]` on the current page,
+  currently set on Pattern Library and Company Tracker's search inputs), `g` then `p`/`d` (chord
+  nav to Pattern Library / Recall Drill), `?` (help overlay), `Esc` (closes palette/help). It does
+  **not** yet implement `j`/`k` list navigation, `t` (timer toggle), `h` (next hint), or
+  `Enter`-advances-worksheet-phase from the appendix — those are scoped to the specific
+  components they'd live in (solve-session worksheet, recall drill) and are future-phase work,
+  not silently dropped.
 - **Printable exports are `window.print()`, not generated PDFs** — same approach as Phase 2's
   constraint-analyzer checklist, applied to the Solve Session completion screen (full worksheet
   review) and the Progress Dashboard's trigger log. Zero cost, zero new dependencies, consistent
@@ -549,13 +638,27 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   free MySQL (persistence). Render free tier spins down after 15 min idle — first request
   after a quiet period is slow (cold start), that's expected.
 
+- **NovaCode v2 Phase A — Design System**: `tokens.scss` (near-black surfaces, one lime accent,
+  4px spacing, 4/6/8 radius, type scale, 120–180ms motion), a custom Material theme built from
+  those tokens (density -3), self-hosted Inter + JetBrains Mono via `@fontsource`, a dev-only
+  `/styleguide` reference page. Existing pages NOT yet migrated to the new tokens — see gotchas.
+- **NovaCode v2 Phase D — Command Palette**: `Cmd/Ctrl+K` opens a fuzzy-search palette (patterns,
+  problems, companies, static routes/actions, recent items via localStorage), fully keyboard-
+  driven (arrows/Enter/Esc), built from scratch with no new dependency. Global shortcuts: `/`
+  focus-search, `g p` / `g d` chord navigation, `?` help overlay. Scope note: `j`/`k`, `t`, `h`,
+  and worksheet `Enter`-advance are deferred to later, component-specific work — see gotchas.
+
 ## What's Pending ❌
+- [ ] NovaCode v2 Phases B/C (Visualizer Engine + 12 visualizers), E (Method content seeding),
+      F (retention-weighted gamification), G (removals: mock AI in prod, YouTube tab, etc.)
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. Redis setup
-2. Docker Compose for backend + frontend
-3. GitHub Actions CI/CD
+1. NovaCode v2 Phase B — Visualizer Engine (wait for user confirmation before starting; the v2
+   spec's own DELIVERY line only authorized Phases A + D for the session that built them)
+2. Redis setup
+3. Docker Compose for backend + frontend
+4. GitHub Actions CI/CD
