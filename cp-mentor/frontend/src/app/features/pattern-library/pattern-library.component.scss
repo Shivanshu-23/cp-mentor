@@ -1,8 +1,9 @@
 /* Hallmark · redesign: single-page craft pass (Bento-Grid-adjacent — this is a
  * reference-content card grid, now the app's landing route, not a marketing
  * page) · preserved: app-wide dark theme tokens + Angular/Material structure
- * · added: hand-built SVG graph motif (Tier A, ties the header to the literal
- * Graph pattern), real-count stat strip, category icons, focus-visible on
+ * · added: hand-built SVG corner-web motif (Tier A, ties the header to both
+ * the literal Graph pattern and the noir/spider-web brand identity — see
+ * CLAUDE.md), real-count stat strip, category icons, focus-visible on
  * cards, staggered entrance (single orchestrated reveal, not scroll-repeat),
  * search-clear affordance
  */
@@ -17,9 +18,11 @@
   .library-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
 }
 
-// A graph — nodes + edges — is literally one of the patterns this page
-// teaches. Hand-built SVG (Tier A), not a stock illustration or Lottie pull.
-.library-graph-motif {
+// A spider web is, mathematically, exactly the "Graph" pattern this page
+// teaches — spoke junctions are nodes, rings are edges. Hand-built SVG
+// (Tier A), not a stock illustration or Lottie pull. Anchored to the
+// header's top-right corner, like a real web spun between two surfaces.
+.library-web-motif {
   position: absolute;
   inset: -20px 0 auto 0;
   width: 100%;
@@ -27,37 +30,43 @@
   z-index: 0;
   pointer-events: none;
 
-  .graph-edges line {
-    stroke: var(--accent-blue);
-    stroke-width: 1.2;
-    opacity: 0.22;
-    stroke-dasharray: 6 5;
-    animation: graphEdgeFlow 6s linear infinite;
+  .web-spokes line {
+    stroke: var(--text-lo);
+    stroke-width: 1;
+    opacity: 0.25;
   }
 
-  .graph-nodes circle {
-    fill: var(--accent-purple);
-    opacity: 0.3;
-    animation: graphNodePulse 3.2s ease-in-out infinite;
+  .web-rings polyline {
+    fill: none;
+    stroke: var(--text-lo);
+    stroke-width: 1;
+    opacity: 0.2;
+    animation: webShimmer 4s ease-in-out infinite;
   }
 
-  .graph-nodes circle:nth-child(3n)   { fill: var(--accent-blue); animation-delay: 0.4s; }
-  .graph-nodes circle:nth-child(3n+1) { animation-delay: 0.9s; }
-  .graph-edges line:nth-child(even)   { animation-direction: reverse; animation-duration: 8s; }
+  .web-rings polyline:nth-child(2) { animation-delay: 0.6s; }
+  .web-rings polyline:nth-child(3) { animation-delay: 1.2s; }
+
+  .web-spider {
+    fill: var(--accent-red);
+    opacity: 0.7;
+    animation: spiderBreathe 3.2s ease-in-out infinite;
+  }
 }
 
-@keyframes graphEdgeFlow {
-  to { stroke-dashoffset: -110; }
+@keyframes webShimmer {
+  0%, 100% { opacity: 0.14; }
+  50%      { opacity: 0.32; }
 }
 
-@keyframes graphNodePulse {
-  0%, 100% { opacity: 0.25; r: 4.5; }
-  50%      { opacity: 0.55; r: 6; }
+@keyframes spiderBreathe {
+  0%, 100% { opacity: 0.55; r: 4; }
+  50%      { opacity: 0.85; r: 5; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .library-graph-motif .graph-edges line,
-  .library-graph-motif .graph-nodes circle {
+  .library-web-motif .web-rings polyline,
+  .library-web-motif .web-spider {
     animation: none;
   }
 }
@@ -202,8 +211,8 @@
   }
 
   .trigger-chip {
-    background: rgba(88, 166, 255, 0.08);
-    border: 1px solid rgba(88, 166, 255, 0.25);
+    background: rgba(242, 242, 242, 0.08);
+    border: 1px solid rgba(242, 242, 242, 0.25);
     border-radius: 12px;
     padding: 3px 10px;
     font-size: 11px;

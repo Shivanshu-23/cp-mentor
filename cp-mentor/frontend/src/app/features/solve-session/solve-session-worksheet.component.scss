@@ -58,7 +58,7 @@
   font-weight: 700;
   cursor: pointer;
 
-  &.active { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(88, 166, 255, 0.1); }
+  &.active { border-color: var(--accent-blue); color: var(--accent-blue); background: rgba(242, 242, 242, 0.1); }
   &.done { border-color: var(--accent-green); color: var(--accent-green); }
 }
 
@@ -88,7 +88,7 @@
   resize: vertical;
 
   &::placeholder { color: var(--text-muted); }
-  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(242, 242, 242, 0.15); }
 
   &.mono { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
 }

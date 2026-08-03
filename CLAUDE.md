@@ -1,4 +1,4 @@
-# NovaCode — Claude Code Context
+# Drona — Claude Code Context
 
 ## Project Overview
 Production-grade full-stack AI-powered web app that fetches LeetCode daily challenges,
@@ -312,8 +312,8 @@ CSV format: ID,URL,Title,Difficulty,Acceptance %,Frequency %
 Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, more-than-six-months.csv
 ```
 
-## NovaCode v2 — Experience Layer
-A separate, much larger spec ("NovaCode v2: Experience Layer, DSA Visualizers, and Method
+## Drona v2 — Experience Layer
+A separate, much larger spec ("Drona v2: Experience Layer, DSA Visualizers, and Method
 Content") has been implemented on top of the app described elsewhere in this file.
 **Phases A, B, C, D, E, F are done. Phase G is done except one blocked item** (admin
 credential rotation — prepared but not executed, see gotchas). See gotchas below for exact
@@ -482,6 +482,88 @@ point. Nav bar order in `app.component.html` follows: Pattern Library first, Dai
   overload and `AuthService.REMEMBER_ME_EXPIRATION_MILLIS`. `AuthResponse.expiresIn` now reflects
   the actual token lifetime in seconds (was hardcoded to 86400 for both login and register).
   Frontend: login form has a "Keep me signed in for 30 days" checkbox, defaulted checked.
+
+## Rebrand: NovaCode → Drona (noir theme)
+The app was renamed from "NovaCode" to **Drona**, tagline **"Earn the answer."** — GitHub repo
+is now `Shivanshu-23/drona` (renamed via `gh repo rename`, GitHub auto-redirects the old
+`cp-mentor` URL). **Deliberately NOT renamed**: the Vercel project (`cp-mentor`) and Render
+service (`cp-mentor-backend`) — those stay as-is by explicit user choice, to avoid disturbing
+the deploy pipeline/webhook that took real effort to get working (see the "Vercel webhook was
+broken" saga below). This means the live URLs (`cp-mentor-delta.vercel.app`,
+`cp-mentor-backend.onrender.com`) still say "cp-mentor" even though the product is "Drona" —
+expected, not a bug.
+
+Alongside the rename, the whole app's colour palette shifted to a **noir theme**: near-black
+backgrounds, white/gray as the primary "accent" (what used to be blue/purple), and exactly
+**one** saturated colour — red (`#f85149`, the same red already used app-wide for
+errors/"hard" difficulty, reused rather than inventing a new value so it's a proven-contrast
+choice) — used sparingly, the classic "one splash of colour" noir move. This was explicitly
+requested as a "Spider-Man" aesthetic; **no Marvel name, logo, or character art is used
+anywhere** — trademark/copyright risk on a live public app. What's actually implemented is the
+*visual language* (black/white/red, spider-web motifs), not the IP.
+- Both token systems updated in lockstep: the legacy `--bg-0`/`--accent-*` family in
+  `styles.scss` (consumed by every pre-v2 page) AND the v2 `tokens.scss`/`material-theme.scss`
+  (consumed by the command palette, styleguide, visualizer, Material chrome) now resolve to the
+  same near-black + white/gray + `#f85149` palette. They were two separate systems before this
+  pass (see the v2 Phase A gotcha below) — the colour *values* are now unified even though the
+  token *names* still differ between the two systems.
+- Every hardcoded (non-variable) hex/rgba that mirrored the old blue (`#58a6ff` /
+  `rgba(88,166,255,...)`) or purple (`#bc8cff` / `rgba(188,140,255,...)`) across ~10 component
+  SCSS files was bulk-converted via `sed` rather than hand-edited file by file — faster and less
+  error-prone for a pure find-and-replace across many files. A few genuinely one-off blue tints
+  that `var(--accent-blue)` didn't already cover (Home's hero tagline, resource-approach text,
+  Company Tracker's login-prompt box, Analysis's model-cache box) were fixed by hand afterward
+  since they weren't part of the systematic RGB-triplet pattern.
+- **Green/yellow semantic colours (easy/medium difficulty, success/warning) were deliberately
+  left alone** — they carry real meaning (already paired with text labels, not colour-only), and
+  a true "everything monochrome" pass would have hurt fast visual scanning on Company
+  Tracker/Pattern Library without much noir-authenticity payoff. The noir identity comes from the
+  backgrounds + primary accent + red, not from stripping every semantic colour in the app.
+- **Pattern Library's header motif was redesigned from a scattered node-graph into a literal
+  corner spider web** (radiating spokes + concentric ring polylines, anchored top-right like a
+  web spun between two surfaces, plus a small red "spider" dot at the anchor) — same underlying
+  justification as before (a spider web *is*, mathematically, a graph), now doing double duty as
+  the app's clearest piece of on-theme imagery. `preserveAspectRatio` had to change from
+  `xMidYMid slice` to `xMaxYMin slice` — a corner-anchored design needs right-edge alignment or
+  it can get cropped out entirely on narrow viewports under centre-slice cropping.
+- **The Three.js starfield's nebula/star tinting was desaturated to white + one red group**
+  (was blue/purple/green) — same "one splash of colour" rule extended to the WebGL background,
+  not just the 2D UI.
+- **Dead CSS from the deleted YouTube Videos tab was found and removed while doing this pass**
+  (`analysis.component.scss` had ~115 lines of orphaned `.video-*` rules, including a hardcoded
+  red gradient, left over from the Phase G removal that only touched the HTML/TS). Worth a sweep
+  after any future feature deletion — removing a template's markup doesn't remove its SCSS.
+- **Confetti colours** (Phase F, recall-drill all-PASS trigger) updated from the old
+  lime/teal/green/amber mix to white/red/gray, matching the rest of the rebrand.
+
+## Vercel auto-deploy silently broke — diagnosis and fix
+After the v2 Phases B/C/E/F/G push, Vercel stopped deploying new commits entirely — the
+dashboard's "Production" deployment stayed pinned to an old commit for 8+ hours, and every
+dashboard "Create Deployment" / "Redeploy" attempt kept rebuilding that SAME stale commit
+instead of pulling `master`'s actual HEAD. Root cause: the GitHub App connection/webhook had
+gone stale (`gh api repos/<owner>/<repo>/hooks` returned `[]`) even though the Vercel project's
+stored git link (`repoId`, `productionBranch`) looked completely correct via the API — the
+break was in the GitHub↔Vercel webhook delivery itself, not any inspectable config.
+- **Fix**: Vercel dashboard → project → **Settings → Git → Disconnect**, then **Connect Git
+  Repository** again and re-select the repo. This forces Vercel to re-register its GitHub App
+  webhook from scratch. Confirmed working by pushing a trivial commit and watching a `git`-sourced
+  deployment appear automatically within seconds (previously: nothing, ever, no matter how long
+  you waited).
+- **`cp-mentor-delta.vercel.app` is a manually-pinned alias, not a domain that auto-follows
+  production** — even with the webhook fixed and auto-deploy working again, this specific alias
+  needs `vercel alias set <deployment> cp-mentor-delta.vercel.app` after every deploy that should
+  go live there. The project's own default domain (`cp-mentor-shivanshu-pandeys-projects.vercel.app`)
+  DOES auto-follow production and needs no manual step — worth switching to that (or a real custom
+  domain, which also auto-follows) if this manual-alias friction becomes a recurring problem.
+- **The Vercel project's Root Directory is `cp-mentor/frontend`, relative to the git repo
+  root** — running `vercel` CLI commands from *inside* `cp-mentor/frontend` after linking to the
+  project causes a doubled path (`.../frontend/cp-mentor/frontend`) and fails immediately. Always
+  run `vercel` commands (`link`, `--prod`, etc.) from the actual git repo root
+  (`/home/shivanshupandey/Videos/Self Project /Leetcode/`), not from inside the frontend folder.
+- **`vercel link` with no `--project` flag can silently create a brand-new empty project**
+  instead of linking to the existing one, if run from a directory whose name happens to not
+  match — this happened once this session (created a stray empty "frontend" project). Always
+  pass `--project <exact-existing-name>` explicitly rather than trusting auto-detection.
 
 ## Known Patterns / Gotchas
 - LeetCode GraphQL has no `constraints` field on QuestionNode — removed from query
@@ -838,38 +920,38 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   free MySQL (persistence). Render free tier spins down after 15 min idle — first request
   after a quiet period is slow (cold start), that's expected.
 
-- **NovaCode v2 Phase A — Design System**: `tokens.scss` (near-black surfaces, one lime accent,
+- **Drona v2 Phase A — Design System**: `tokens.scss` (near-black surfaces, one lime accent,
   4px spacing, 4/6/8 radius, type scale, 120–180ms motion), a custom Material theme built from
   those tokens (density -3), self-hosted Inter + JetBrains Mono via `@fontsource`, a dev-only
   `/styleguide` reference page. Existing pages NOT yet migrated to the new tokens — see gotchas.
-- **NovaCode v2 Phase B — Visualizer Engine**: shared `<app-viz-player>` (keyboard-driven
+- **Drona v2 Phase B — Visualizer Engine**: shared `<app-viz-player>` (keyboard-driven
   play/pause/step/scrub/speed) + 7 SVG structure renderers + the Frame/Trace model. Lazy-loaded,
   standalone — see gotchas for the catalog/registry split that keeps it out of the eager bundle.
-- **NovaCode v2 Phase C — 12 visualizer categories, 13 trace generators**: array rotation,
+- **Drona v2 Phase C — 12 visualizer categories, 13 trace generators**: array rotation,
   two-pointer pair-sum, sliding-window longest-unique-substring, Dutch flag, anagram frequency
   array, monotonic-stack next-greater, prefix-sum range query, linked-list fast/slow cycle
   detection, tree in-order DFS, trie insert/search, graph BFS wave, DP-table climbing stairs,
   selection sort. Reachable at `/visualize/{slug}`, plus a launcher card on the matching
   pattern's detail page. One representative algorithm per category, not every sub-variant
   described in the spec — see gotchas.
-- **NovaCode v2 Phase D — Command Palette**: `Cmd/Ctrl+K` opens a fuzzy-search palette (patterns,
+- **Drona v2 Phase D — Command Palette**: `Cmd/Ctrl+K` opens a fuzzy-search palette (patterns,
   problems, companies, static routes/actions, recent items via localStorage), fully keyboard-
   driven (arrows/Enter/Esc), built from scratch with no new dependency. Global shortcuts: `/`
   focus-search, `g p` / `g d` chord navigation, `?` help overlay. Scope note: `j`/`k`, `t`, `h`,
   and worksheet `Enter`-advance are deferred to later, component-specific work — see gotchas.
-- **NovaCode v2 Phase E — Method content**: 9 seeded reference-data entities (5 method phases,
+- **Drona v2 Phase E — Method content**: 9 seeded reference-data entities (5 method phases,
   7-row complexity budget, 5 optimization moves, 6 stuck rungs, 5 recovery steps, 21 trigger
   phrases w/ antiTriggers, 35-topic priority curriculum, 8-step interview script, company/pattern
   frequency join), all public + cached. Frontend service exists (`method-content.service.ts`) but
   no page consumes it yet — deeper integration (gating the solve-session stepper by rung timers,
   the mandatory recovery checklist at hint level 4, the interview script on the completion
   screen) is deferred, not built this round.
-- **NovaCode v2 Phase F — Retention-weighted gamification**: recall streak (with a same-day grace
+- **Drona v2 Phase F — Retention-weighted gamification**: recall streak (with a same-day grace
   period), pattern mastery tiers (Learning/Familiar/Solid/Mastered) as a tile grid, submissions-
   per-accepted with an 8-week trend, a hand-drawn PNG share card (`java.awt.Graphics2D`, zero new
   deps, rate-limited 10/day) on the Progress Dashboard. Confetti fires once, on completing a full
   recall drill with every entry PASS — the one place the design brief allows it.
-- **NovaCode v2 Phase G — Removals**: honest `degraded: true` AI state in prod/dev (mock/concept
+- **Drona v2 Phase G — Removals**: honest `degraded: true` AI state in prod/dev (mock/concept
   fallback survives in `test` profile only), YouTube integration deleted entirely
   (frontend + backend + config), Analysis page collapsed 5→2 tabs, per-user `leetcodeUsername`
   (`/leetcode-stats/me`, `/leetcode-stats/{username}`, 10-min cache with stale-on-error) replacing

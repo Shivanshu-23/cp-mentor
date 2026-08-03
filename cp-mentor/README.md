@@ -1,6 +1,8 @@
-# NovaCode
+# Drona
 
-[![GitHub repo](https://img.shields.io/badge/GitHub-cp--mentor-181717?logo=github)](https://github.com/Shivanshu-23/cp-mentor)
+*Earn the answer.*
+
+[![GitHub repo](https://img.shields.io/badge/GitHub-drona-181717?logo=github)](https://github.com/Shivanshu-23/drona)
 
 Production-grade AI-powered competitive programming mentor — Java 21 + Spring Boot 3 + Angular 17 + Material UI
 

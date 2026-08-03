@@ -1,4 +1,4 @@
-// NovaCode v2 design system — tokens first, then the Material theme built
+// Drona v2 design system — tokens first, then the Material theme built
 // from them, then self-hosted fonts. Everything below this point is the
 // pre-v2 app-wide token/utility layer, kept as-is for now: existing pages
 // still consume --bg-0 etc. directly and haven't been migrated to the new
@@ -11,34 +11,39 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  // ── Backgrounds ─────────────────────────────────────────────────────
-  --bg-0: #0d1117;        // page
-  --bg-1: #161b22;        // cards
-  --bg-hover: #21262d;    // hover
-  --glass: rgba(22, 27, 34, 0.8);
-  --glass-strong: rgba(22, 27, 34, 0.92);
+  // ── Noir palette — near-black + white/gray, one saturated red ────────
+  // Backgrounds
+  --bg-0: #0a0a0a;        // page
+  --bg-1: #151515;        // cards
+  --bg-hover: #1f1f1f;    // hover
+  --glass: rgba(18, 18, 18, 0.82);
+  --glass-strong: rgba(18, 18, 18, 0.94);
 
   // ── Borders ─────────────────────────────────────────────────────────
-  --border: #30363d;
-  --border-hover: #58a6ff;
+  --border: #2a2a2a;
+  --border-hover: #f2f2f2;
   --glass-border: var(--border);
   --glass-border-hover: var(--border-hover);
 
-  // ── Accents ─────────────────────────────────────────────────────────
-  --accent-blue: #58a6ff;
+  // ── Accents — monochrome white/gray is primary; --accent-red/-orange
+  //    (folded into the same red) is the one saturated colour in the
+  //    entire app, used sparingly — the "one splash of colour" noir move.
+  //    Green/yellow kept for genuine semantic meaning (easy/medium
+  //    difficulty, success/warning states), not decoration.
+  --accent-blue: #f2f2f2;
   --accent-green: #3fb950;
   --accent-yellow: #d29922;
   --accent-red: #f85149;
-  --accent-purple: #bc8cff;
-  --accent-orange: #ffa657;
+  --accent-purple: #a8a8a8;
+  --accent-orange: #f85149;
 
   // ── Text ────────────────────────────────────────────────────────────
-  --text-hi: #e6edf3;
-  --text-lo: #8b949e;
-  --text-muted: #484f58;
+  --text-hi: #f2f2f2;
+  --text-lo: #9a9a9a;
+  --text-muted: #5c5c5c;
 
-  --shadow-soft: 0 8px 32px rgba(1, 4, 9, 0.45);
-  --shadow-lift: 0 16px 48px rgba(1, 4, 9, 0.6), 0 0 0 1px var(--border-hover);
+  --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.55);
+  --shadow-lift: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--border-hover);
   --radius: 14px;
 }
 
@@ -54,25 +59,26 @@ body {
   overflow-x: hidden;
 }
 
-// ── Ambient animated background ──────────────────────────────────────
+// ── Ambient animated background — noir: white glows + one red splash,
+//    no hue-rotate (that would drift the whole page off-monochrome) ────
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(600px circle at 12% 8%, rgba(88, 166, 255, 0.14), transparent 60%),
-    radial-gradient(700px circle at 88% 18%, rgba(188, 140, 255, 0.12), transparent 60%),
-    radial-gradient(650px circle at 25% 92%, rgba(63, 185, 80, 0.08), transparent 60%),
-    radial-gradient(500px circle at 95% 85%, rgba(255, 166, 87, 0.07), transparent 60%),
+    radial-gradient(600px circle at 12% 8%, rgba(242, 242, 242, 0.10), transparent 60%),
+    radial-gradient(700px circle at 88% 18%, rgba(242, 242, 242, 0.07), transparent 60%),
+    radial-gradient(650px circle at 25% 92%, rgba(216, 31, 38, 0.06), transparent 60%),
+    radial-gradient(500px circle at 95% 85%, rgba(242, 242, 242, 0.05), transparent 60%),
     var(--bg-0);
   background-attachment: fixed;
   animation: drift 30s ease-in-out infinite alternate;
 }
 
 @keyframes drift {
-  0%   { filter: hue-rotate(0deg) brightness(1); }
-  100% { filter: hue-rotate(12deg) brightness(1.05); }
+  0%   { filter: brightness(1); }
+  100% { filter: brightness(1.05); }
 }
 
 // Code font
@@ -231,8 +237,8 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
 // ── Topic chips ───────────────────────────────────────────────────────
 .topic-chip {
   display: inline-block;
-  background: rgba(88, 166, 255, 0.08);
-  border: 1px solid rgba(88, 166, 255, 0.35);
+  background: rgba(242, 242, 242, 0.08);
+  border: 1px solid rgba(242, 242, 242, 0.35);
   color: var(--accent-blue);
   border-radius: 6px;
   padding: 3px 10px;
@@ -281,7 +287,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   padding-right: 36px;
 
   &:hover { border-color: var(--border-hover); }
-  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(242, 242, 242, 0.15); }
 
   option { background: var(--bg-1); color: var(--text-hi); }
 }
@@ -317,7 +323,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
     &:focus {
       outline: none;
       border-color: var(--accent-blue);
-      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+      box-shadow: 0 0 0 3px rgba(242, 242, 242, 0.15);
     }
   }
 }
@@ -392,9 +398,19 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
       border-radius: 9px;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, rgba(88, 166, 255, 0.25), rgba(188, 140, 255, 0.25));
+      background: linear-gradient(135deg, rgba(242, 242, 242, 0.25), rgba(168, 168, 168, 0.25));
       border: 1px solid var(--border);
       mat-icon { color: var(--accent-blue); font-size: 18px; width: 18px; height: 18px; }
+    }
+
+    .brand-tagline {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-style: italic;
+      margin-left: 2px;
+      white-space: nowrap;
+
+      @media (max-width: 900px) { display: none; }
     }
 
     .brand-name {
@@ -405,7 +421,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 0 8px rgba(88, 166, 255, 0.45));
+      filter: drop-shadow(0 0 8px rgba(242, 242, 242, 0.45));
     }
   }
 
@@ -445,7 +461,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
 
   .active-link {
     color: var(--accent-blue) !important;
-    background: rgba(88, 166, 255, 0.1) !important;
+    background: rgba(242, 242, 242, 0.1) !important;
 
     &::after { transform: scaleX(1) !important; }
   }
@@ -467,7 +483,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
 .mat-tab-label, .mat-mdc-tab { color: var(--text-lo) !important; }
 .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
   color: var(--accent-blue) !important;
-  text-shadow: 0 0 12px rgba(88, 166, 255, 0.5);
+  text-shadow: 0 0 12px rgba(242, 242, 242, 0.5);
 }
 .mdc-tab-indicator__content--underline {
   border-color: var(--accent-blue) !important;
@@ -491,9 +507,9 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
 .mat-mdc-raised-button.mat-primary {
   --mdc-protected-button-container-color: transparent;
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
-  box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(242, 242, 242, 0.3) !important;
   transition: box-shadow 0.25s ease, transform 0.15s ease, filter 0.15s ease;
-  &:hover { filter: brightness(1.1); box-shadow: 0 6px 24px rgba(88, 166, 255, 0.45) !important; transform: translateY(-1px); }
+  &:hover { filter: brightness(1.1); box-shadow: 0 6px 24px rgba(242, 242, 242, 0.45) !important; transform: translateY(-1px); }
 }
 
 .mat-mdc-outlined-button, .mat-mdc-button {
@@ -632,7 +648,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   font-weight: 500;
   cursor: pointer;
   text-decoration: none;
-  &:hover { text-decoration: underline; color: #79b8ff; }
+  &:hover { text-decoration: underline; color: var(--text-hi); }
 }
 
 .tick-circle {
@@ -676,7 +692,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
       height: 26px;
       padding: 0 6px;
       border-radius: 6px;
-      background: rgba(88, 166, 255, 0.12);
+      background: rgba(242, 242, 242, 0.12);
       color: var(--accent-blue);
       font-family: 'JetBrains Mono', monospace;
       font-weight: 600;
@@ -852,7 +868,7 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
     transition: opacity 0.2s ease;
     background: radial-gradient(
       circle at var(--tilt-glow-x, 50%) var(--tilt-glow-y, 50%),
-      rgba(88, 166, 255, 0.16),
+      rgba(242, 242, 242, 0.16),
       transparent 60%
     );
   }

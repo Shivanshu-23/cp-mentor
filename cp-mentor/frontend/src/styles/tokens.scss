@@ -1,4 +1,7 @@
-// NovaCode v2 design tokens — the "terminal for DSA" system.
+// Drona v2 design tokens — the "terminal for DSA" system, noir edition:
+// black/white with one red splash — matching the app-wide legacy token
+// palette in styles.scss (same #f85149 red, chosen there for its already-
+// proven ~6:1 contrast on near-black rather than inventing a new value).
 // Reference points: Linear, Raycast, Vercel dashboard, Warp, tldraw.
 // Every colour/spacing/radius/type/motion value used anywhere in the app
 // must come from a token defined here. No hardcoded hex outside this file.
@@ -8,7 +11,8 @@
 //   --text-secondary  ~8.8:1  (body text, safe ≥7:1)
 //   --text-muted      ~5.6:1  (UI chrome only — labels/timestamps — NOT body copy;
 //                              passes the 4.5:1 UI-text bar, not the 7:1 body bar)
-//   --accent          ~15.3:1 (safe as text-on-dark or as a fill with --text-on-accent)
+//   --accent          ~6.1:1  (safe as text-on-dark; --text-on-accent flipped to
+//                              light since this red is darker than the old lime)
 
 :root {
   // ── Surfaces ──────────────────────────────────────────────────────────
@@ -22,9 +26,9 @@
   --border-hairline-strong: rgba(255, 255, 255, 0.16);
 
   // ── Accent — exactly one, used sparingly ────────────────────────────
-  --accent: #c7f284; // electric lime
-  --accent-dim: rgba(199, 242, 132, 0.14); // low-opacity fill for hover/selected rows
-  --text-on-accent: #0a0a0a; // text placed on a solid --accent fill
+  --accent: #f85149; // noir red — same value as legacy --accent-red
+  --accent-dim: rgba(248, 81, 73, 0.14); // low-opacity fill for hover/selected rows
+  --text-on-accent: #f2f2f2; // text placed on a solid --accent fill (red is darker than the old lime, so this flipped light)
 
   // ── Semantic state — never used decoratively ───────────────────────
   --state-success: #4ade80;

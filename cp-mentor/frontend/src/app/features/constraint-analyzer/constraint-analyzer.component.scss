@@ -39,7 +39,7 @@
   &:focus {
     outline: none;
     border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(242, 242, 242, 0.15);
   }
 }
 
@@ -78,7 +78,7 @@
 
 .complexity-chip {
   display: inline-block;
-  background: rgba(88, 166, 255, 0.1);
+  background: rgba(242, 242, 242, 0.1);
   border: 1px solid var(--accent-blue);
   color: var(--accent-blue);
   border-radius: 8px;
