@@ -118,7 +118,20 @@
   grid-template-columns: 60px 1fr 110px 110px;
 }
 
-.row-id { color: var(--text-lo); font-size: 13px; }
+.row-id { color: var(--text-lo); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+// .row-title-link's color/hover come from the app-wide rule in styles.scss — this is
+// now a real <a> (was a non-focusable <span>), so it needs a keyboard focus ring.
+.row-title-link {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  border-radius: 4px;
+
+  &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
+}
 
 .role-chip {
   border-radius: 6px;

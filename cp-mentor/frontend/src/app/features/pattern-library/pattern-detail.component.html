@@ -124,7 +124,7 @@
             <div class="table-row problems-row" *ngFor="let p of problems">
               <div class="row-id mono">{{ p.leetcodeId }}</div>
               <div class="row-title-cell">
-                <span (click)="openProblem(p.url)" class="row-title-link">{{ p.title }}</span>
+                <a [href]="p.url" target="_blank" rel="noopener" class="row-title-link">{{ p.title }}</a>
               </div>
               <div>
                 <span class="badge" [class]="diffClass(p.difficulty)">{{ p.difficulty }}</span>

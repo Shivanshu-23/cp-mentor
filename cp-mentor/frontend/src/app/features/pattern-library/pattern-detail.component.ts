@@ -68,10 +68,6 @@ export class PatternDetailComponent implements OnInit {
     return d?.toLowerCase() ?? 'easy';
   }
 
-  openProblem(url: string): void {
-    window.open(url, '_blank', 'noopener');
-  }
-
   categoryLabel(c: string): string {
     const labels: Record<string, string> = {
       ARRAY: 'Array', STRING: 'String', LINKED_LIST: 'Linked List', TREE: 'Tree',
