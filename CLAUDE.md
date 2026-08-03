@@ -390,6 +390,20 @@ src/app/
 │   ├── progress-dashboard/        ← Phase 5: /progress — StatsResponse metrics + v2 Phase F's
 │   │                                  mastery-card (recall streak, pattern-mastery tile grid,
 │   │                                  submissions-per-accepted trend, "Share stat card" button)
+│   ├── method-guide/               ← /method-guide, standalone + lazy (same reason as
+│   │                                  visualizer/styleguide — large static content, kept out of
+│   │                                  the eager bundle). The full "How to Analyse and Approach a
+│   │                                  DSA Problem" reference doc (mindset, 5 phases, constraints
+│   │                                  table, 5 optimisation moves, stuck ladder, recovery
+│   │                                  protocol, trigger dictionary, 3 worked examples, interview
+│   │                                  script, printable blank worksheet) as one hand-written
+│   │                                  static page — content is user-authored prose, not sourced
+│   │                                  from the Phase E method-content API (wording wouldn't
+│   │                                  match the seeded DB rows verbatim; see the Phase E gotcha
+│   │                                  above about that content still having no consumer page).
+│   │                                  Public route, no AuthGuard. Registered in the command
+│   │                                  palette's static items and the navbar (after Pattern
+│   │                                  Library).
 │   └── visualizer/                ← v2 Phase B/C, ALL standalone components (see gotchas for why
 │       │                             this is the one feature that deviates from the AppModule
 │       │                             convention beyond styleguide)

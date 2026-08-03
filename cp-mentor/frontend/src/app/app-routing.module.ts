@@ -41,6 +41,10 @@ const routes: Routes = [
   // lazy-loaded on route"). Standalone, so it isn't pulled into AppModule's
   // eager bundle at all; only fetched when a user actually opens one.
   { path: 'visualize/:slug', loadComponent: () => import('./features/visualizer/visualizer-page.component').then(m => m.VisualizerPageComponent) },
+  // The "How to Analyse and Approach a DSA Problem" method guide — a long,
+  // purely static reference page, so it's standalone + lazy for the same
+  // bundle-size reason as the visualizer route above. Public, no AuthGuard.
+  { path: 'method-guide', loadComponent: () => import('./features/method-guide/method-guide.component').then(m => m.MethodGuideComponent) },
   { path: 'solve', component: SolveSessionListComponent, canActivate: [AuthGuard] },
   { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
   { path: 'recall-drill', component: RecallDrillComponent, canActivate: [AuthGuard] },

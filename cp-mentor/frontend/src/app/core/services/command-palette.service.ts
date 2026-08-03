@@ -62,6 +62,7 @@ export class CommandPaletteService {
 
     const items: PaletteItem[] = [
       { id: 'route-patterns', label: 'Pattern Library', sublabel: 'Browse all patterns', icon: 'lightbulb', kind: 'route', run: () => this.navigate('/patterns') },
+      { id: 'route-method-guide', label: 'How to Solve', sublabel: 'The 5-phase method, with worked examples', icon: 'menu_book', kind: 'route', run: () => this.navigate('/method-guide') },
       { id: 'route-home', label: 'Daily Problem', sublabel: 'Today\'s challenge + LeetCode activity', icon: 'home', kind: 'route', run: () => this.navigate('/home') },
       { id: 'route-company', label: 'Company Tracker', sublabel: 'DSA problems by company', icon: 'business', kind: 'route', run: () => this.navigate('/company-tracker') },
       { id: 'route-constraint', label: 'Constraint Analyzer', sublabel: 'n → target complexity', icon: 'analytics', kind: 'route', run: () => this.navigate('/constraint-analyzer') },
