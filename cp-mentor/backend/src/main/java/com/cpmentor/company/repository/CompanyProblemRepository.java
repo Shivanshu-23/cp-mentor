@@ -17,6 +17,13 @@ public interface CompanyProblemRepository extends JpaRepository<CompanyProblem, 
     Page<CompanyProblem> findByCompanyAndTimeframeAndDifficulty(
             String company, String timeframe, String difficulty, Pageable pageable);
 
+    // Phase 6 company/pattern cross-link — leetcodeIds resolved from PatternProblem by the service.
+    Page<CompanyProblem> findByCompanyAndTimeframeAndLeetcodeIdIn(
+            String company, String timeframe, List<String> leetcodeIds, Pageable pageable);
+
+    Page<CompanyProblem> findByCompanyAndTimeframeAndDifficultyAndLeetcodeIdIn(
+            String company, String timeframe, String difficulty, List<String> leetcodeIds, Pageable pageable);
+
     boolean existsByLeetcodeIdAndCompanyAndTimeframe(String leetcodeId, String company, String timeframe);
 
     long countByCompanyAndTimeframe(String company, String timeframe);

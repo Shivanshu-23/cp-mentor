@@ -27,18 +27,19 @@ public class CompanyProblemController {
     private final CompanyDataLoaderService loaderService;
 
     @GetMapping
-    @Operation(summary = "Get company-wise problems with user progress (tick marks)")
+    @Operation(summary = "Get company-wise problems with user progress (tick marks), optionally filtered by pattern (?patternSlug=)")
     public ResponseEntity<Page<CompanyProblemDTO>> getProblems(
             @RequestParam(defaultValue = "amazon")  String company,
             @RequestParam(defaultValue = "all")     String timeframe,
             @RequestParam(required = false)         String difficulty,
+            @RequestParam(required = false)         String patternSlug,
             @RequestParam(defaultValue = "0")       int page,
             @RequestParam(defaultValue = "50")      int size,
             @AuthenticationPrincipal UserDetails user) {
 
         String email = user != null ? user.getUsername() : null;
         PageRequest pageable = PageRequest.of(page, size, Sort.by("leetcodeId").ascending());
-        return ResponseEntity.ok(service.getProblems(company, timeframe, difficulty, email, pageable));
+        return ResponseEntity.ok(service.getProblems(company, timeframe, difficulty, patternSlug, email, pageable));
     }
 
     @PostMapping("/{leetcodeId}/tick")

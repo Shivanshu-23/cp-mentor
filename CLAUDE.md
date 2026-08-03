@@ -90,12 +90,14 @@ com.cpmentor/
 │   ├── repository/CompanyProblemRepository.java
 │   ├── repository/UserProblemProgressRepository.java
 │   ├── service/CompanyDataLoaderService.java  ← loads from GitHub CSV
-│   ├── service/CompanyProblemService.java
-│   ├── controller/CompanyProblemController.java
+│   ├── service/CompanyProblemService.java     ← Phase 6: depends on method.PatternProblemRepository
+│   │                                             for the company/pattern cross-link (see gotchas —
+│   │                                             the one deliberate cross-feature dependency)
+│   ├── controller/CompanyProblemController.java  ← GET now also takes ?patternSlug=
 │   └── dto/CompanyProblemDTO.java
 ├── common/
 │   └── DataInitializer.java         ← seeds 3 problems on startup
-├── method/                          ← Practice Method module (Phase 1: pattern library)
+├── method/                          ← Practice Method module — ALL 6 PHASES COMPLETE
 │   ├── controller/PatternController.java
 │   ├── service/PatternService.java
 │   ├── service/PatternSeederService.java   ← seeds data/patterns.json + global resources on startup
@@ -155,7 +157,7 @@ GET  /api/v1/daily-challenge/status
 POST /api/v1/daily-challenge/fetch
 
 # Company Tracker (needs JWT fix — see CURRENT BUGS)
-GET  /api/v1/company-problems?company=amazon&timeframe=all&page=0&size=50
+GET  /api/v1/company-problems?company=amazon&timeframe=all&page=0&size=50&patternSlug=monotonic-stack (patternSlug optional, Phase 6 cross-link)
 POST /api/v1/company-problems/{leetcodeId}/tick
 GET  /api/v1/company-problems/companies
 GET  /api/v1/company-problems/stats
@@ -272,7 +274,7 @@ src/app/
 │   ├── analysis/                  ← 5-tab AI analysis page
 │   ├── login/
 │   ├── register/
-│   ├── company-tracker/           ← company-wise DSA tracker with tick marks
+│   ├── company-tracker/           ← company-wise DSA tracker with tick marks + Phase 6 pattern filter
 │   ├── pattern-library/           ← Phase 1: pattern grid (/patterns) + detail (/patterns/:slug)
 │   │   ├── pattern-library.component.ts/html/scss   ← searchable/filterable grid
 │   │   └── pattern-detail.component.ts/html/scss    ← 6-tab detail (Intuition/Template/
@@ -395,6 +397,23 @@ src/app/
   full entries, not title-only) — the frontend just doesn't render it until "Reveal" is clicked.
   This is a UX-only gate, not a security boundary; fine for a solo self-study tool, would need
   rethinking if this ever became multi-party (e.g. a shared quiz).
+- **`company` package now depends on `method` package** (`CompanyProblemService` injects
+  `PatternProblemRepository`) — the one deliberate cross-feature dependency in an otherwise
+  strict package-by-feature layout, needed for Phase 6's "Amazon problems that use monotonic
+  stack" cross-link. One-directional only (company -> method); method must never depend back on
+  company. If this pattern needs to repeat elsewhere, consider whether it's still one link or a
+  sign the join belongs in its own package instead.
+- **Interview follow-ups only exist at the pattern level, not per-problem.** The original spec
+  says "per pattern and per problem" — `Pattern.interviewFollowUps` was already seeded in Phase 1
+  and is what's surfaced on the Solve Session completion screen via `SolveSession.patternSlug`.
+  Adding true per-problem follow-ups would mean a new field on `PatternProblem` and re-authoring
+  content for all 76 seeded problems; skipped as low value for the effort versus the existing
+  pattern-level coverage. Revisit if per-problem specificity turns out to matter in practice.
+- **Printable exports are `window.print()`, not generated PDFs** — same approach as Phase 2's
+  constraint-analyzer checklist, applied to the Solve Session completion screen (full worksheet
+  review) and the Progress Dashboard's trigger log. Zero cost, zero new dependencies, consistent
+  with the project's free-hosting constraint. Both pages wrap non-printable UI (nav, forms, stat
+  cards on the same page as the log) in `.no-print`.
 
 ## Environment Variables
 ```bash
@@ -451,8 +470,16 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   avg submissions, unaided rate, patterns mastered, weak patterns (FAIL in last 14 days),
   triggers due today, retention rate. Solve Session completion screen links into the drill
   pre-filled with leetcodeId/title/patternSlug.
-- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
-  Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions, Recall Drill, Progress
+- Practice Method Phase 6 — Interview Follow-Ups & Polish. Completion screen shows the resolved
+  pattern's `interviewFollowUps` (pattern-level, not per-problem — see gotchas) plus a full
+  printable review of every worksheet field. `GET /api/v1/company-problems` takes an optional
+  `?patternSlug=` to cross-link with the pattern library ("Amazon problems that use monotonic
+  stack" — verified live, returns exactly the linked problems, empty page for unknown slugs,
+  never an error). Company Tracker gained a Pattern filter dropdown. Progress Dashboard gained a
+  full, printable Trigger Log. **All 6 Practice Method phases are now complete.**
+- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker
+  (+ pattern filter), Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions
+  (+ printable completion review), Recall Drill, Progress Dashboard (+ printable trigger log)
 - Swagger UI at /swagger-ui.html
 - `docker-compose.yml` (cp-mentor root) — one-command local MySQL
 - **Live on the free stack**: Vercel (frontend) + Render free web service (backend) + Aiven
@@ -460,16 +487,12 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   after a quiet period is slow (cold start), that's expected.
 
 ## What's Pending ❌
-- [ ] Practice Method Phase 6 — interview follow-up bank surfaced on session completion
-      (`Pattern.interviewFollowUps` already exists from Phase 1, needs wiring to the completion
-      screen via `SolveSession.patternSlug`), company cross-link (filter company problems by
-      pattern), printable export for worksheet + trigger log
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. Practice Method Phase 6 — interview follow-ups + company cross-link + printable export
-2. Redis setup
-3. Docker Compose for backend + frontend
+1. Redis setup
+2. Docker Compose for backend + frontend
+3. GitHub Actions CI/CD

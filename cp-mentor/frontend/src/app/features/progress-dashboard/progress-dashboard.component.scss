@@ -88,3 +88,55 @@
 
   &:hover { background: rgba(248, 81, 73, 0.2); }
 }
+
+.print-only-header { display: none; }
+
+.log-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.log-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child { border-bottom: none; }
+}
+
+.log-row-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.log-title { font-weight: 600; color: var(--text-hi); font-size: 14px; }
+
+.stage-pill {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--accent-blue);
+}
+
+.log-trigger { color: #c9d1d9; font-size: 13px; margin: 0 0 4px; }
+.log-meta { color: var(--text-muted); font-size: 12px; margin: 0; }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only-header { display: block; margin-bottom: 12px; }
+  .glass-card {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+  .log-title, .log-trigger, .log-meta, .stat-value, .stat-label, .metric-value, .metric-label {
+    color: #000 !important;
+  }
+}

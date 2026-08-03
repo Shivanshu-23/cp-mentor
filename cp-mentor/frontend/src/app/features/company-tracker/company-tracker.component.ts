@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../core/services/auth.service';
+import { PatternService, PatternSummary } from '../../core/services/pattern.service';
 
 export interface CompanyProblem {
   id: number;
@@ -40,7 +41,9 @@ export class CompanyTrackerComponent implements OnInit {
   selectedCompany = 'amazon';
   selectedDifficulty = 'all';
   selectedTimeframe = 'all';
+  selectedPattern = ''; // Phase 6 company/pattern cross-link
   searchTerm = '';
+  patterns: PatternSummary[] = [];
 
   // Pagination
   page = 0;
@@ -68,12 +71,17 @@ export class CompanyTrackerComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private snack: MatSnackBar,
-    public auth: AuthService
+    public auth: AuthService,
+    private patternService: PatternService
   ) {}
 
   ngOnInit(): void {
     this.loadCompanies();
     this.loadStats();
+    this.patternService.getPatterns(undefined, 0, 100).subscribe({
+      next: res => this.patterns = res.content,
+      error: () => {} // pattern filter is a nice-to-have, don't block the page on it
+    });
   }
 
   loadCompanies(): void {
@@ -106,6 +114,7 @@ export class CompanyTrackerComponent implements OnInit {
       page: this.page.toString(),
       size: this.pageSize.toString()
     });
+    if (this.selectedPattern) params.set('patternSlug', this.selectedPattern);
 
     this.http.get<PageResponse<CompanyProblem>>(`/api/v1/company-problems?${params}`).subscribe({
       next: res => {

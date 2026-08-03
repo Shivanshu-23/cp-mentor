@@ -64,6 +64,9 @@ export class SolveSessionWorksheetComponent implements OnInit, OnDestroy {
   elapsedSeconds = 0;
   private timerHandle: any;
 
+  // Phase 6: interview follow-ups, surfaced on the completion screen for the resolved pattern
+  followUps: string[] = [];
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -80,6 +83,7 @@ export class SolveSessionWorksheetComponent implements OnInit, OnDestroy {
         this.hydrateFromSession(session);
         this.loading = false;
         this.startTimer();
+        if (session.endedAt && session.patternSlug) this.loadFollowUps(session.patternSlug);
       },
       error: () => {
         this.loading = false;
@@ -286,12 +290,24 @@ export class SolveSessionWorksheetComponent implements OnInit, OnDestroy {
       next: updated => {
         this.session = updated;
         this.snack.open('Session complete!', '', { duration: 2500 });
+        if (updated.patternSlug) this.loadFollowUps(updated.patternSlug);
       },
       error: () => this.snack.open('Failed to complete session', '', { duration: 3000 })
     });
   }
 
+  private loadFollowUps(patternSlug: string): void {
+    this.patternService.getPattern(patternSlug).subscribe({
+      next: pattern => this.followUps = pattern.interviewFollowUps,
+      error: () => {} // non-critical — completion screen still works without follow-ups
+    });
+  }
+
   get isComplete(): boolean {
     return !!this.session?.endedAt;
+  }
+
+  printWorksheet(): void {
+    window.print();
   }
 }

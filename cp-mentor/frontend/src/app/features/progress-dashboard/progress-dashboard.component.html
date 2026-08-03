@@ -1,16 +1,16 @@
 <div class="page-container page-fade-in">
 
-  <div class="dash-header">
+  <div class="dash-header no-print">
     <h1 class="gradient-text dash-title">Progress Dashboard</h1>
     <p class="dash-sub">A problem only counts toward your total once its trigger has survived at least one spaced-repetition review.</p>
   </div>
 
-  <div *ngIf="loading" class="loading-block">
+  <div *ngIf="loading" class="loading-block no-print">
     <mat-spinner diameter="40" style="margin:0 auto"></mat-spinner>
   </div>
 
   <ng-container *ngIf="!loading && stats">
-
+   <div class="no-print">
     <!-- Top stat row -->
     <div class="stats-row">
       <div class="glass-card hover-lift stat-card">
@@ -75,7 +75,35 @@
         <a *ngFor="let slug of stats.weakPatterns" [routerLink]="['/patterns', slug]" class="weak-pattern-chip">{{ slug }}</a>
       </div>
     </div>
+   </div>
 
   </ng-container>
+
+  <!-- Trigger log — full history, printable -->
+  <div class="glass-card section-card trigger-log-card" *ngIf="!loadingLog">
+    <div class="log-header-row no-print">
+      <div class="section-title"><mat-icon>list_alt</mat-icon>Trigger Log</div>
+      <button mat-stroked-button (click)="printTriggerLog()" *ngIf="triggerLog.length">
+        <mat-icon>print</mat-icon> Print
+      </button>
+    </div>
+    <div class="print-only-header"><h2>Trigger Log</h2></div>
+
+    <div class="log-list" *ngIf="triggerLog.length; else noLog">
+      <div class="log-row" *ngFor="let t of triggerLog">
+        <div class="log-row-header">
+          <span class="row-id mono">#{{ t.leetcodeId }}</span>
+          <span class="log-title">{{ t.title }}</span>
+          <span class="stage-pill">{{ stageLabel(t.reviewStage) }}</span>
+        </div>
+        <p class="log-trigger">{{ t.trigger }}</p>
+        <p class="log-meta" *ngIf="t.patternSlug">Pattern: {{ t.patternSlug }}</p>
+        <p class="log-meta" *ngIf="t.lastReviewResult">Last review: {{ t.lastReviewResult }}</p>
+      </div>
+    </div>
+    <ng-template #noLog>
+      <p class="section-hint">No triggers logged yet — log one after your next solve session.</p>
+    </ng-template>
+  </div>
 
 </div>

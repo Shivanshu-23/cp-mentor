@@ -5,6 +5,8 @@ import com.cpmentor.company.entity.CompanyProblem;
 import com.cpmentor.company.entity.UserProblemProgress;
 import com.cpmentor.company.repository.CompanyProblemRepository;
 import com.cpmentor.company.repository.UserProblemProgressRepository;
+import com.cpmentor.method.entity.PatternProblem;
+import com.cpmentor.method.repository.PatternProblemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ public class CompanyProblemService {
 
     private final CompanyProblemRepository problemRepository;
     private final UserProblemProgressRepository progressRepository;
+    private final PatternProblemRepository patternProblemRepository; // Phase 6 company/pattern cross-link
 
     // ── Get problems with user progress ──────────────────────────────────────
 
@@ -31,9 +34,31 @@ public class CompanyProblemService {
     public Page<CompanyProblemDTO> getProblems(
             String company, String timeframe, String difficulty,
             String userEmail, Pageable pageable) {
+        return getProblems(company, timeframe, difficulty, null, userEmail, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CompanyProblemDTO> getProblems(
+            String company, String timeframe, String difficulty, String patternSlug,
+            String userEmail, Pageable pageable) {
+
+        boolean hasDifficulty = difficulty != null && !difficulty.isBlank() && !difficulty.equalsIgnoreCase("all");
+        boolean hasPattern = patternSlug != null && !patternSlug.isBlank();
 
         Page<CompanyProblem> page;
-        if (difficulty != null && !difficulty.isBlank() && !difficulty.equalsIgnoreCase("all")) {
+        if (hasPattern) {
+            List<String> leetcodeIds = patternProblemRepository.findByPatternSlugOrderByOrderIndexAsc(patternSlug)
+                    .stream().map(PatternProblem::getLeetcodeId).toList();
+            if (leetcodeIds.isEmpty()) {
+                page = Page.empty(pageable);
+            } else if (hasDifficulty) {
+                page = problemRepository.findByCompanyAndTimeframeAndDifficultyAndLeetcodeIdIn(
+                        company, timeframe, difficulty, leetcodeIds, pageable);
+            } else {
+                page = problemRepository.findByCompanyAndTimeframeAndLeetcodeIdIn(
+                        company, timeframe, leetcodeIds, pageable);
+            }
+        } else if (hasDifficulty) {
             page = problemRepository.findByCompanyAndTimeframeAndDifficulty(
                     company, timeframe, difficulty, pageable);
         } else {

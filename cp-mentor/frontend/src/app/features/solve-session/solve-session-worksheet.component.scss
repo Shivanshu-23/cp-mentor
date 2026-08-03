@@ -256,3 +256,42 @@
   margin-top: 12px;
   flex-wrap: wrap;
 }
+
+.print-only-header { display: none; }
+
+.worksheet-review {
+  text-align: left;
+  border-left: 4px solid var(--accent-blue);
+
+  .section-title { margin-top: 20px; &:first-child { margin-top: 0; } }
+}
+
+.review-text {
+  color: #c9d1d9;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 4px 0 0;
+  white-space: pre-wrap;
+}
+
+.review-list {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  color: #c9d1d9;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+// ── Print ────────────────────────────────────────────────────────────
+@media print {
+  .print-only-header { display: block; margin-bottom: 12px; }
+  .glass-card {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+  .review-text, .review-list, .summary-stat .value, .summary-stat .label {
+    color: #000 !important;
+  }
+}

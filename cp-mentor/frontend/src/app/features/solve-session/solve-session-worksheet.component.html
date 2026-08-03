@@ -7,7 +7,7 @@
   <ng-container *ngIf="!loading && session">
 
     <!-- Header + timer -->
-    <div class="glass-card worksheet-header">
+    <div class="glass-card worksheet-header no-print">
       <div class="header-top">
         <div>
           <span class="row-id mono">#{{ session.leetcodeId }}</span>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Step indicator -->
-    <div class="step-indicator">
+    <div class="step-indicator no-print">
       <div class="step-dot" *ngFor="let s of [0,1,2,3,4]"
            [class.active]="step === s"
            [class.done]="step > s"
@@ -39,23 +39,61 @@
     <ng-container *ngIf="isComplete; else activeWorksheet">
       <!-- ── Completion summary ─────────────────────────────────────────── -->
       <div class="glass-card completion-card">
-        <div class="section-title"><mat-icon>check_circle</mat-icon>Session Complete</div>
+        <div class="print-only-header">
+          <h2>{{ session.title }} (#{{ session.leetcodeId }}) — {{ session.difficulty }}</h2>
+        </div>
+        <div class="section-title no-print"><mat-icon>check_circle</mat-icon>Session Complete</div>
         <div class="summary-grid">
           <div class="summary-stat"><span class="value">{{ formatTime(session.durationSeconds || 0) }}</span><span class="label">Duration</span></div>
           <div class="summary-stat"><span class="value">{{ session.submissionCount }}</span><span class="label">Submissions</span></div>
           <div class="summary-stat"><span class="value">{{ session.highestHintLevel }}/4</span><span class="label">Highest Hint</span></div>
           <div class="summary-stat"><span class="value">{{ session.solvedUnaided ? 'Yes' : 'No' }}</span><span class="label">Solved Unaided</span></div>
         </div>
-        <div class="completion-actions">
+        <div class="completion-actions no-print">
           <button mat-raised-button color="primary"
                   [routerLink]="['/recall-drill']"
                   [queryParams]="{leetcodeId: session.leetcodeId, title: session.title, patternSlug: session.patternSlug}">
             <mat-icon>psychology</mat-icon> Log a Trigger for Spaced Repetition
           </button>
+          <button mat-stroked-button (click)="printWorksheet()">
+            <mat-icon>print</mat-icon> Print Worksheet
+          </button>
           <button mat-stroked-button routerLink="/solve" class="back-to-list-btn">
             <mat-icon>list</mat-icon> Back to Sessions
           </button>
         </div>
+      </div>
+
+      <!-- Full worksheet review (also what gets printed) -->
+      <div class="glass-card completion-card worksheet-review">
+        <div class="section-title"><mat-icon>rule</mat-icon>Constraints</div>
+        <p class="review-text">{{ constraintNotes || '—' }}</p>
+        <p class="review-text" *ngIf="targetComplexity"><strong>Target:</strong> {{ targetComplexity }}</p>
+
+        <div class="section-title"><mat-icon>edit</mat-icon>Restate &amp; Brute Force</div>
+        <p class="review-text">{{ restatement || '—' }}</p>
+        <p class="review-text" *ngIf="bruteForceIdea">{{ bruteForceIdea }} <span *ngIf="bruteForceComplexity">({{ bruteForceComplexity }})</span></p>
+
+        <div class="section-title"><mat-icon>psychology</mat-icon>Hand-Solve &amp; Bottleneck</div>
+        <p class="review-text">{{ handSolveNotes || '—' }}</p>
+        <p class="review-text" *ngIf="bottleneckStatement">{{ bottleneckStatement }}</p>
+
+        <div class="section-title"><mat-icon>flag</mat-icon>Final Approach</div>
+        <p class="review-text" *ngIf="movesFired.length">
+          <strong>Moves fired:</strong> {{ movesFired.map(moveLabel).join(', ') }}
+        </p>
+        <p class="review-text">{{ finalApproach || '—' }} <span *ngIf="finalComplexity">({{ finalComplexity }})</span></p>
+
+        <div class="section-title"><mat-icon>fact_check</mat-icon>Edge Cases Checked</div>
+        <ul class="review-list" *ngIf="edgeCasesChecked.length; else noEdgeCases">
+          <li *ngFor="let e of edgeCasesChecked">{{ e }}</li>
+        </ul>
+        <ng-template #noEdgeCases><p class="review-text">—</p></ng-template>
+
+        <div class="section-title" *ngIf="followUps.length"><mat-icon>forum</mat-icon>Interview Follow-Ups to Expect</div>
+        <ul class="review-list" *ngIf="followUps.length">
+          <li *ngFor="let q of followUps">{{ q }}</li>
+        </ul>
       </div>
     </ng-container>
 

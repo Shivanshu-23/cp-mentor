@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TriggerService, StatsResponse } from '../../core/services/trigger.service';
+import { TriggerService, StatsResponse, TriggerEntryResponse } from '../../core/services/trigger.service';
 
 @Component({
   selector: 'app-progress-dashboard',
@@ -11,6 +11,9 @@ export class ProgressDashboardComponent implements OnInit {
 
   stats: StatsResponse | null = null;
   loading = true;
+
+  triggerLog: TriggerEntryResponse[] = [];
+  loadingLog = true;
 
   constructor(private triggerService: TriggerService, private snack: MatSnackBar) {}
 
@@ -25,6 +28,22 @@ export class ProgressDashboardComponent implements OnInit {
         this.snack.open('Failed to load progress stats', '', { duration: 3000 });
       }
     });
+
+    this.triggerService.listAll().subscribe({
+      next: entries => {
+        this.triggerLog = entries;
+        this.loadingLog = false;
+      },
+      error: () => this.loadingLog = false
+    });
+  }
+
+  printTriggerLog(): void {
+    window.print();
+  }
+
+  stageLabel(stage: number): string {
+    return ['Learning (2-day cycle)', 'Reviewing (7-day cycle)', 'Reviewing (21-day cycle)', 'Retired'][stage] ?? `Stage ${stage}`;
   }
 
   get difficultyEntries(): { key: string; value: number }[] {

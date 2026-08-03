@@ -64,6 +64,15 @@
         </select>
       </div>
 
+      <!-- Pattern (Phase 6 company/pattern cross-link) -->
+      <div class="filter-group filter-pattern">
+        <div class="filter-label">Pattern</div>
+        <select [(ngModel)]="selectedPattern" (change)="onFilterChange()" class="glass-select">
+          <option value="">Any Pattern</option>
+          <option *ngFor="let p of patterns" [value]="p.slug">{{ p.name }}</option>
+        </select>
+      </div>
+
       <!-- Count -->
       <div class="count-pill">
         <span>{{ totalElements }} problems</span>
