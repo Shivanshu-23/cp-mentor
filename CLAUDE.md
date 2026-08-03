@@ -107,8 +107,15 @@ com.cpmentor/
 │   ├── repository/ResourceRepository.java
 │   ├── service/ConstraintAnalyzerService.java   ← Phase 2: pure logic, n -> complexity + techniques
 │   ├── service/EdgeCaseGeneratorService.java     ← Phase 2: pure logic, type+flags -> checklist
+│   ├── service/PatternIdentificationService.java ← Phase 3: keyword match against recognitionTriggers
+│   │                                                (NOT AI — see "AI-free by design" gotcha below)
+│   ├── service/HintService.java                  ← Phase 3: progressive hints built from Pattern
+│   │                                                fields only, + rate limiting (no AI)
+│   ├── entity/HintRequestLog.java                ← Phase 3: rate-limit bookkeeping, not exposed via API
+│   ├── repository/HintRequestLogRepository.java
 │   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO,
-│             ConstraintAnalysisRequest/Response, EdgeCaseRequest/Response)
+│             ConstraintAnalysisRequest/Response, EdgeCaseRequest/Response,
+│             PatternIdentificationRequest/Response, PatternCandidateDTO, HintRequest/Response)
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -148,6 +155,8 @@ GET  /api/v1/method/patterns/{slug}/problems (ordered by orderIndex — learning
 GET  /api/v1/method/resources                (?patternSlug= for pattern-scoped, omit for the 8 global ones)
 POST /api/v1/method/analyze-constraints       (Phase 2 — {n, sorted, negativesAllowed, duplicatesAllowed, valuesBounded, maxValue} -> target complexity + ordered technique list + overflow warning)
 POST /api/v1/method/edge-cases                (Phase 2 — {inputType, ...flags, patternSlug?} -> edge-case checklist, merges in a known pattern's own checklist)
+POST /api/v1/method/identify-pattern          (Phase 3, JWT — {problemStatement, constraints?} -> top-3 candidates by keyword match, no AI)
+POST /api/v1/method/hint                      (Phase 3, JWT — {problemStatement, problemIdentifier, level 1-4, patternSlug?, confirmLevel4} -> one hint at exactly that level, rate-limited)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -166,6 +175,8 @@ GET /api/v1/ai/**
 /api/v1/daily-challenge/**
 GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
 POST /api/v1/method/analyze-constraints, /api/v1/method/edge-cases   // Phase 2 — stateless reference logic, no writes
+// Phase 3 identify-pattern/hint are deliberately NOT in any permitAll list — they fall through
+// to the default `.anyRequest().authenticated()` rule, matching the spec's "(JWT)" requirement.
 
 // Everything else → requires JWT Bearer token
 ```
@@ -293,6 +304,28 @@ src/app/
   ever surfaces against a real managed MySQL instance — local docker MySQL and H2 don't enforce
   it, so it won't show up until a real deploy. Any new `@ElementCollection` table in future
   migrations needs the same treatment.
+- **Phase 3 (`identify-pattern`/`hint`) is deliberately AI-free** — user decision, not a fallback
+  workaround. The original feature spec called for extending `AIService`, but the user wants the
+  whole project hostable for free with zero API-cost risk, so `PatternIdentificationService` and
+  `HintService` never call any LLM: pattern ID is literal substring matching against
+  `Pattern.recognitionTriggers`/`antiTriggers`, and hints are built entirely from `Pattern`'s own
+  stored fields (`intuition` for level 2, a regex-based de-Java-ified `javaTemplate` for level 3,
+  the verbatim `javaTemplate` for level 4). If AI-backed pattern ID/hints are wanted later, treat
+  this as a new decision to revisit with the user, not a silent scope change.
+- **Phase 3 acceptance criteria in the original spec doesn't literally hold** — it says pasting
+  Trapping Rain Water should return "monotonic-stack and prefix-suffix" as top candidates. There
+  is no `prefix-suffix` pattern (Phase 1 seeded `prefix-sum` instead — the spec's own Phase 1
+  pattern list never included `prefix-suffix` either, so this looks like a spec inconsistency, not
+  something Phase 1 got wrong). More importantly, since matching is now literal-keyword-only (no
+  AI), the *classic* Trapping Rain Water phrasing doesn't literally contain any of
+  `monotonic-stack`'s or `two-pointer`'s trigger phrases, so it degrades to the frequency-based
+  fallback rather than surfacing those patterns — verified live. Keyword matching only works when
+  the pasted problem statement happens to contain a stored trigger phrase (e.g. "next greater
+  element"). This is an inherent, expected limitation of the AI-free design, not a bug.
+- **No frontend for Phase 3.** The spec's Phase 3 section (unlike Phases 1-2) never described a
+  standalone page — `identify-pattern`/`hint` are clearly meant to be consumed from Phase 4's
+  Solve Session worksheet stepper, which doesn't exist yet. Building a standalone UI now would be
+  orphaned. Revisit once Phase 4 exists.
 
 ## Environment Variables
 ```bash
@@ -332,6 +365,9 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   technique list + overflow warning) and Edge-Case Checklist Generator (input type + flags ->
   checklist, merges in a known pattern's own edge cases); pure logic, zero AI/DB-write cost;
   `/constraint-analyzer` page with printable results
+- Practice Method Phase 3 — Pattern identification (keyword match, JWT) and progressive hints
+  (JWT, rate-limited: sequential level access, cooldown, explicit level-4 confirmation) — both
+  AI-free by deliberate user decision (see gotchas). Backend only, no page yet (see gotchas).
 - Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
   Pattern Library (grid + detail), Constraint Analyzer
 - Swagger UI at /swagger-ui.html
@@ -341,15 +377,17 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   after a quiet period is slow (cold start), that's expected.
 
 ## What's Pending ❌
-- [ ] Practice Method Phases 3-6 — AI pattern identification + progressive hints, solve sessions,
-      spaced repetition/trigger log, interview follow-up bank, company cross-link, PDF export
+- [ ] Practice Method Phase 4 — Solve Session worksheet (stepper UI); this is also where Phase 3's
+      identify-pattern/hint endpoints should get their first frontend consumer
+- [ ] Practice Method Phases 5-6 — spaced repetition/trigger log, interview follow-up bank,
+      company cross-link, PDF export
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. Practice Method Phase 3 — AI pattern identification + progressive hints (extends AIService,
-   never leaks a solution at levels 1-3 — see the feature spec's non-negotiable rule)
+1. Practice Method Phase 4 — Solve Session worksheet (SolveSession entity, stepper UI, first
+   real UI consumer of Phase 3's identify-pattern/hint endpoints)
 2. Redis setup
 3. Docker Compose for backend + frontend
