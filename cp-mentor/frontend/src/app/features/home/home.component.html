@@ -64,6 +64,92 @@
     </details>
   </div>
 
+  <!-- ── LeetCode Activity Dashboard ───────────────────────────── -->
+  <div class="leetcode-dashboard" *ngIf="!loadingStats && leetCodeStats as stats">
+    <div class="section-title">
+      <mat-icon>insights</mat-icon>
+      LeetCode Activity
+      <a [href]="stats.profileUrl" target="_blank" rel="noopener" class="section-sub profile-link">
+        &#64;{{ stats.username }} <mat-icon [inline]="true">open_in_new</mat-icon>
+      </a>
+    </div>
+
+    <div class="lc-stats-row">
+      <div class="lc-stat-card stat-solved" appTilt [tiltMax]="4">
+        <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats.totalSolved }}</div>
+          <div class="stat-label">Total Solved</div>
+        </div>
+      </div>
+      <div class="lc-stat-card stat-today" appTilt [tiltMax]="4">
+        <div class="stat-icon"><mat-icon>today</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats.solvedToday }}</div>
+          <div class="stat-label">Solved Today</div>
+        </div>
+      </div>
+      <div class="lc-stat-card stat-streak" appTilt [tiltMax]="4">
+        <div class="stat-icon"><mat-icon>local_fire_department</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats.streak }}</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+      <div class="lc-stat-card stat-active" appTilt [tiltMax]="4">
+        <div class="stat-icon"><mat-icon>calendar_month</mat-icon></div>
+        <div class="stat-body">
+          <div class="stat-value">{{ stats.totalActiveDays }}</div>
+          <div class="stat-label">Active Days</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card lc-detail-card">
+      <div class="lc-detail-grid">
+
+        <!-- Difficulty split -->
+        <div class="lc-diff-block">
+          <div class="lc-block-label">Difficulty Split</div>
+          <div class="diff-bar">
+            <span class="diff-seg diff-easy" [style.width.%]="difficultyPercent('easy')" [matTooltip]="stats.easySolved + ' Easy'"></span>
+            <span class="diff-seg diff-medium" [style.width.%]="difficultyPercent('medium')" [matTooltip]="stats.mediumSolved + ' Medium'"></span>
+            <span class="diff-seg diff-hard" [style.width.%]="difficultyPercent('hard')" [matTooltip]="stats.hardSolved + ' Hard'"></span>
+          </div>
+          <div class="diff-legend">
+            <span class="legend-item diff-easy"><i></i>Easy {{ stats.easySolved }}</span>
+            <span class="legend-item diff-medium"><i></i>Medium {{ stats.mediumSolved }}</span>
+            <span class="legend-item diff-hard"><i></i>Hard {{ stats.hardSolved }}</span>
+          </div>
+        </div>
+
+        <!-- Last 7 days -->
+        <div class="lc-week-block">
+          <div class="lc-block-label">Last 7 Days</div>
+          <div class="week-bars">
+            <div class="week-bar-col" *ngFor="let d of stats.last7Days">
+              <div class="week-bar-track">
+                <div class="week-bar-fill" [class.zero]="d.count === 0" [style.height.%]="dayBarHeight(d.count)" [matTooltip]="d.count + ' solved'"></div>
+              </div>
+              <div class="week-bar-label">{{ d.date }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent submissions -->
+        <div class="lc-recent-block" *ngIf="stats.recentSubmissions.length">
+          <div class="lc-block-label">Recent Submissions</div>
+          <a *ngFor="let sub of stats.recentSubmissions.slice(0, 5)" [href]="sub.url" target="_blank" rel="noopener" class="recent-sub-row">
+            <mat-icon>task_alt</mat-icon>
+            <span class="recent-sub-title">{{ sub.title }}</span>
+            <span class="recent-sub-time">{{ relativeTime(sub.timestamp) }}</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── Free Learning Roadmap ─────────────────────────────────── -->
   <div class="resources-section">
     <div class="section-title">

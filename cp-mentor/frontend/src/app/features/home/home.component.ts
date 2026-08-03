@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProblemService, Problem } from '../../core/services/problem.service';
+import { LeetCodeStatsService, LeetCodeStats } from '../../core/services/leetcode-stats.service';
 import { RESOURCE_SECTIONS, GAME_PLAN } from './resources.data';
 import * as THREE from 'three';
 
@@ -15,6 +16,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   daily: Problem | null = null;
 
   loadingDaily = true;
+
+  leetCodeStats: LeetCodeStats | null = null;
+  loadingStats = true;
 
   today = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -36,12 +40,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private problemService: ProblemService,
+    private leetCodeStatsService: LeetCodeStatsService,
     private snackBar: MatSnackBar,
     private zone: NgZone
   ) {}
 
   ngOnInit(): void {
     this.loadDaily();
+    this.loadLeetCodeStats();
   }
 
   ngAfterViewInit(): void {
@@ -58,6 +64,43 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       next: p => { this.daily = p; this.loadingDaily = false; },
       error: () => { this.loadingDaily = false; this.snackBar.open('Could not load daily problem', '', { duration: 3000 }); }
     });
+  }
+
+  loadLeetCodeStats(): void {
+    this.loadingStats = true;
+    this.leetCodeStatsService.getStats().subscribe({
+      next: s => { this.leetCodeStats = s; this.loadingStats = false; },
+      error: () => { this.loadingStats = false; }
+    });
+  }
+
+  maxDayCount(): number {
+    if (!this.leetCodeStats?.last7Days?.length) return 1;
+    return Math.max(1, ...this.leetCodeStats.last7Days.map(d => d.count));
+  }
+
+  dayBarHeight(count: number): number {
+    const pct = (count / this.maxDayCount()) * 100;
+    return count === 0 ? 4 : Math.max(10, pct);
+  }
+
+  difficultyPercent(kind: 'easy' | 'medium' | 'hard'): number {
+    const s = this.leetCodeStats;
+    if (!s || s.totalSolved === 0) return 0;
+    const value = kind === 'easy' ? s.easySolved : kind === 'medium' ? s.mediumSolved : s.hardSolved;
+    return (value / s.totalSolved) * 100;
+  }
+
+  relativeTime(timestamp: number): string {
+    const diffMs = Date.now() - timestamp;
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 60) return `${Math.max(mins, 0)}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
   }
 
   openChatGptAnalysis(problem: Problem): void {

@@ -12,8 +12,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 public class AuthService {
+
+    private static final long REMEMBER_ME_EXPIRATION_MILLIS = TimeUnit.DAYS.toMillis(30);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -53,7 +57,7 @@ public class AuthService {
 
         userRepository.save(user);
         String token = jwtUtil.generateToken(user);
-        return buildResponse(user, token);
+        return buildResponse(user, token, jwtUtil.getDefaultExpirationMillis());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -61,15 +65,16 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         User user = (User) userDetailsService.loadUserByUsername(request.getEmail());
-        String token = jwtUtil.generateToken(user);
-        return buildResponse(user, token);
+        long expirationMillis = request.isRememberMe() ? REMEMBER_ME_EXPIRATION_MILLIS : jwtUtil.getDefaultExpirationMillis();
+        String token = jwtUtil.generateToken(user, expirationMillis);
+        return buildResponse(user, token, expirationMillis);
     }
 
-    private AuthResponse buildResponse(User user, String token) {
+    private AuthResponse buildResponse(User user, String token, long expirationMillis) {
         return AuthResponse.builder()
                 .token(token)
                 .tokenType("Bearer")
-                .expiresIn(86400)
+                .expiresIn(expirationMillis / 1000)
                 .username(user.getDisplayUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())

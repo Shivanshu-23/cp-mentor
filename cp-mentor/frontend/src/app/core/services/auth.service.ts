@@ -23,8 +23,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  login(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API}/login`, { email, password }).pipe(
+  login(email: string, password: string, rememberMe = false): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API}/login`, { email, password, rememberMe }).pipe(
       tap(res => this.saveSession(res))
     );
   }

@@ -1,3 +1,10 @@
+/* Hallmark · redesign: single-page craft pass (existing hero/card/accordion
+ * shape preserved, not restructured) · preserved: app-wide dark theme tokens,
+ * the existing Three.js starfield (already earns its place — mouse-parallax,
+ * not a still object), the tilt directive · added: LeetCode Activity section
+ * reusing the icon-chip stat-card language from Company Tracker/Pattern
+ * Library for cross-page consistency — real data only, no invented metrics
+ */
 .hero {
   text-align: center;
   padding: 48px 0 36px;
@@ -205,6 +212,201 @@
     white-space: pre-wrap;
     line-height: 1.7;
   }
+}
+
+// ── LeetCode Activity Dashboard ─────────────────────────────────────────
+// Reuses the icon-chip stat-card language introduced in the Company Tracker
+// redesign, so the same "shape of a stat" reads consistently across pages.
+
+.leetcode-dashboard { margin-top: 32px; }
+
+.profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--text-lo);
+
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
+  &:hover { color: var(--accent-blue); }
+  &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; border-radius: 4px; }
+}
+
+.lc-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 16px 0;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.lc-stat-card {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  .stat-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon { font-size: 20px; width: 20px; height: 20px; }
+  }
+
+  .stat-value { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat-label { color: var(--text-lo); font-size: 12px; margin-top: 2px; }
+
+  &.stat-solved { .stat-icon { background: rgba(63, 185, 80, 0.12); mat-icon { color: var(--accent-green); } } .stat-value { color: var(--accent-green); } }
+  &.stat-today  { .stat-icon { background: rgba(88, 166, 255, 0.12); mat-icon { color: var(--accent-blue); } } .stat-value { color: var(--accent-blue); } }
+  &.stat-streak { .stat-icon { background: rgba(210, 153, 34, 0.12); mat-icon { color: var(--accent-yellow); } } .stat-value { color: var(--accent-yellow); } }
+  &.stat-active { .stat-icon { background: rgba(188, 140, 255, 0.12); mat-icon { color: var(--accent-purple); } } .stat-value { color: var(--accent-purple); } }
+}
+
+.lc-detail-card { padding: 20px 24px; }
+
+.lc-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 28px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lc-block-label {
+  color: var(--text-lo);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.diff-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-0);
+  margin-bottom: 10px;
+}
+
+.diff-seg {
+  height: 100%;
+  transition: width 0.4s ease;
+
+  &.diff-easy   { background: var(--accent-green); }
+  &.diff-medium { background: var(--accent-yellow); }
+  &.diff-hard   { background: var(--accent-red); }
+}
+
+.diff-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-lo);
+
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  &.diff-easy i   { background: var(--accent-green); }
+  &.diff-medium i { background: var(--accent-yellow); }
+  &.diff-hard i   { background: var(--accent-red); }
+}
+
+.week-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 90px;
+}
+
+.week-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.week-bar-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.week-bar-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, var(--accent-blue), rgba(88, 166, 255, 0.35));
+  transition: height 0.4s ease;
+
+  &.zero { background: var(--border); }
+}
+
+.week-bar-label {
+  color: var(--text-muted);
+  font-size: 10px;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.lc-recent-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recent-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-hi);
+
+  &:last-child { border-bottom: none; }
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: var(--accent-green); flex-shrink: 0; }
+
+  .recent-sub-title {
+    flex: 1;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .recent-sub-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+
+  &:hover .recent-sub-title { color: var(--accent-blue); }
+  &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; border-radius: 4px; }
 }
 
 // ── Free Learning Roadmap ───────────────────────────────────────────────

@@ -22,7 +22,8 @@ export class LoginComponent {
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [true]
     });
   }
 
@@ -30,8 +31,8 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.loading = true;
 
-    const { email, password } = this.form.value;
-    this.authService.login(email, password).subscribe({
+    const { email, password, rememberMe } = this.form.value;
+    this.authService.login(email, password, rememberMe).subscribe({
       next: () => {
         this.snackBar.open('Welcome back!', '', { duration: 2000 });
         this.router.navigate(['/home']);

@@ -2,8 +2,41 @@
 
   <!-- ── Header ─────────────────────────────────────────────── -->
   <div class="library-header">
+    <!-- Decorative graph motif — the "Graph" pattern's own shape, drawn once in
+         pure SVG/CSS (no Three.js/Lottie needed for a still backdrop). Freezes
+         under prefers-reduced-motion. -->
+    <svg class="library-graph-motif" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g class="graph-edges">
+        <line x1="80" y1="150" x2="220" y2="60"></line>
+        <line x1="220" y1="60" x2="360" y2="120"></line>
+        <line x1="220" y1="60" x2="180" y2="20"></line>
+        <line x1="360" y1="120" x2="500" y2="45"></line>
+        <line x1="360" y1="120" x2="440" y2="170"></line>
+        <line x1="500" y1="45" x2="630" y2="90"></line>
+        <line x1="500" y1="45" x2="580" y2="15"></line>
+        <line x1="630" y1="90" x2="730" y2="150"></line>
+        <line x1="630" y1="90" x2="700" y2="30"></line>
+      </g>
+      <g class="graph-nodes">
+        <circle cx="80" cy="150" r="5"></circle>
+        <circle cx="220" cy="60" r="5"></circle>
+        <circle cx="180" cy="20" r="4"></circle>
+        <circle cx="360" cy="120" r="5"></circle>
+        <circle cx="440" cy="170" r="4"></circle>
+        <circle cx="500" cy="45" r="5"></circle>
+        <circle cx="580" cy="15" r="4"></circle>
+        <circle cx="630" cy="90" r="5"></circle>
+        <circle cx="700" cy="30" r="4"></circle>
+        <circle cx="730" cy="150" r="4"></circle>
+      </g>
+    </svg>
+
     <h1 class="gradient-text library-title">Pattern Library</h1>
     <p class="library-sub">Learn the structured way to recognize and approach DSA problems — not just a list to grind.</p>
+    <div class="library-meta" *ngIf="!loading">
+      <span><mat-icon>lightbulb</mat-icon>{{ patterns.length }} patterns</span>
+      <span><mat-icon>category</mat-icon>{{ categoryCount }} categories</span>
+    </div>
   </div>
 
   <!-- ── Filters ────────────────────────────────────────────── -->
@@ -11,10 +44,13 @@
     <div class="filters-row">
       <div class="filter-group filter-search">
         <div class="filter-label">Search</div>
-        <div class="search-input-wrapper">
+        <div class="search-input-wrapper" [class.has-clear]="searchTerm">
           <mat-icon class="search-icon">search</mat-icon>
           <input type="text" class="search-input" placeholder="Search by name or trigger phrase..."
                  [(ngModel)]="searchTerm">
+          <button type="button" class="search-clear-btn" *ngIf="searchTerm" (click)="searchTerm=''" aria-label="Clear search">
+            <mat-icon>close</mat-icon>
+          </button>
         </div>
       </div>
 
@@ -39,12 +75,13 @@
 
   <!-- ── Pattern grid ───────────────────────────────────────── -->
   <div *ngIf="!loading" class="pattern-grid">
-    <a *ngFor="let p of filteredPatterns"
+    <a *ngFor="let p of filteredPatterns; let i = index"
        class="glass-card hover-lift pattern-card"
+       [style.--i]="i"
        [routerLink]="['/patterns', p.slug]">
 
       <div class="pattern-card-top">
-        <span class="category-chip">{{ categoryLabel(p.category) }}</span>
+        <span class="category-chip"><mat-icon>{{ categoryIcon(p.category) }}</mat-icon>{{ categoryLabel(p.category) }}</span>
         <span class="frequency-stars" matTooltip="Interview frequency">{{ difficultyStars(p.frequencyScore) }}</span>
       </div>
 

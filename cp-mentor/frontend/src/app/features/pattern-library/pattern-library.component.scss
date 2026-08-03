@@ -1,9 +1,82 @@
+/* Hallmark · redesign: single-page craft pass (Bento-Grid-adjacent — this is a
+ * reference-content card grid, now the app's landing route, not a marketing
+ * page) · preserved: app-wide dark theme tokens + Angular/Material structure
+ * · added: hand-built SVG graph motif (Tier A, ties the header to the literal
+ * Graph pattern), real-count stat strip, category icons, focus-visible on
+ * cards, staggered entrance (single orchestrated reveal, not scroll-repeat),
+ * search-clear affordance
+ */
 .library-header {
+  position: relative;
   text-align: center;
   padding: 32px 0 24px;
+  overflow: hidden;
 
+  .library-title, .library-sub, .library-meta { position: relative; z-index: 1; }
   .library-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
   .library-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
+}
+
+// A graph — nodes + edges — is literally one of the patterns this page
+// teaches. Hand-built SVG (Tier A), not a stock illustration or Lottie pull.
+.library-graph-motif {
+  position: absolute;
+  inset: -20px 0 auto 0;
+  width: 100%;
+  height: 220px;
+  z-index: 0;
+  pointer-events: none;
+
+  .graph-edges line {
+    stroke: var(--accent-blue);
+    stroke-width: 1.2;
+    opacity: 0.22;
+    stroke-dasharray: 6 5;
+    animation: graphEdgeFlow 6s linear infinite;
+  }
+
+  .graph-nodes circle {
+    fill: var(--accent-purple);
+    opacity: 0.3;
+    animation: graphNodePulse 3.2s ease-in-out infinite;
+  }
+
+  .graph-nodes circle:nth-child(3n)   { fill: var(--accent-blue); animation-delay: 0.4s; }
+  .graph-nodes circle:nth-child(3n+1) { animation-delay: 0.9s; }
+  .graph-edges line:nth-child(even)   { animation-direction: reverse; animation-duration: 8s; }
+}
+
+@keyframes graphEdgeFlow {
+  to { stroke-dashoffset: -110; }
+}
+
+@keyframes graphNodePulse {
+  0%, 100% { opacity: 0.25; r: 4.5; }
+  50%      { opacity: 0.55; r: 6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .library-graph-motif .graph-edges line,
+  .library-graph-motif .graph-nodes circle {
+    animation: none;
+  }
+}
+
+.library-meta {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 14px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-lo);
+    font-size: 13px;
+  }
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--accent-blue); }
 }
 
 .filters-card { padding: 20px; margin-bottom: 24px; }
@@ -65,6 +138,13 @@
   text-decoration: none;
   color: inherit;
   cursor: pointer;
+  animation: cardIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: min(calc(var(--i, 0) * 25ms), 400ms);
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 3px;
+  }
 
   .pattern-card-top {
     display: flex;
@@ -74,6 +154,9 @@
   }
 
   .category-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: var(--bg-1);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -83,6 +166,8 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--accent-blue);
+
+    mat-icon { font-size: 13px; width: 13px; height: 13px; }
   }
 
   .frequency-stars {
@@ -151,4 +236,13 @@
   mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px; }
   .empty-title { color: var(--text-lo); font-size: 16px; margin-bottom: 8px; }
   .empty-sub { color: var(--text-muted); font-size: 13px; }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pattern-card { animation: none; }
 }

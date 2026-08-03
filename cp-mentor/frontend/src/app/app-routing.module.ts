@@ -15,7 +15,7 @@ import { RecallDrillComponent } from './features/recall-drill/recall-drill.compo
 import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: '', redirectTo: 'patterns', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'analysis/:id', component: AnalysisComponent },
   { path: 'login', component: LoginComponent },
@@ -28,7 +28,7 @@ const routes: Routes = [
   { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
   { path: 'recall-drill', component: RecallDrillComponent, canActivate: [AuthGuard] },
   { path: 'progress', component: ProgressDashboardComponent, canActivate: [AuthGuard] },
-  { path: '**', redirectTo: 'home' }
+  { path: '**', redirectTo: 'patterns' }
 
 ];
 

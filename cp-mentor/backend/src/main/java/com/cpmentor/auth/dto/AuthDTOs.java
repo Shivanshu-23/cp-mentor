@@ -18,6 +18,7 @@ public class AuthDTOs {
         private String email;
         @NotBlank
         private String password;
+        private boolean rememberMe;
     }
 
     @Data @NoArgsConstructor @AllArgsConstructor

@@ -24,6 +24,8 @@
           </button>
         </mat-form-field>
 
+        <mat-checkbox formControlName="rememberMe" class="remember-me-check">Keep me signed in for 30 days</mat-checkbox>
+
         <button mat-raised-button color="primary" type="submit"
                 [disabled]="form.invalid || loading"
                 class="auth-submit-btn">

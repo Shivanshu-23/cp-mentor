@@ -27,12 +27,20 @@ public class JwtUtil {
     }
 
     public String generateToken(UserDetails userDetails) {
+        return generateToken(userDetails, expiration);
+    }
+
+    public String generateToken(UserDetails userDetails, long expirationMillis) {
         return Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + expirationMillis))
                 .signWith(getSigningKey())
                 .compact();
+    }
+
+    public long getDefaultExpirationMillis() {
+        return expiration;
     }
 
     public String extractUsername(String token) {

@@ -3,6 +3,13 @@
 .form-field-spaced { width: 100%; margin-bottom: 16px; }
 .form-field-spaced-lg { width: 100%; margin-bottom: 24px; }
 
+.remember-me-check {
+  display: block;
+  margin-bottom: 20px;
+  color: var(--text-lo);
+  font-size: 14px;
+}
+
 .auth-footer {
   text-align: center;
   padding: 16px;

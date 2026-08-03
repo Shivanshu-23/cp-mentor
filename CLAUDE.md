@@ -97,6 +97,14 @@ com.cpmentor/
 │   └── dto/CompanyProblemDTO.java
 ├── common/
 │   └── DataInitializer.java         ← seeds 3 problems on startup
+├── profile/                         ← real LeetCode stats for the Home dashboard
+│   ├── controller/LeetCodeProfileController.java  ← GET /api/v1/leetcode-stats, public
+│   ├── service/LeetCodeProfileService.java        ← same HttpURLConnection+GraphQL style as
+│   │                                                  LeetCodeFetchService; public matchedUser +
+│   │                                                  userCalendar + recentAcSubmissionList query,
+│   │                                                  no API key needed. Fails soft (zeroed DTO,
+│   │                                                  never 500) if LeetCode is unreachable.
+│   └── dto/LeetCodeStatsDTO.java
 ├── method/                          ← Practice Method module — ALL 6 PHASES COMPLETE
 │   ├── controller/PatternController.java
 │   ├── service/PatternService.java
@@ -139,7 +147,11 @@ com.cpmentor/
 ```
 # Auth (public)
 POST /api/v1/auth/register
-POST /api/v1/auth/login
+POST /api/v1/auth/login   (body now takes optional {..., rememberMe: boolean} — 30-day token
+                             instead of the default 24h when true)
+
+# LeetCode profile stats (public GET) — powers the Home "LeetCode Activity" dashboard
+GET  /api/v1/leetcode-stats   (username fixed server-side via LEETCODE_USERNAME env var)
 
 # Problems (public GET)
 GET  /api/v1/problems/daily
@@ -196,6 +208,7 @@ GET /api/v1/problems/**
 GET /api/v1/videos/**
 GET /api/v1/ai/**
 /api/v1/daily-challenge/**
+GET /api/v1/leetcode-stats
 GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
 POST /api/v1/method/analyze-constraints, /api/v1/method/edge-cases   // Phase 2 — stateless reference logic, no writes
 // Phase 3 identify-pattern/hint are deliberately NOT in any permitAll list — they fall through
@@ -264,13 +277,17 @@ src/app/
 │   │   ├── pattern.service.ts     ← Pattern Library (Phase 1) + identify-pattern/hint (Phase 3)
 │   │   ├── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
 │   │   ├── solve-session.service.ts        ← Phase 4 API calls + interfaces
-│   │   └── trigger.service.ts              ← Phase 5 API calls + interfaces (triggers + stats)
+│   │   ├── trigger.service.ts              ← Phase 5 API calls + interfaces (triggers + stats)
+│   │   └── leetcode-stats.service.ts       ← GET /api/v1/leetcode-stats, used by Home
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
 │       └── auth.guard.ts          ← used by Phase 4's /solve routes (see gotchas)
 ├── features/
-│   ├── home/                      ← daily problem + problem bank
+│   ├── home/                      ← daily problem + problem bank + LeetCode Activity dashboard
+│   │                                  (real stats for the configured LEETCODE_USERNAME: total/
+│   │                                  today/streak/active-days, difficulty split, 7-day bar chart,
+│   │                                  recent submissions — all from leetcode-stats.service.ts)
 │   ├── analysis/                  ← 5-tab AI analysis page
 │   ├── login/
 │   ├── register/
@@ -296,6 +313,10 @@ src/app/
                                        this codebase doesn't use per-feature NgModules)
 ```
 
+**Default route is `/patterns`** (`app-routing.module.ts`, both `''` and `'**'`), not `/home` — Pattern
+Library is the landing page; Home (Daily Problem) is still a full page, just no longer the entry
+point. Nav bar order in `app.component.html` follows: Pattern Library first, Daily Problem second.
+
 ## Key Design Decisions
 - **MySQL 8 + Flyway** (`dev`/`prod` profiles): schema is owned entirely by versioned
   migrations in `src/main/resources/db/migration/`; Hibernate `ddl-auto` is `validate`, never
@@ -307,6 +328,17 @@ src/app/
 - **@Async company loader**: GitHub CSV fetch doesn't block app startup
 - **Strategy Pattern for AI**: swap Gemini/OpenAI/Claude via env var, no code change
 - **HttpURLConnection**: used instead of WebClient for LeetCode GraphQL and Gemini — avoids serialization bugs
+- **No magic-word/passwordless login exists or should be added.** User asked for a "type a name
+  and auto-login as admin" shortcut; declined as a hardcoded auth-bypass backdoor on a live public
+  app with a real DB (anyone who learns the string gets instant admin, no password). Built
+  `rememberMe` instead (see below) — same "don't retype my password" convenience, no bypass. If
+  this is asked for again, decline again and point back to this entry rather than re-litigating.
+- **`rememberMe` login**: `POST /api/v1/auth/login` takes an optional `rememberMe: boolean`
+  (`AuthDTOs.LoginRequest`). `false`/omitted → the existing 24h token (`jwt.expiration` in
+  `application.yml`). `true` → a 30-day token, via `JwtUtil.generateToken(userDetails, millis)`
+  overload and `AuthService.REMEMBER_ME_EXPIRATION_MILLIS`. `AuthResponse.expiresIn` now reflects
+  the actual token lifetime in seconds (was hardcoded to 86400 for both login and register).
+  Frontend: login form has a "Keep me signed in for 30 days" checkbox, defaulted checked.
 
 ## Known Patterns / Gotchas
 - LeetCode GraphQL has no `constraints` field on QuestionNode — removed from query
@@ -378,6 +410,10 @@ src/app/
   are the first entirely-private pages, so they're the first to actually use `canActivate:
   [AuthGuard]`. Follow this precedent for any future fully-private route; keep the inline-check
   pattern for pages with a public read path.
+- **`anyComponentStyle` budget raised to 8kB warn / 12kB error** in `frontend/angular.json` —
+  `home.component.scss` crossed the old 8kB hard-error ceiling once the LeetCode Activity dashboard
+  styles were added (~10kB total); the production build fails outright (not just warns) past the
+  `maximumError` threshold, so this had to move, not just be ignored.
 - **`TRIGGER` is a reserved word in MySQL** — `TriggerEntry.trigger` maps to column
   `trigger_text`, not `trigger`. Caught at migration-design time this round (learned the hard
   way with `PRIMARY KEY` requirements in Phase 0/1 — checking reserved words upfront now before
@@ -409,6 +445,25 @@ src/app/
   Adding true per-problem follow-ups would mean a new field on `PatternProblem` and re-authoring
   content for all 76 seeded problems; skipped as low value for the effort versus the existing
   pattern-level coverage. Revisit if per-problem specificity turns out to matter in practice.
+- **LeetCode's public GraphQL exposes `userCalendar.submissionCalendar`** — a stringified JSON
+  object, `{"<unixDaySeconds>": count, ...}`, keyed by UTC day-start timestamp. This is the only
+  way to get a daily activity calendar (not just recent-N submissions) with no auth/API key —
+  `LeetCodeProfileService` parses it for the Home dashboard's "last 7 days" bars and "solved
+  today". Verified live against `https://leetcode.com/graphql` with a plain `matchedUser` +
+  `recentAcSubmissionList` query, same `HttpURLConnection` + `User-Agent`/`Referer` header pattern
+  as `LeetCodeFetchService`.
+- **Icon-chip stat-card is now the app's shared "shape of a stat"** — introduced in the Company
+  Tracker Hallmark redesign (icon in a colour-tinted rounded square, value + label beside it, no
+  side-stripe border), reused as-is for the Home LeetCode Activity cards. Reuse this shape for any
+  future stat card rather than inventing a new one — consistency across pages was an explicit goal
+  of the redesign pass, not accidental repetition.
+- **`gradient-text` (the `background-clip: text` headline treatment) is a pre-existing, app-wide
+  brand choice**, used on every page's `<h1>` before any Hallmark work started. It technically
+  matches Hallmark's "gradient headline" anti-pattern, but it was deliberately left alone during
+  both redesign passes (Company Tracker and Home/Pattern Library) — ripping out an established,
+  consistently-applied brand element to satisfy a general anti-pattern rule would fragment the
+  app's visual identity worse than it fixes, and wasn't in scope. Don't "fix" it unilaterally in a
+  future single-page pass; it would need a project-wide decision.
 - **Printable exports are `window.print()`, not generated PDFs** — same approach as Phase 2's
   constraint-analyzer checklist, applied to the Solve Session completion screen (full worksheet
   review) and the Progress Dashboard's trigger log. Zero cost, zero new dependencies, consistent
@@ -422,6 +477,8 @@ OPENAI_API_KEY=    # Optional — GPT-4o-mini fallback
 CLAUDE_API_KEY=    # Optional — Claude Haiku fallback
 YOUTUBE_API_KEY=   # Optional — real YouTube search (mock works without it)
 JWT_SECRET=        # Optional — default is hardcoded 512-bit key (change in prod)
+LEETCODE_USERNAME= # Optional — default: shivanshu_23. Whose public LeetCode profile the Home
+                    #   dashboard shows (no API key needed, public GraphQL endpoint)
 
 # MySQL — dev profile (defaults match docker-compose.yml, override only if you're not using it)
 DB_HOST=            # default: localhost
@@ -439,7 +496,13 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
 ```
 
 ## What's Working ✅
-- JWT Auth (register/login/logout)
+- JWT Auth (register/login/logout), optional `rememberMe` for a 30-day token instead of 24h
+- Home LeetCode Activity dashboard — real stats (`GET /api/v1/leetcode-stats`, public, no key) for
+  the configured `LEETCODE_USERNAME`: total/today/streak/active-days, difficulty split bar,
+  last-7-days bar chart, recent submissions list
+- Pattern Library is the app's landing route (`/`, `**` → `/patterns`), redesigned as the primary
+  entry point: real-count stat strip, category icons, hand-built SVG graph motif in the header,
+  focus-visible + staggered-entrance pattern cards, search-clear button
 - MySQL 8 + Flyway persistence (dev/prod) — accounts and progress survive restarts
 - LeetCode daily problem fetch (real problems via GraphQL, midnight scheduler)
 - AI Analysis — Gemini/OpenAI/Claude with fallback + mock

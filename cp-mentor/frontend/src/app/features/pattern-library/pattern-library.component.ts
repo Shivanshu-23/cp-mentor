@@ -45,6 +45,10 @@ export class PatternLibraryComponent implements OnInit {
     });
   }
 
+  get categoryCount(): number {
+    return new Set(this.patterns.map(p => p.category)).size;
+  }
+
   get filteredPatterns(): PatternSummary[] {
     const term = this.searchTerm.trim().toLowerCase();
     return this.patterns.filter(p => {
@@ -57,8 +61,17 @@ export class PatternLibraryComponent implements OnInit {
     });
   }
 
+  private categoryIcons: Record<string, string> = {
+    ARRAY: 'view_column', STRING: 'text_fields', LINKED_LIST: 'link', TREE: 'account_tree',
+    GRAPH: 'hub', DP: 'table_chart', GREEDY: 'trending_up', MATH: 'functions', DESIGN: 'widgets'
+  };
+
   categoryLabel(c: string): string {
     return this.categoryLabels[c] ?? c;
+  }
+
+  categoryIcon(c: string): string {
+    return this.categoryIcons[c] ?? 'lightbulb';
   }
 
   difficultyStars(n: number): string {

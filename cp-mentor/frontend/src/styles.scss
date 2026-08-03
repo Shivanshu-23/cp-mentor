@@ -314,6 +314,29 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   }
 }
 
+// Opt-in clear button for .search-input-wrapper — add class="has-clear" on the
+// wrapper (nudges input padding) and the button itself when searchTerm is set.
+.search-input-wrapper.has-clear input.search-input { padding-right: 34px; }
+
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  &:hover { color: var(--text-hi); background: var(--bg-1); }
+  &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+}
+
 // ── Mat overrides ─────────────────────────────────────────────────────
 .mat-toolbar {
   background: var(--glass-strong) !important;

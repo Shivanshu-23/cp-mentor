@@ -2,6 +2,24 @@
   {
     "date": "2026-08-03",
     "scope": "single-page",
+    "target": "frontend/src/app/features/pattern-library/pattern-library.component.*",
+    "macrostructure": "Bento Grid (adapted — card grid of reference content, not a marketing page)",
+    "theme": "app-preserved (existing dark theme tokens, not a catalog pick)",
+    "enrichment": "Tier A hand-built SVG — node/edge graph motif in the header, literally the Graph pattern's own shape",
+    "brief": "NovaCode Pattern Library — new landing route; stat strip, category icons, focus-visible cards, staggered entrance, search-clear"
+  },
+  {
+    "date": "2026-08-03",
+    "scope": "single-page",
+    "target": "frontend/src/app/features/home/",
+    "macrostructure": "app-preserved (existing hero + card + accordion shape kept; not restructured)",
+    "theme": "app-preserved (existing dark theme tokens, not a catalog pick)",
+    "enrichment": "none — new LeetCode Activity section reuses the icon-chip stat-card language, data-driven bar charts, no decorative imagery",
+    "brief": "NovaCode Home — added real LeetCode stats dashboard (solved/streak/7-day activity/recent submissions)"
+  },
+  {
+    "date": "2026-08-03",
+    "scope": "single-page",
     "target": "frontend/src/app/features/company-tracker/",
     "macrostructure": "Index-First (adapted — utility data table, not a marketing page)",
     "theme": "app-preserved (existing dark theme tokens, not a catalog pick)",
