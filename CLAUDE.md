@@ -5,7 +5,7 @@ Production-grade full-stack AI-powered web app that fetches LeetCode daily chall
 analyzes them with AI (Gemini/OpenAI/Claude), and tracks company-wise DSA progress.
 
 ## Tech Stack
-- **Backend**: Java 21, Spring Boot 3.2.3, Spring Security + JWT, Spring Data JPA, H2 (dev), Maven
+- **Backend**: Java 21, Spring Boot 3.2.3, Spring Security + JWT, Spring Data JPA, MySQL 8 (dev/prod) + Flyway migrations, H2 (test profile only), Maven
 - **Frontend**: Angular 17, Angular Material UI, RxJS, TypeScript
 - **AI**: Google Gemini API (primary), OpenAI GPT-4o, Anthropic Claude (fallback chain)
 - **External APIs**: LeetCode GraphQL, YouTube Data API v3, GitHub raw CSV
@@ -20,20 +20,33 @@ analyzes them with AI (Gemini/OpenAI/Claude), and tracks company-wise DSA progre
 
 ## How to Run
 ```bash
-# Backend (Terminal 1)
+# MySQL (Terminal 1) — starts a local MySQL 8 container, data persists in a named volume
+cd "/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor"
+docker-compose up -d          # or `docker compose up -d` depending on your Docker install
+
+# Backend (Terminal 2) — defaults to the `dev` profile (MySQL via docker-compose above)
 cd "/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor/backend"
 mvn spring-boot:run
 
 # Backend with Gemini AI
 GEMINI_API_KEY=<your-gemini-key> mvn spring-boot:run
 
-# Frontend (Terminal 2)
+# Frontend (Terminal 3)
 cd "/home/shivanshupandey/Videos/Self Project /Leetcode/cp-mentor/frontend"
 npx ng serve --proxy-config proxy.conf.json --open
 
 # Kill port 8080 if already in use
 sudo kill -9 $(sudo lsof -t -i:8080)
+
+# Stop MySQL (data survives in the docker volume until you `docker-compose down -v`)
+docker-compose down
 ```
+
+Flyway owns the schema (`src/main/resources/db/migration/V*.sql`) and runs automatically on
+backend startup against whatever `dev`/`prod` datasource is configured — Hibernate's
+`ddl-auto` is `validate` in both profiles, never `create`/`update`. The `test` profile still
+uses in-memory H2 with `ddl-auto: create-drop` and Flyway disabled, so unit/integration tests
+need no external DB.
 
 ## Package Structure (Backend)
 ```
@@ -82,8 +95,19 @@ com.cpmentor/
 │   └── dto/CompanyProblemDTO.java
 ├── common/
 │   └── DataInitializer.java         ← seeds 3 problems on startup
+├── method/                          ← Practice Method module (Phase 1: pattern library)
+│   ├── controller/PatternController.java
+│   ├── service/PatternService.java
+│   ├── service/PatternSeederService.java   ← seeds data/patterns.json + global resources on startup
+│   ├── entity/Pattern.java          ← 25 seeded DSA patterns, upserted by slug
+│   ├── entity/PatternProblem.java   ← problems per pattern, learning-order via orderIndex
+│   ├── entity/Resource.java         ← external learning resources (global or pattern-scoped)
+│   ├── repository/PatternRepository.java
+│   ├── repository/PatternProblemRepository.java
+│   ├── repository/ResourceRepository.java
+│   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO)
 └── exception/
-    └── GlobalExceptionHandler.java
+    └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
 
 ## REST API Endpoints
@@ -114,9 +138,15 @@ GET  /api/v1/company-problems/companies
 GET  /api/v1/company-problems/stats
 POST /api/v1/company-problems/reload/{company}
 
+# Pattern Library (Practice Method Phase 1 — public GET, JWT for future phases' writes)
+GET  /api/v1/method/patterns                 (paginated, ?category=ARRAY|STRING|LINKED_LIST|TREE|GRAPH|DP|GREEDY|MATH|DESIGN)
+GET  /api/v1/method/patterns/{slug}
+GET  /api/v1/method/patterns/{slug}/problems (ordered by orderIndex — learning order, not random)
+GET  /api/v1/method/resources                (?patternSlug= for pattern-scoped, omit for the 8 global ones)
+
 # Dev tools
 GET  /swagger-ui.html
-GET  /h2-console   (JDBC: jdbc:h2:mem:cpmentor, user: sa, pass: blank)
+GET  /h2-console   (test profile only — JDBC: jdbc:h2:mem:cpmentor, user: sa, pass: blank)
 ```
 
 ## Security Rules (SecurityConfig.java)
@@ -129,25 +159,25 @@ GET /api/v1/problems/**
 GET /api/v1/videos/**
 GET /api/v1/ai/**
 /api/v1/daily-challenge/**
+GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
 
 // Everything else → requires JWT Bearer token
 ```
 
+## ✅ Resolved Bugs
+
+- **BUG 1 — Company Tracker showed 0 problems**: `GET /api/v1/company-problems/**` is now
+  `permitAll()` in `SecurityConfig.java` (public GET, matching the pattern used for
+  `/api/v1/problems/**`, `/api/v1/videos/**`, `/api/v1/ai/**`). Verified against a real MySQL
+  dataset via docker-compose:
+  ```bash
+  curl -s "http://localhost:8080/api/v1/company-problems?company=amazon&timeframe=all&page=0&size=3" | python3 -m json.tool | grep totalElements
+  ```
+- **H2 in-memory persistence** — replaced with MySQL 8 + Flyway for `dev`/`prod` (see
+  *How to Run* above). Verified: register a user, tick a company problem, restart the
+  backend — both survive.
+
 ## ⚠️ CURRENT BUGS TO FIX
-
-### BUG 1 — Company Tracker shows 0 problems (PRIORITY)
-**Root cause**: `GET /api/v1/company-problems` requires JWT but frontend calls it without login.
-**Fix**: In `SecurityConfig.java`, add this line in the `authorizeHttpRequests` block:
-```java
-.requestMatchers(HttpMethod.GET, "/api/v1/company-problems/**").permitAll()
-```
-Add it after the existing `.requestMatchers(HttpMethod.GET, "/api/v1/ai/**").permitAll()` line.
-
-**Verify fix works**:
-```bash
-curl -s "http://localhost:8080/api/v1/company-problems?company=amazon&timeframe=all&page=0&size=3" | python3 -m json.tool | grep totalElements
-```
-Should return `"totalElements": 847` or similar (not 0).
 
 ### BUG 2 — Companies dropdown shows old 17 companies from snehasishroy repo
 **Root cause**: CompanyDataLoaderService still pointed to snehasishroy repo on first load.
@@ -187,7 +217,8 @@ src/app/
 ├── core/
 │   ├── services/
 │   │   ├── auth.service.ts        ← login, register, JWT localStorage
-│   │   └── problem.service.ts     ← all API calls + interfaces
+│   │   ├── problem.service.ts     ← all API calls + interfaces
+│   │   └── pattern.service.ts     ← Pattern Library API calls + interfaces (Phase 1)
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
@@ -197,12 +228,22 @@ src/app/
 │   ├── analysis/                  ← 5-tab AI analysis page
 │   ├── login/
 │   ├── register/
-│   └── company-tracker/           ← company-wise DSA tracker with tick marks
-└── app.module.ts                  ← all declarations + Material imports
+│   ├── company-tracker/           ← company-wise DSA tracker with tick marks
+│   └── pattern-library/           ← Phase 1: pattern grid (/patterns) + detail (/patterns/:slug)
+│       ├── pattern-library.component.ts/html/scss   ← searchable/filterable grid
+│       └── pattern-detail.component.ts/html/scss    ← 6-tab detail (Intuition/Template/
+│                                                        Recognition/Mistakes/Problems/Follow-ups)
+└── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
+                                       every feature here is declared directly in AppModule;
+                                       this codebase doesn't use per-feature NgModules)
 ```
 
 ## Key Design Decisions
-- **H2 in-memory DB**: resets on every restart — accounts and progress lost. Next step: MySQL
+- **MySQL 8 + Flyway** (`dev`/`prod` profiles): schema is owned entirely by versioned
+  migrations in `src/main/resources/db/migration/`; Hibernate `ddl-auto` is `validate`, never
+  `create`/`update`. `test` profile keeps H2 in-memory with `ddl-auto: create-drop` and Flyway
+  disabled, so tests need no external DB. Local MySQL comes from `docker-compose.yml` at the
+  `cp-mentor/` root.
 - **Stateless JWT**: no sessions. Token stored in localStorage, sent via interceptor
 - **@Lazy AuthenticationManager**: breaks circular dependency (JwtAuthFilter → AuthService → SecurityConfig)
 - **@Async company loader**: GitHub CSV fetch doesn't block app startup
@@ -216,6 +257,25 @@ src/app/
 - `@Scheduled` cron for midnight IST = `"0 30 18 * * ?"` (UTC timezone)
 - `mvn clean spring-boot:run` needed when .class files are stale
 - Port conflict: `sudo kill -9 $(sudo lsof -t -i:8080)` before restart
+- **Hibernate 6 + MySQL enum gotcha**: `@Enumerated(EnumType.STRING)` fields default to a
+  native MySQL `ENUM(...)` column under Hibernate 6's `MySQLDialect`, which then fails
+  `ddl-auto: validate` against a plain `VARCHAR` column from a Flyway migration. Fix: annotate
+  the field with `@JdbcTypeCode(SqlTypes.VARCHAR)` (see `User.role`, `Problem.difficulty`) so
+  it matches the migration's `VARCHAR` column. A global
+  `hibernate.type.preferred_enum_jdbc_type: VARCHAR` property is also set in `application.yml`
+  as a fallback, but the per-field annotation is what actually fixed it in practice.
+- `docker compose` (space) vs `docker-compose` (hyphen) — this environment only has the
+  hyphenated standalone binary (`/snap/bin/docker-compose`); use whichever is installed.
+- **`GlobalExceptionHandler` was swallowing 404s**: its catch-all `@ExceptionHandler(Exception.class)`
+  intercepted `ResponseStatusException` before Spring's own handling could honor its status code,
+  so every `ResponseStatusException(HttpStatus.NOT_FOUND, ...)` came back as a 500. Fixed by adding
+  a dedicated `@ExceptionHandler(ResponseStatusException.class)` that reads `ex.getStatusCode()`.
+  Use `ResponseStatusException` (not a bare `RuntimeException`) for "not found" cases going forward
+  — see `PatternService.getPatternDetail()` for the pattern.
+- Column sizing for narrative/explanatory text fields: don't assume `VARCHAR(64)` is enough for a
+  "complexity" field if the content is a full explanatory sentence rather than bare Big-O notation
+  (e.g. `pattern.time_complexity`/`space_complexity` are `VARCHAR(512)`, not `VARCHAR(64)`) —
+  MySQL truncation errors surface at insert time, not migration time.
 
 ## Environment Variables
 ```bash
@@ -224,27 +284,51 @@ OPENAI_API_KEY=    # Optional — GPT-4o-mini fallback
 CLAUDE_API_KEY=    # Optional — Claude Haiku fallback
 YOUTUBE_API_KEY=   # Optional — real YouTube search (mock works without it)
 JWT_SECRET=        # Optional — default is hardcoded 512-bit key (change in prod)
+
+# MySQL — dev profile (defaults match docker-compose.yml, override only if you're not using it)
+DB_HOST=            # default: localhost
+DB_PORT=             # default: 3306
+DB_NAME=              # default: cpmentor
+DB_USERNAME=          # default: cpmentor
+DB_PASSWORD=          # default: cpmentor
+
+# MySQL — prod profile (Render etc.) — all three required, no defaults
+DB_URL=               # full JDBC URL, e.g. jdbc:mysql://<host>:3306/<db>?useSSL=true&serverTimezone=UTC
+DB_USERNAME=
+DB_PASSWORD=
+
+SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
 ```
 
 ## What's Working ✅
 - JWT Auth (register/login/logout)
+- MySQL 8 + Flyway persistence (dev/prod) — accounts and progress survive restarts
 - LeetCode daily problem fetch (real problems via GraphQL, midnight scheduler)
 - AI Analysis — Gemini/OpenAI/Claude with fallback + mock
 - YouTube videos tab (curated mock + real API)
-- Company-wise DSA tracker UI (data loads from GitHub, tick marks)
-- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker
+- Company-wise DSA tracker UI (data loads from GitHub, tick marks, public GET — BUG 1 fixed)
+- Practice Method Phase 1 — Pattern Library: 25 seeded patterns (`com.cpmentor.method`), each with
+  intuition, Java template, recognition/anti-triggers, common mistakes, edge cases, interview
+  follow-ups, and 2-4 real LeetCode problems in learning order; searchable grid + 6-tab detail
+  page at `/patterns`; 8 global learning resources (Striver sheets, NeetCode, etc.)
+- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
+  Pattern Library (grid + detail)
 - Swagger UI at /swagger-ui.html
+- `docker-compose.yml` (cp-mentor root) — one-command local MySQL
 
 ## What's Pending ❌
-- [ ] Fix SecurityConfig to allow GET /api/v1/company-problems/** publicly (BUG 1)
-- [ ] MySQL + Redis — replace H2 for persistence
-- [ ] Docker Compose — containerize everything
+- [ ] Practice Method Phase 2 — Constraint Analyser + Edge-Case Checklist Generator (pure logic,
+      no AI) — `POST /api/v1/method/analyze-constraints`, `POST /api/v1/method/edge-cases`
+- [ ] Practice Method Phases 3-6 — AI pattern identification + progressive hints, solve sessions,
+      spaced repetition/trigger log, interview follow-up bank, company cross-link, PDF export
+- [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
+- [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 - [ ] Push project to GitHub
 
 ## Next Steps Priority
-1. Fix SecurityConfig (BUG 1) — 2 line change
-2. MySQL + Redis setup
-3. Docker Compose
+1. Practice Method Phase 2 — Constraint Analyser + Edge-Case Checklist Generator
+2. Redis setup
+3. Docker Compose for backend + frontend
 4. Push to GitHub

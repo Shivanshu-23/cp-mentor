@@ -1,0 +1,75 @@
+<div class="page-container page-fade-in">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <div class="library-header">
+    <h1 class="gradient-text library-title">Pattern Library</h1>
+    <p class="library-sub">Learn the structured way to recognize and approach DSA problems — not just a list to grind.</p>
+  </div>
+
+  <!-- ── Filters ────────────────────────────────────────────── -->
+  <div class="glass-card filters-card">
+    <div class="filters-row">
+      <div class="filter-group filter-search">
+        <div class="filter-label">Search</div>
+        <div class="search-input-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input type="text" class="search-input" placeholder="Search by name or trigger phrase..."
+                 [(ngModel)]="searchTerm">
+        </div>
+      </div>
+
+      <div class="filter-group filter-category">
+        <div class="filter-label">Category</div>
+        <select [(ngModel)]="selectedCategory" class="glass-select">
+          <option *ngFor="let c of categories" [value]="c">{{ categoryLabel(c) }}</option>
+        </select>
+      </div>
+
+      <div class="count-pill">
+        <span>{{ filteredPatterns.length }} of {{ patterns.length }} patterns</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Loading ────────────────────────────────────────────── -->
+  <div *ngIf="loading" class="loading-block">
+    <mat-spinner diameter="44" style="margin:0 auto"></mat-spinner>
+    <p>Loading pattern library...</p>
+  </div>
+
+  <!-- ── Pattern grid ───────────────────────────────────────── -->
+  <div *ngIf="!loading" class="pattern-grid">
+    <a *ngFor="let p of filteredPatterns"
+       class="glass-card hover-lift pattern-card"
+       [routerLink]="['/patterns', p.slug]">
+
+      <div class="pattern-card-top">
+        <span class="category-chip">{{ categoryLabel(p.category) }}</span>
+        <span class="frequency-stars" matTooltip="Interview frequency">{{ difficultyStars(p.frequencyScore) }}</span>
+      </div>
+
+      <h3 class="pattern-card-name">{{ p.name }}</h3>
+      <p class="pattern-card-intuition">{{ p.intuition }}</p>
+
+      <div class="pattern-card-triggers">
+        <span class="trigger-chip" *ngFor="let t of p.recognitionTriggers.slice(0, 3)">{{ t }}</span>
+        <span class="trigger-chip trigger-more" *ngIf="p.recognitionTriggers.length > 3">
+          +{{ p.recognitionTriggers.length - 3 }} more
+        </span>
+      </div>
+
+      <div class="pattern-card-footer">
+        <span class="difficulty-label" [matTooltip]="'Difficulty to learn: ' + p.difficultyToLearn + '/5'">
+          Learn: {{ difficultyStars(p.difficultyToLearn) }}
+        </span>
+      </div>
+    </a>
+
+    <div *ngIf="filteredPatterns.length === 0" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <p class="empty-title">No patterns match "{{ searchTerm }}"</p>
+      <p class="empty-sub">Try a different search term or category, or clear the filters.</p>
+    </div>
+  </div>
+
+</div>

@@ -2,6 +2,8 @@ package com.cpmentor.problem.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ public class Problem {
     private String slug;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR) // MySQL: plain VARCHAR, not a native ENUM column
     private Difficulty difficulty;
 
     @Column(columnDefinition = "TEXT")

@@ -1,0 +1,154 @@
+.library-header {
+  text-align: center;
+  padding: 32px 0 24px;
+
+  .library-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .library-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
+}
+
+.filters-card { padding: 20px; margin-bottom: 24px; }
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  min-width: 200px;
+
+  &.filter-search { flex: 2; }
+  &.filter-category { flex: 1; min-width: 180px; }
+}
+
+.filter-label {
+  color: var(--text-lo);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.count-pill {
+  flex-shrink: 0;
+  padding-bottom: 2px;
+
+  span {
+    display: inline-block;
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--text-lo);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+.loading-block {
+  text-align: center;
+  padding: 60px;
+  p { color: var(--text-lo); margin-top: 16px; }
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.pattern-card {
+  display: block;
+  padding: 20px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+
+  .pattern-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .category-chip {
+    background: var(--bg-1);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent-blue);
+  }
+
+  .frequency-stars {
+    font-size: 11px;
+    color: var(--accent-orange);
+    letter-spacing: 1px;
+  }
+
+  .pattern-card-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--text-hi);
+  }
+
+  .pattern-card-intuition {
+    color: var(--text-lo);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .pattern-card-triggers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .trigger-chip {
+    background: rgba(88, 166, 255, 0.08);
+    border: 1px solid rgba(88, 166, 255, 0.25);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--accent-blue);
+
+    &.trigger-more {
+      background: transparent;
+      border-style: dashed;
+      color: var(--text-muted);
+    }
+  }
+
+  .pattern-card-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .difficulty-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px;
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px; }
+  .empty-title { color: var(--text-lo); font-size: 16px; margin-bottom: 8px; }
+  .empty-sub { color: var(--text-muted); font-size: 13px; }
+}

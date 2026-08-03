@@ -35,6 +35,8 @@ import { RegisterComponent } from './features/register/register.component';
 import { HomeComponent } from './features/home/home.component';
 import { AnalysisComponent } from './features/analysis/analysis.component';
 import { CompanyTrackerComponent } from './features/company-tracker/company-tracker.component';
+import { PatternLibraryComponent } from './features/pattern-library/pattern-library.component';
+import { PatternDetailComponent } from './features/pattern-library/pattern-detail.component';
 import { TiltDirective } from './shared/tilt.directive';
 
 @NgModule({
@@ -45,6 +47,8 @@ import { TiltDirective } from './shared/tilt.directive';
     HomeComponent,
     AnalysisComponent,
     CompanyTrackerComponent,
+    PatternLibraryComponent,
+    PatternDetailComponent,
     TiltDirective
   ],
   imports: [

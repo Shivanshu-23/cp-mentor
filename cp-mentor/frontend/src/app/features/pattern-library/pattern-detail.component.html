@@ -1,0 +1,156 @@
+<div class="page-container page-fade-in">
+  <button mat-button (click)="location.back()" class="back-btn">
+    <mat-icon>arrow_back</mat-icon> Back
+  </button>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-block">
+    <mat-spinner diameter="56" style="margin:0 auto"></mat-spinner>
+    <p class="loading-title">Loading pattern...</p>
+  </div>
+
+  <ng-container *ngIf="!loading && pattern">
+
+    <!-- Header -->
+    <div class="glass-card pattern-header">
+      <div class="header-meta-row">
+        <span class="category-chip">{{ categoryLabel(pattern.category) }}</span>
+        <span class="freq-badge" matTooltip="Interview frequency">Frequency {{ pattern.frequencyScore }}/5</span>
+        <span class="learn-badge" matTooltip="Difficulty to learn">Learn difficulty {{ pattern.difficultyToLearn }}/5</span>
+      </div>
+      <h1 class="header-title">{{ pattern.name }}</h1>
+      <p class="header-intuition">{{ pattern.intuition }}</p>
+
+      <div class="complexity-row">
+        <div class="complexity-badge"><span class="label">Time</span><span class="value">{{ pattern.timeComplexity }}</span></div>
+        <div class="complexity-badge"><span class="label">Space</span><span class="value">{{ pattern.spaceComplexity }}</span></div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="200ms">
+
+      <!-- TAB 1: Intuition -->
+      <mat-tab label="💡 Intuition">
+        <div class="tab-content">
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>lightbulb</mat-icon>Why this works</div>
+            <p class="prose">{{ pattern.intuition }}</p>
+          </div>
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>psychology</mat-icon>Why the complexity isn't obvious</div>
+            <p class="prose">{{ pattern.whyComplexityIsNotObvious }}</p>
+          </div>
+          <div class="glass-card" *ngIf="pattern.variants">
+            <div class="section-title"><mat-icon>alt_route</mat-icon>Variants</div>
+            <p class="prose">{{ pattern.variants }}</p>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 2: Template -->
+      <mat-tab label="💻 Template">
+        <div class="tab-content">
+          <div class="glass-card">
+            <div class="code-section-label">Java Skeleton</div>
+            <div class="code-block-numbered">
+              <button type="button" class="code-copy-btn" matTooltip="Copy" (click)="copyTemplate()">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+              <div class="code-lines">
+                <div class="code-line" *ngFor="let line of codeLines(pattern.javaTemplate); let i = index">
+                  <span class="line-no">{{ i + 1 }}</span>
+                  <span class="line-text">{{ line }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 3: Recognition -->
+      <mat-tab label="🔍 Recognition">
+        <div class="tab-content">
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>check_circle</mat-icon>Recognition Triggers</div>
+            <p class="section-hint">Surface phrases in a problem statement that should make you consider this pattern.</p>
+            <span class="trigger-chip trigger-positive" *ngFor="let t of pattern.recognitionTriggers">{{ t }}</span>
+          </div>
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>cancel</mat-icon>Anti-Triggers</div>
+            <p class="section-hint">Phrases that look similar but actually point to a different pattern.</p>
+            <span class="trigger-chip trigger-negative" *ngFor="let t of pattern.antiTriggers">{{ t }}</span>
+          </div>
+          <div class="glass-card" *ngIf="pattern.relatedPatterns.length">
+            <div class="section-title"><mat-icon>hub</mat-icon>Related Patterns</div>
+            <a class="related-chip" *ngFor="let slug of pattern.relatedPatterns" [routerLink]="['/patterns', slug]">
+              {{ slug }}
+            </a>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 4: Mistakes -->
+      <mat-tab label="⚠️ Mistakes">
+        <div class="tab-content">
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>bug_report</mat-icon>Common Mistakes</div>
+            <ul class="prose-list">
+              <li *ngFor="let m of pattern.commonMistakes">{{ m }}</li>
+            </ul>
+          </div>
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>fact_check</mat-icon>Edge Case Checklist</div>
+            <ul class="prose-list checklist">
+              <li *ngFor="let e of pattern.edgeCaseChecklist"><mat-icon>check_box_outline_blank</mat-icon>{{ e }}</li>
+            </ul>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 5: Problems -->
+      <mat-tab label="📚 Problems">
+        <div class="tab-content">
+          <div class="glass-card" *ngIf="problems.length === 0">
+            <p class="section-hint">No problems linked to this pattern yet.</p>
+          </div>
+          <div class="glass-table" *ngIf="problems.length > 0">
+            <div class="table-header-row problems-header">
+              <div>#</div>
+              <div>Title</div>
+              <div>Difficulty</div>
+              <div>Role</div>
+            </div>
+            <div class="table-row problems-row" *ngFor="let p of problems">
+              <div class="row-id mono">{{ p.leetcodeId }}</div>
+              <div class="row-title-cell">
+                <span (click)="openProblem(p.url)" class="row-title-link">{{ p.title }}</span>
+              </div>
+              <div>
+                <span class="badge" [class]="diffClass(p.difficulty)">{{ p.difficulty }}</span>
+              </div>
+              <div>
+                <span class="role-chip" [class]="'role-' + p.role.toLowerCase()">{{ roleLabel(p.role) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB 6: Follow-ups -->
+      <mat-tab label="🎯 Follow-ups">
+        <div class="tab-content">
+          <div class="glass-card">
+            <div class="section-title"><mat-icon>forum</mat-icon>Interview Follow-Up Questions</div>
+            <p class="section-hint">Questions an interviewer typically asks once you've solved the base problem.</p>
+            <ul class="prose-list">
+              <li *ngFor="let q of pattern.interviewFollowUps">{{ q }}</li>
+            </ul>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+
+  </ng-container>
+</div>

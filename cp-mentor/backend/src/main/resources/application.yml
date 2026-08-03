@@ -5,25 +5,20 @@ spring:
   application:
     name: cp-mentor
 
-  datasource:
-    url: jdbc:h2:mem:cpmentor;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  # Active profile selects the datasource: dev/prod → MySQL, test → in-memory H2.
+  # Defaults to dev for local `mvn spring-boot:run` with no profile set.
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
         format_sql: true
+        # Hibernate 6 defaults @Enumerated(STRING) to native MySQL ENUM columns;
+        # keep it plain VARCHAR so it matches the Flyway-managed schema.
+        type:
+          preferred_enum_jdbc_type: VARCHAR
 
   jackson:
     default-property-inclusion: non_null
@@ -70,4 +65,3 @@ gemini:
 # Claude AI (optional)
 claude:
   api-key: ${CLAUDE_API_KEY:}
-
