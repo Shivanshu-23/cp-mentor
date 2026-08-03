@@ -166,11 +166,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.scene.add(this.farStars, this.nearStars);
 
     // Soft glowing nebula clouds (canvas-generated radial gradients, no image assets)
-    // Noir palette: white/gray + one red — matches the app-wide "one splash
-    // of colour" accent discipline (see styles.scss :root).
+    // Near-black base, varied accents — blue/purple/red glows, matching the
+    // app-wide palette (see styles.scss :root).
     const nebulaSpecs: Array<[string, number, number, number, number]> = [
-      ['#f2f2f2', -7, 2.5, -12, 22],
-      ['#a8a8a8', 8, -3, -14, 26],
+      ['#58a6ff', -7, 2.5, -12, 22],
+      ['#bc8cff', 8, -3, -14, 26],
       ['#f85149', -2, -5, -16, 20]
     ];
     for (const [color, x, y, z, scale] of nebulaSpecs) {
@@ -201,10 +201,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       positions[i * 3 + 1] = (Math.random() - 0.5) * spread * 0.6;
       positions[i * 3 + 2] = (Math.random() - 0.5) * spread - spread * 0.15;
 
-      // Mostly neutral white starlight, occasional red-tinted star — the
-      // noir "one splash of colour" discipline extended to the starfield.
+      // Mostly neutral white starlight, with occasional blue/purple/red-tinted
+      // stars for variety against the near-black backdrop.
       const r = Math.random();
-      if (r < 0.85) tint.setHSL(0, 0, 0.88 + Math.random() * 0.12);
+      if (r < 0.7) tint.setHSL(0, 0, 0.88 + Math.random() * 0.12);
+      else if (r < 0.85) tint.setHSL(0.58, 0.85, 0.68);
+      else if (r < 0.95) tint.setHSL(0.75, 0.75, 0.72);
       else tint.setHSL(0.0, 0.65, 0.55);
 
       colors[i * 3] = tint.r * brightness;

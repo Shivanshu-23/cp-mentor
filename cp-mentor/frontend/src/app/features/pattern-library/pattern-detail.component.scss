@@ -101,7 +101,7 @@
 
 .related-chip {
   display: inline-block;
-  background: rgba(168, 168, 168, 0.1);
+  background: rgba(188, 140, 255, 0.1);
   border: 1px solid var(--accent-purple);
   color: var(--accent-purple);
   border-radius: 6px;
@@ -111,7 +111,7 @@
   text-decoration: none;
   font-family: 'JetBrains Mono', monospace;
 
-  &:hover { background: rgba(168, 168, 168, 0.2); }
+  &:hover { background: rgba(188, 140, 255, 0.2); }
 }
 
 .problems-header, .problems-row {
@@ -157,7 +157,7 @@
   font-size: 12px;
   font-weight: 600;
 
-  &.role-intro   { background: rgba(242, 242, 242, 0.12); color: var(--accent-blue); }
+  &.role-intro   { background: rgba(88, 166, 255, 0.12); color: var(--accent-blue); }
   &.role-core    { background: rgba(63, 185, 80, 0.12); color: var(--accent-green); }
   &.role-variant { background: rgba(210, 153, 34, 0.12); color: var(--accent-yellow); }
   &.role-hard    { background: rgba(248, 81, 73, 0.12); color: var(--accent-red); }

@@ -115,7 +115,7 @@ export class RecallDrillComponent implements OnInit {
   private fireConfetti(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const colors = ['#f2f2f2', '#f85149', '#9a9a9a', '#f2f2f2'];
+    const colors = ['#58a6ff', '#bc8cff', '#f85149', '#3fb950', '#ffa657'];
     const container = document.createElement('div');
     container.className = 'confetti-burst';
     document.body.appendChild(container);

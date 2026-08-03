@@ -30,6 +30,14 @@
   z-index: 0;
   pointer-events: none;
 
+  // The whole web (spokes + rings + spider) sways together as one rigid
+  // body from its anchor point, like a real web catching a breeze — a
+  // slow rotational pendulum, not a wobble/stretch of the strands.
+  .web-anchor {
+    transform-origin: 800px -20px;
+    animation: webSway 6s ease-in-out infinite;
+  }
+
   .web-spokes line {
     stroke: var(--text-lo);
     stroke-width: 1;
@@ -54,6 +62,11 @@
   }
 }
 
+@keyframes webSway {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+
 @keyframes webShimmer {
   0%, 100% { opacity: 0.14; }
   50%      { opacity: 0.32; }
@@ -65,6 +78,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .library-web-motif .web-anchor,
   .library-web-motif .web-rings polyline,
   .library-web-motif .web-spider {
     animation: none;
@@ -211,8 +225,8 @@
   }
 
   .trigger-chip {
-    background: rgba(242, 242, 242, 0.08);
-    border: 1px solid rgba(242, 242, 242, 0.25);
+    background: rgba(88, 166, 255, 0.08);
+    border: 1px solid rgba(88, 166, 255, 0.25);
     border-radius: 12px;
     padding: 3px 10px;
     font-size: 11px;

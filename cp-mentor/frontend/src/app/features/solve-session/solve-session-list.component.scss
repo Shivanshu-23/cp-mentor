@@ -28,7 +28,7 @@
   font-family: inherit;
 
   &::placeholder { color: var(--text-muted); }
-  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(242, 242, 242, 0.15); }
+  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
 }
 
 .loading-block { text-align: center; padding: 60px; }

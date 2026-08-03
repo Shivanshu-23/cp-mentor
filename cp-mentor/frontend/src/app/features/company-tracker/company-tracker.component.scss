@@ -52,9 +52,9 @@
   // Colour lives in the icon chip, not a side stripe — avoids the thick
   // coloured-border-on-one-edge pattern.
   &.stat-solved    { .stat-icon { background: rgba(63, 185, 80, 0.12); mat-icon { color: var(--accent-green); } } .stat-value { color: var(--accent-green); } }
-  &.stat-attempted { .stat-icon { background: rgba(242, 242, 242, 0.12); mat-icon { color: var(--accent-blue); } } .stat-value { color: var(--accent-blue); } }
+  &.stat-attempted { .stat-icon { background: rgba(88, 166, 255, 0.12); mat-icon { color: var(--accent-blue); } } .stat-value { color: var(--accent-blue); } }
   &.stat-seen      { .stat-icon { background: rgba(210, 153, 34, 0.12); mat-icon { color: var(--accent-yellow); } } .stat-value { color: var(--accent-yellow); } }
-  &.stat-total     { .stat-icon { background: rgba(168, 168, 168, 0.12); mat-icon { color: var(--accent-purple); } } .stat-value { color: var(--accent-purple); } }
+  &.stat-total     { .stat-icon { background: rgba(188, 140, 255, 0.12); mat-icon { color: var(--accent-purple); } } .stat-value { color: var(--accent-purple); } }
 }
 
 .filters-card { padding: 20px; margin-bottom: 20px; }

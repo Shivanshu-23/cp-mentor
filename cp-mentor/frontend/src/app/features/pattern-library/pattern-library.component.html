@@ -7,19 +7,21 @@
          (rings), just drawn as a corner web instead of a scattered graph.
          Pure SVG/CSS, no image assets, freezes under prefers-reduced-motion. -->
     <svg class="library-web-motif" viewBox="0 0 800 200" preserveAspectRatio="xMaxYMin slice" aria-hidden="true" focusable="false">
-      <g class="web-spokes">
-        <line x1="800" y1="-20" x2="784" y2="159"></line>
-        <line x1="800" y1="-20" x2="707" y2="179"></line>
-        <line x1="800" y1="-20" x2="630" y2="150"></line>
-        <line x1="800" y1="-20" x2="601" y2="73"></line>
-        <line x1="800" y1="-20" x2="621" y2="-4"></line>
+      <g class="web-anchor">
+        <g class="web-spokes">
+          <line x1="800" y1="-20" x2="784" y2="159"></line>
+          <line x1="800" y1="-20" x2="707" y2="179"></line>
+          <line x1="800" y1="-20" x2="630" y2="150"></line>
+          <line x1="800" y1="-20" x2="601" y2="73"></line>
+          <line x1="800" y1="-20" x2="621" y2="-4"></line>
+        </g>
+        <g class="web-rings">
+          <polyline points="792,70 762,62 736,44 719,18 710,-12"></polyline>
+          <polyline points="787,129 737,116 694,86 664,44 651,-7"></polyline>
+          <polyline points="782,189 711,170 652,129 610,69 591,-2"></polyline>
+        </g>
+        <circle class="web-spider" cx="800" cy="-20" r="4"></circle>
       </g>
-      <g class="web-rings">
-        <polyline points="792,70 762,62 736,44 719,18 710,-12"></polyline>
-        <polyline points="787,129 737,116 694,86 664,44 651,-7"></polyline>
-        <polyline points="782,189 711,170 652,129 610,69 591,-2"></polyline>
-      </g>
-      <circle class="web-spider" cx="800" cy="-20" r="4"></circle>
     </svg>
 
     <h1 class="gradient-text library-title">Pattern Library</h1>

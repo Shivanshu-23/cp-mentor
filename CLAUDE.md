@@ -493,48 +493,71 @@ broken" saga below). This means the live URLs (`cp-mentor-delta.vercel.app`,
 `cp-mentor-backend.onrender.com`) still say "cp-mentor" even though the product is "Drona" —
 expected, not a bug.
 
-Alongside the rename, the whole app's colour palette shifted to a **noir theme**: near-black
-backgrounds, white/gray as the primary "accent" (what used to be blue/purple), and exactly
-**one** saturated colour — red (`#f85149`, the same red already used app-wide for
-errors/"hard" difficulty, reused rather than inventing a new value so it's a proven-contrast
-choice) — used sparingly, the classic "one splash of colour" noir move. This was explicitly
-requested as a "Spider-Man" aesthetic; **no Marvel name, logo, or character art is used
-anywhere** — trademark/copyright risk on a live public app. What's actually implemented is the
-*visual language* (black/white/red, spider-web motifs), not the IP.
-- Both token systems updated in lockstep: the legacy `--bg-0`/`--accent-*` family in
-  `styles.scss` (consumed by every pre-v2 page) AND the v2 `tokens.scss`/`material-theme.scss`
-  (consumed by the command palette, styleguide, visualizer, Material chrome) now resolve to the
-  same near-black + white/gray + `#f85149` palette. They were two separate systems before this
-  pass (see the v2 Phase A gotcha below) — the colour *values* are now unified even though the
-  token *names* still differ between the two systems.
-- Every hardcoded (non-variable) hex/rgba that mirrored the old blue (`#58a6ff` /
-  `rgba(88,166,255,...)`) or purple (`#bc8cff` / `rgba(188,140,255,...)`) across ~10 component
-  SCSS files was bulk-converted via `sed` rather than hand-edited file by file — faster and less
-  error-prone for a pure find-and-replace across many files. A few genuinely one-off blue tints
-  that `var(--accent-blue)` didn't already cover (Home's hero tagline, resource-approach text,
-  Company Tracker's login-prompt box, Analysis's model-cache box) were fixed by hand afterward
-  since they weren't part of the systematic RGB-triplet pattern.
-- **Green/yellow semantic colours (easy/medium difficulty, success/warning) were deliberately
-  left alone** — they carry real meaning (already paired with text labels, not colour-only), and
-  a true "everything monochrome" pass would have hurt fast visual scanning on Company
-  Tracker/Pattern Library without much noir-authenticity payoff. The noir identity comes from the
-  backgrounds + primary accent + red, not from stripping every semantic colour in the app.
-- **Pattern Library's header motif was redesigned from a scattered node-graph into a literal
-  corner spider web** (radiating spokes + concentric ring polylines, anchored top-right like a
-  web spun between two surfaces, plus a small red "spider" dot at the anchor) — same underlying
-  justification as before (a spider web *is*, mathematically, a graph), now doing double duty as
-  the app's clearest piece of on-theme imagery. `preserveAspectRatio` had to change from
-  `xMidYMid slice` to `xMaxYMin slice` — a corner-anchored design needs right-edge alignment or
-  it can get cropped out entirely on narrow viewports under centre-slice cropping.
-- **The Three.js starfield's nebula/star tinting was desaturated to white + one red group**
-  (was blue/purple/green) — same "one splash of colour" rule extended to the WebGL background,
-  not just the 2D UI.
-- **Dead CSS from the deleted YouTube Videos tab was found and removed while doing this pass**
-  (`analysis.component.scss` had ~115 lines of orphaned `.video-*` rules, including a hardcoded
-  red gradient, left over from the Phase G removal that only touched the HTML/TS). Worth a sweep
-  after any future feature deletion — removing a template's markup doesn't remove its SCSS.
-- **Confetti colours** (Phase F, recall-drill all-PASS trigger) updated from the old
-  lime/teal/green/amber mix to white/red/gray, matching the rest of the rebrand.
+Alongside the rename, the app got a **"Spider-Man" visual identity**: near-black backgrounds
+with a genuinely varied accent palette (blue, purple, red — plus the existing green/yellow
+semantic colours) and hand-built spider-web motifs/animations. **No Marvel name, logo, or
+character art is used anywhere** — trademark/copyright risk on a live public app. What's
+implemented is the *visual language and motion*, not the IP.
+- **First pass was a pure black/white/red "noir" monochrome** (one saturated colour only,
+  everything else white/gray) — shipped, built, deployed, and then explicitly rejected by the
+  user as "looking very bad." Reverted to a second pass, described below, per direct feedback:
+  keep the near-black *backgrounds* (that part landed fine) but restore full colour variety in
+  the *accents* rather than stripping them to monochrome. Documented here so a future session
+  doesn't reintroduce the monochrome version thinking it's the intended "Spider-Man" look — it
+  was tried and turned down.
+- **Final palette**: near-black backgrounds (`--bg-0: #0a0a0a` etc., unchanged from the noir
+  pass — this part was never in question) + blue (`#58a6ff`) + purple (`#bc8cff`) + red
+  (`#f85149`) as three co-equal accents, plus orange (`#ffa657`) and the untouched green/yellow
+  semantic colours. This is close to the pre-noir palette; the meaningful, lasting change from
+  the whole rebrand is the near-black background depth plus the new spider-web motifs/animations
+  below, not a change in the accent hues themselves.
+- Both token systems were touched: the legacy `--bg-0`/`--accent-*` family in `styles.scss`
+  (consumed by every pre-v2 page) restores full blue/purple/red variety. The v2
+  `tokens.scss`/`material-theme.scss` system (command palette, styleguide, visualizer, Material
+  chrome) was **deliberately left on its single red accent** rather than reverted further — that
+  subsystem's whole design brief is "exactly one accent, used sparingly" (see Phase A), and red
+  still reads as an on-theme "spider" colour there. The two systems are intentionally divergent
+  now: legacy = varied, v2 = single-accent-by-design.
+- Every hardcoded (non-variable) rgba triplet that had been bulk-converted from blue/purple to
+  white/gray during the noir pass (`rgba(88,166,255,...)` → `rgba(242,242,242,...)`, and the
+  purple equivalent) was reverted back via a second `sed` pass across the same ~10 component SCSS
+  files — safe to blanket-reverse because those specific RGB triplets only ever existed from that
+  one substitution; text/background hex values (`--text-hi`, `--bg-*`) use separate hex constants
+  untouched by the triplet-based sed, so this couldn't collide with the near-black text/background
+  values that were deliberately kept.
+- **Green/yellow semantic colours (easy/medium difficulty, success/warning) were never touched**
+  in either pass — they carry real meaning (already paired with text labels, not colour-only).
+- **Pattern Library's header motif** is a hand-built corner spider web (radiating spokes +
+  concentric ring polylines, anchored top-right, small red "spider" dot at the anchor) — a spider
+  web *is*, mathematically, a graph, so it doubles as on-theme imagery for the page that teaches
+  graph-shaped patterns. `preserveAspectRatio` is `xMaxYMin slice` (not `xMidYMid`) — a
+  corner-anchored design needs right-edge alignment or it gets cropped on narrow viewports.
+  **Now also animated**: the whole web (spokes + rings + spider) sways as one rigid body via a
+  `rotate()` pendulum keyframe (`webSway`, 6s ease-in-out) around its anchor point
+  (`transform-origin: 800px -20px`), on top of the pre-existing ring-shimmer/spider-breathe
+  opacity animations. Requires wrapping the SVG's spokes/rings/spider in a `.web-anchor` `<g>` so
+  the rotation has a single group to apply to; freezes under `prefers-reduced-motion`.
+- **"Thwip" — a web-strand shoot effect on page navigation** (`app.component.ts`): subscribes to
+  `router.events` filtered to `NavigationEnd`, skips the very first (initial-load) event, and on
+  every real navigation appends a short-lived fixed-position SVG overlay straight to
+  `document.body` (same "survives the triggering component unmounting" pattern as the confetti
+  burst) — one line animated in via `stroke-dasharray`/`stroke-dashoffset` from a random top
+  corner to a landing point in the upper-middle of the viewport, plus a small circular "impact"
+  flash that expands and fades. Total lifetime ~500ms, then the overlay DOM node removes itself.
+  Respects `prefers-reduced-motion`. Styled in `styles.scss` (`.thwip-overlay`/`.thwip-strand`/
+  `.thwip-impact` + `thwipShoot`/`thwipFade`/`thwipImpact` keyframes) rather than component-scoped
+  since it's appended outside any one component's view.
+- **The Three.js starfield's nebula/star tinting** carries the same blue/purple/red variety as
+  the 2D UI: three nebula sprites (blue/purple/red) instead of the noir pass's white/gray/red, and
+  star tinting is a weighted mix (70% neutral white, 15% blue, 10% purple, 5% red) instead of the
+  noir pass's 85% white / 15% red split.
+- **Dead CSS from the deleted YouTube Videos tab was found and removed while doing the noir
+  pass** (`analysis.component.scss` had ~115 lines of orphaned `.video-*` rules, including a
+  hardcoded red gradient, left over from the Phase G removal that only touched the HTML/TS). This
+  cleanup stands independent of the colour-direction reversal — not undone. Worth a sweep after
+  any future feature deletion — removing a template's markup doesn't remove its SCSS.
+- **Confetti colours** (Phase F, recall-drill all-PASS trigger) are blue/purple/red/green/orange
+  — restored variety, matching the rest of the second pass.
 
 ## Vercel auto-deploy silently broke — diagnosis and fix
 After the v2 Phases B/C/E/F/G push, Vercel stopped deploying new commits entirely — the
