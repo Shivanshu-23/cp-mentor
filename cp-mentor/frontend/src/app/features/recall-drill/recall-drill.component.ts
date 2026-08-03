@@ -16,6 +16,11 @@ export class RecallDrillComponent implements OnInit {
   recalledAnswer: Record<number, string> = {};
   grading: Record<number, boolean> = {};
 
+  // The one confetti burst the design brief allows: completing a full
+  // drill with all PASS. Tracked per session, not persisted.
+  private sessionResults: ReviewResult[] = [];
+  private drillHadEntries = false;
+
   // Manual "log a trigger" form
   showLogForm = false;
   leetcodeId = '';
@@ -48,6 +53,7 @@ export class RecallDrillComponent implements OnInit {
     this.triggerService.due().subscribe({
       next: entries => {
         this.dueEntries = entries;
+        this.drillHadEntries = entries.length > 0;
         this.loading = false;
       },
       error: () => {
@@ -67,8 +73,13 @@ export class RecallDrillComponent implements OnInit {
       next: () => {
         this.dueEntries = this.dueEntries.filter(e => e.id !== entry.id);
         this.grading[entry.id] = false;
+        this.sessionResults.push(result);
         const label = result === 'PASS' ? 'Nice — pushed further out' : result === 'FAIL' ? 'Reset to day 2' : 'Deferred to tomorrow';
         this.snack.open(label, '', { duration: 2000 });
+
+        if (this.drillHadEntries && this.dueEntries.length === 0 && this.sessionResults.every(r => r === 'PASS')) {
+          this.fireConfetti();
+        }
       },
       error: () => {
         this.grading[entry.id] = false;
@@ -96,6 +107,31 @@ export class RecallDrillComponent implements OnInit {
       },
       error: () => this.snack.open('Failed to log trigger', '', { duration: 3000 })
     });
+  }
+
+  // Hand-built, no library — a handful of coloured spans with randomised
+  // trajectories via inline CSS custom properties, self-removing after the
+  // animation ends. See recall-drill.component.scss for the keyframes.
+  private fireConfetti(): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const colors = ['#c7f284', '#5eead4', '#4ade80', '#fbbf24'];
+    const container = document.createElement('div');
+    container.className = 'confetti-burst';
+    document.body.appendChild(container);
+
+    for (let i = 0; i < 24; i++) {
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      piece.style.setProperty('--x', `${(Math.random() - 0.5) * 320}px`);
+      piece.style.setProperty('--rot', `${Math.random() * 720 - 360}deg`);
+      piece.style.setProperty('--delay', `${Math.random() * 150}ms`);
+      piece.style.left = `${45 + Math.random() * 10}%`;
+      piece.style.background = colors[i % colors.length];
+      container.appendChild(piece);
+    }
+
+    setTimeout(() => container.remove(), 1600);
   }
 
   stageLabel(stage: number): string {

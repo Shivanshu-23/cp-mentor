@@ -33,6 +33,11 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String passwordHash;
 
+    // v2 Phase G — nullable; falls back to the app-wide LEETCODE_USERNAME
+    // default (LeetCodeProfileService) when unset.
+    @Column(name = "leetcode_username")
+    private String leetcodeUsername;
+
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR) // MySQL: plain VARCHAR, not a native ENUM column
     @Builder.Default

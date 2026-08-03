@@ -1,0 +1,10 @@
+<div class="stk-layout">
+  <div class="stk-array">
+    <app-array-renderer [state]="arrayState" [highlights]="highlights" [pointers]="pointers"></app-array-renderer>
+  </div>
+  <div class="stk-tower">
+    <div class="stk-tower-label">stack</div>
+    <div class="stk-box" *ngFor="let v of reversedStack; let i = index" [class.top]="i === 0">{{ v }}</div>
+    <div class="stk-empty" *ngIf="!state.stack.length">empty</div>
+  </div>
+</div>

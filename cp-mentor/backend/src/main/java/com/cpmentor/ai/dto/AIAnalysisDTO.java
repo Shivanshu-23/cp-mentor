@@ -52,6 +52,12 @@ public class AIAnalysisDTO {
     // Meta
     private String modelUsed;
     private boolean fromCache;
+    // v2 Phase G — true only for the prod/dev degraded state (all real
+    // providers failed). Lets the frontend show an honest "unavailable"
+    // banner instead of rendering mostly-empty tabs. Never true in the
+    // test-profile-only concept fallback.
+    @Builder.Default
+    private boolean degraded = false;
 
     @Data
     @Builder

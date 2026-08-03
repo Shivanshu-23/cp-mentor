@@ -49,17 +49,28 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/problems/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/videos/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/ai/**").permitAll()
                 .requestMatchers("/api/v1/daily-challenge/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/company-problems", "/api/v1/company-problems/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/leetcode-stats").permitAll()
+                // /me is public here too — it self-enforces auth in the controller (returns
+                // 401 if @AuthenticationPrincipal is null) rather than at this layer, because
+                // JwtAuthFilter always populates the security context when a valid Bearer
+                // token is present regardless of permitAll, and "/me" vs "/{username}" can't
+                // be told apart by an ant-pattern matcher.
+                .requestMatchers(HttpMethod.GET, "/api/v1/leetcode-stats", "/api/v1/leetcode-stats/**").permitAll()
                 // Public reference-data GETs only — do NOT widen this to "/api/v1/method/**".
                 // Private per-user resources (sessions, triggers, stats) live under the same
                 // /api/v1/method prefix and must fall through to .anyRequest().authenticated().
                 .requestMatchers(HttpMethod.GET, "/api/v1/method/patterns", "/api/v1/method/patterns/**",
                         "/api/v1/method/resources").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/method/analyze-constraints", "/api/v1/method/edge-cases").permitAll()
+                // v2 Phase E — static/seeded reference content, no writes, safe to permitAll.
+                // NOTE: "/api/v1/method/triggers/dictionary" is an EXACT path, not a wildcard —
+                // "/api/v1/method/triggers" (no suffix) is the private, JWT-gated Phase 5 user
+                // trigger log and must never be swept into this rule.
+                .requestMatchers(HttpMethod.GET, "/api/v1/method/phases", "/api/v1/method/complexity-budget",
+                        "/api/v1/method/moves", "/api/v1/method/rungs", "/api/v1/method/recovery-steps",
+                        "/api/v1/method/topics", "/api/v1/method/script", "/api/v1/method/triggers/dictionary").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

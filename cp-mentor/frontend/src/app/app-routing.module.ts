@@ -37,6 +37,10 @@ const routes: Routes = [
   { path: 'patterns', component: PatternLibraryComponent },
   { path: 'patterns/:slug', component: PatternDetailComponent },
   { path: 'constraint-analyzer', component: ConstraintAnalyzerComponent },
+  // v2 Phase B/C — lazy per the spec's performance budget ("every visualizer
+  // lazy-loaded on route"). Standalone, so it isn't pulled into AppModule's
+  // eager bundle at all; only fetched when a user actually opens one.
+  { path: 'visualize/:slug', loadComponent: () => import('./features/visualizer/visualizer-page.component').then(m => m.VisualizerPageComponent) },
   { path: 'solve', component: SolveSessionListComponent, canActivate: [AuthGuard] },
   { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
   { path: 'recall-drill', component: RecallDrillComponent, canActivate: [AuthGuard] },

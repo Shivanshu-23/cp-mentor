@@ -30,4 +30,19 @@ public interface CompanyProblemRepository extends JpaRepository<CompanyProblem, 
 
     @Query("SELECT DISTINCT c.company FROM CompanyProblem c ORDER BY c.company")
     List<String> findAllDistinctCompanies();
+
+    // Phase E company-frequency join (v2): "asked by Amazon N times" for a pattern's problem
+    // set. Restricted to timeframe='all' by the caller to avoid double-counting the same
+    // problem across multiple timeframe buckets (thirty-days/six-months/etc. all overlap).
+    @Query("SELECT c.company AS company, COUNT(c) AS cnt FROM CompanyProblem c " +
+           "WHERE c.timeframe = :timeframe AND c.leetcodeId IN :leetcodeIds " +
+           "GROUP BY c.company ORDER BY cnt DESC")
+    List<CompanyFrequencyProjection> countByLeetcodeIdsGroupByCompany(
+            @org.springframework.data.repository.query.Param("leetcodeIds") List<String> leetcodeIds,
+            @org.springframework.data.repository.query.Param("timeframe") String timeframe);
+
+    interface CompanyFrequencyProjection {
+        String getCompany();
+        long getCnt();
+    }
 }

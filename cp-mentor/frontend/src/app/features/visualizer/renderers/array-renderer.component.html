@@ -1,0 +1,21 @@
+<svg
+  class="arr-svg"
+  [attr.viewBox]="'0 0 ' + viewBoxWidth + ' 100'"
+  [attr.height]="100"
+  preserveAspectRatio="xMinYMid meet"
+  role="img"
+  aria-label="Array visualization">
+
+  <g *ngFor="let v of state.values; let i = index" [attr.transform]="'translate(' + cellX(i) + ',0)'">
+    <rect
+      class="arr-cell"
+      [attr.class]="'arr-cell tone-' + toneFor(i)"
+      [attr.width]="cellSize" [attr.height]="cellSize" rx="6"></rect>
+    <text class="arr-value" [attr.x]="cellSize / 2" [attr.y]="cellSize / 2 + 5" text-anchor="middle">{{ v }}</text>
+    <text class="arr-index" [attr.x]="cellSize / 2" [attr.y]="cellSize + 16" text-anchor="middle">{{ i }}</text>
+
+    <g *ngFor="let p of pointersAt(i); let pi = index" [attr.transform]="'translate(' + (cellSize / 2) + ',' + (cellSize + 30 + pi * 16) + ')'">
+      <text class="arr-pointer" text-anchor="middle">&#9650; {{ p.name }}</text>
+    </g>
+  </g>
+</svg>

@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin } from 'rxjs';
 import { PatternService, PatternDetail, PatternProblem } from '../../core/services/pattern.service';
+import { findVisualizerSlugForPattern } from '../visualizer/visualizer-registry';
 
 @Component({
   selector: 'app-pattern-detail',
@@ -15,6 +16,7 @@ export class PatternDetailComponent implements OnInit {
   problems: PatternProblem[] = [];
   loading = true;
   activeTab = 0;
+  visualizerSlug: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +42,7 @@ export class PatternDetailComponent implements OnInit {
       next: ({ pattern, problems }) => {
         this.pattern = pattern;
         this.problems = problems;
+        this.visualizerSlug = findVisualizerSlugForPattern(pattern.slug) ?? null;
         this.loading = false;
       },
       error: () => {

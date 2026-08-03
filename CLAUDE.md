@@ -8,7 +8,7 @@ analyzes them with AI (Gemini/OpenAI/Claude), and tracks company-wise DSA progre
 - **Backend**: Java 21, Spring Boot 3.2.3, Spring Security + JWT, Spring Data JPA, MySQL 8 (dev/prod) + Flyway migrations, H2 (test profile only), Maven
 - **Frontend**: Angular 17, Angular Material UI, RxJS, TypeScript
 - **AI**: Google Gemini API (primary), OpenAI GPT-4o, Anthropic Claude (fallback chain)
-- **External APIs**: LeetCode GraphQL, YouTube Data API v3, GitHub raw CSV
+- **External APIs**: LeetCode GraphQL, GitHub raw CSV (YouTube Data API integration was removed — v2 Phase G)
 - **Port**: Backend → 8080, Frontend → 4200
 
 ## Project Location
@@ -150,8 +150,10 @@ POST /api/v1/auth/register
 POST /api/v1/auth/login   (body now takes optional {..., rememberMe: boolean} — 30-day token
                              instead of the default 24h when true)
 
-# LeetCode profile stats (public GET) — powers the Home "LeetCode Activity" dashboard
-GET  /api/v1/leetcode-stats   (username fixed server-side via LEETCODE_USERNAME env var)
+# LeetCode profile stats — powers the Home "LeetCode Activity" dashboard
+GET  /api/v1/leetcode-stats            (public — app-wide LEETCODE_USERNAME default, unchanged v1 shape)
+GET  /api/v1/leetcode-stats/me         (JWT — v2 Phase G, the caller's own User.leetcodeUsername, falls back to the default if unset)
+GET  /api/v1/leetcode-stats/{username} (public — v2 Phase G, any profile, cached 10min server-side with stale-on-error)
 
 # Problems (public GET)
 GET  /api/v1/problems/daily
@@ -159,10 +161,9 @@ GET  /api/v1/problems/{id}
 GET  /api/v1/problems?page=&size=
 
 # AI Analysis (public GET)
-GET  /api/v1/ai/analyze/{problemId}
-
-# Videos (public)
-GET  /api/v1/videos?topic=
+GET  /api/v1/ai/analyze/{problemId}   (response now carries `degraded: boolean` — v2 Phase G;
+                                          true means every real provider failed and nothing in
+                                          the response is AI-generated, see gotchas)
 
 # Daily Challenge
 GET  /api/v1/daily-challenge/status
@@ -193,6 +194,29 @@ GET  /api/v1/method/triggers[/due]            (Phase 5, JWT — all entries, or 
 POST /api/v1/method/triggers/{id}/review      (Phase 5, JWT — {result: PASS|FAIL|SKIPPED}, owner-only)
 GET  /api/v1/method/stats                     (Phase 5, JWT — progress dashboard metrics)
 
+# Method content — v2 Phase E, all public GET, Cache-Control: public max-age=3600
+GET  /api/v1/method/phases                    (the 5 solve-worksheet phases)
+GET  /api/v1/method/complexity-budget         (n -> target complexity table, same data ConstraintAnalyzerService
+                                                  hardcodes for Phase 2 — NOT wired together, see gotchas)
+GET  /api/v1/method/moves                     (the 5 optimization moves)
+GET  /api/v1/method/rungs                     (the 6-rung stuck ladder)
+GET  /api/v1/method/recovery-steps            (the 5-step post-solution recovery protocol)
+GET  /api/v1/method/topics                    (the 35-topic priority curriculum)
+GET  /api/v1/method/script                    (the 8-step interview talk track)
+GET  /api/v1/method/triggers/dictionary?q=    (searchable phrase->pattern dictionary w/ antiTriggers —
+                                                  EXACT path, not a /triggers/** wildcard, see gotchas)
+GET  /api/v1/method/patterns/{slug}/company-frequency  (v2 Phase E9 — "asked by Amazon N times" for a pattern's problems)
+
+# Visualizers — v2 Phase B/C
+GET  /api/v1/visualizers   ← NOT built. Trace generation is entirely client-side (frontend
+                               visualizer-catalog.ts); there was never a reason for a backend
+                               metadata endpoint given that design, so it was skipped rather
+                               than built-and-unused.
+
+# Gamification — v2 Phase F, both JWT, distinct top-level path from /api/v1/method/stats
+GET  /api/v1/stats/mastery       (recall streak, pattern mastery tiers, submissions-per-accepted trend)
+POST /api/v1/stats/share-card    (rate-limited 10/day — returns image/png bytes)
+
 # Dev tools
 GET  /swagger-ui.html
 GET  /h2-console   (test profile only — JDBC: jdbc:h2:mem:cpmentor, user: sa, pass: blank)
@@ -205,19 +229,22 @@ GET  /h2-console   (test profile only — JDBC: jdbc:h2:mem:cpmentor, user: sa, 
 /h2-console/**
 /swagger-ui/** and /v3/api-docs/**
 GET /api/v1/problems/**
-GET /api/v1/videos/**
-GET /api/v1/ai/**
+GET /api/v1/ai/**                          // response may be a `degraded: true` state now — see gotchas
 /api/v1/daily-challenge/**
-GET /api/v1/leetcode-stats
-GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
+GET /api/v1/leetcode-stats, /api/v1/leetcode-stats/**   // /me self-enforces auth in the controller, not here — see gotchas
+GET /api/v1/method/patterns, /api/v1/method/patterns/**, /api/v1/method/resources   // Phase 1
 POST /api/v1/method/analyze-constraints, /api/v1/method/edge-cases   // Phase 2 — stateless reference logic, no writes
 // Phase 3 identify-pattern/hint are deliberately NOT in any permitAll list — they fall through
 // to the default `.anyRequest().authenticated()` rule, matching the spec's "(JWT)" requirement.
 // Phase 4 sessions/** are private per-user data — this is WHY the GET permitAll rule above was
 // narrowed from a "/api/v1/method/**" wildcard to explicit patterns/resources paths only (see
 // gotchas) — a wildcard would have made GET /api/v1/method/sessions publicly readable.
+GET /api/v1/method/phases, /complexity-budget, /moves, /rungs, /recovery-steps, /topics, /script,
+    /triggers/dictionary   // v2 Phase E — static reference content only, exact paths not wildcards
 
-// Everything else → requires JWT Bearer token
+// NOTE: /api/v1/videos/** was removed along with the whole youtube package — v2 Phase G.
+
+// Everything else → requires JWT Bearer token (includes /api/v1/stats/** — v2 Phase F)
 ```
 
 ## ✅ Resolved Bugs
@@ -247,6 +274,21 @@ curl -X POST http://localhost:8080/api/v1/company-problems/reload/amazon
 **Workaround**: Create new key at https://aistudio.google.com/app/apikey → "Create API key in new project"
 **Key format**: Must start with `AIzaSy...` (not `AQ.Ab8...`)
 **Set it**: `export GEMINI_API_KEY=AIzaSy_YOUR_KEY` before running mvn
+**Note (v2 Phase G)**: with no working provider, prod/dev now show an honest `degraded: true`
+state on the Analysis page instead of the old concept-fallback content — see gotchas. This bug
+is exactly the condition that made the removal necessary in the first place.
+
+### BUG 4 — Admin credential rotation prepared but not executed
+**Root cause**: v2 Phase G asked for the seeded `admin@novacode.dev` password to be rotated.
+Applying it requires the production Aiven MySQL connection string, which wasn't available in
+that session (not persisted from the earlier session that created the account).
+**The generated password and its BCrypt hash were deliberately NOT committed to this file** —
+committing a live credential to git history is a bad practice regardless of repo visibility.
+They were shared with the user directly in chat instead.
+**To apply**: `UPDATE users SET password_hash = '<hash>' WHERE email = 'admin@novacode.dev';`
+against the production Aiven database, using the hash shared out-of-band. Rotate again after
+applying — a credential that ever touched a chat transcript shouldn't be treated as long-term-safe.
+Update this bug entry to resolved once run.
 
 ## AI Service — Provider Chain
 ```java
@@ -256,8 +298,11 @@ curl -X POST http://localhost:8080/api/v1/company-problems/reload/amazon
 3. Gemini 2.0 Flash   (free, separate quota)
 4. OpenAI GPT-4o-mini  (if OPENAI_API_KEY set)
 5. Claude Haiku        (if CLAUDE_API_KEY set)
-6. Mock response       (always works, no key needed)
+6. test profile only: static concept fallback (buildConceptFallback) — curated notes by topic tag
+6. prod/dev: degraded state (buildDegradedState) — `degraded: true`, no fabricated content
 ```
+Step 6 split by profile in v2 Phase G — see gotchas for why ("mock" in this list used to mean
+the same fallback ran everywhere, including prod, whenever real providers failed).
 
 ## Company Data Source
 ```
@@ -267,13 +312,32 @@ CSV format: ID,URL,Title,Difficulty,Acceptance %,Frequency %
 Timeframes: all.csv, six-months.csv, three-months.csv, thirty-days.csv, more-than-six-months.csv
 ```
 
-## NovaCode v2 — Experience Layer (in progress)
+## NovaCode v2 — Experience Layer
 A separate, much larger spec ("NovaCode v2: Experience Layer, DSA Visualizers, and Method
-Content") is being implemented one phase at a time on top of the app described elsewhere in
-this file. **Phase A (Design System) and Phase D (Command Palette) are done; Phases B/C/E/F/G
-are not started.** See gotchas below for what that actually means in practice — most
-importantly, the rest of the app has *not* been reskinned yet; only new surfaces (the command
-palette, the dev-only styleguide) use the new tokens so far.
+Content") has been implemented on top of the app described elsewhere in this file.
+**Phases A, B, C, D, E, F are done. Phase G is done except one blocked item** (admin
+credential rotation — prepared but not executed, see gotchas). See gotchas below for exact
+scope boundaries on each phase — several deliberately don't match the spec's letter 100%,
+documented at the point of the decision rather than left implicit.
+
+- **Phase A — Design System**: `tokens.scss`, a custom Material theme, self-hosted fonts,
+  `/styleguide`. The rest of the app was NOT reskinned — see gotchas.
+- **Phase B — Visualizer Engine**: `frontend/src/app/features/visualizer/` — Frame/Trace
+  model, `<app-viz-player>`, 7 SVG structure renderers, keyboard-driven playback.
+- **Phase C — 12 trace generators**: one representative algorithm per category (not every
+  sub-variant mentioned in the spec — see gotchas), wired into a catalog + `/visualize/:slug`.
+- **Phase D — Command Palette**: `Cmd/Ctrl+K`, fuzzy search, global shortcuts, `?` help.
+- **Phase E — Method content**: 9 new reference-data entities (phases, complexity budget,
+  optimization moves, stuck rungs, recovery steps, trigger-phrase dictionary, topic priorities,
+  interview script, company-frequency join), all seeded and publicly queryable/cached.
+- **Phase F — Retention-weighted gamification**: recall streak, pattern mastery tiers,
+  submissions-per-accepted trend, a hand-drawn PNG share card (rate-limited 10/day), confetti
+  on an all-PASS recall drill.
+- **Phase G — Removals**: mock AI fallback replaced with an honest degraded state in
+  prod/dev (test profile keeps the richer fallback), YouTube tab deleted entirely (frontend +
+  backend), Analysis page collapsed 5→2 tabs, per-user `leetcodeUsername` replacing the
+  hardcoded default, problem bank audited (not deleted — see gotchas), admin credential
+  rotation prepared but blocked on missing prod DB access this session.
 
 ## Frontend Structure (Angular)
 ```
@@ -291,7 +355,10 @@ src/app/
 │   │   │                                      items (localStorage), all data from EXISTING
 │   │   │                                      endpoints (patterns/problems/companies) — no new
 │   │   │                                      backend surface for the palette itself
-│   │   └── keyboard-shortcuts.service.ts   ← v2 Phase D: global Cmd/Ctrl+K, g-chords, /, ?, Esc
+│   │   ├── keyboard-shortcuts.service.ts   ← v2 Phase D: global Cmd/Ctrl+K, g-chords, /, ?, Esc
+│   │   ├── method-content.service.ts       ← v2 Phase E: all 8 method-content GETs. No page
+│   │   │                                      consumes this yet — see gotchas
+│   │   └── mastery.service.ts              ← v2 Phase F: /api/v1/stats/mastery + share-card
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
@@ -301,7 +368,8 @@ src/app/
 │   │                                  (real stats for the configured LEETCODE_USERNAME: total/
 │   │                                  today/streak/active-days, difficulty split, 7-day bar chart,
 │   │                                  recent submissions — all from leetcode-stats.service.ts)
-│   ├── analysis/                  ← 5-tab AI analysis page
+│   ├── analysis/                  ← 2-tab AI analysis page (Analysis / Discussion — collapsed
+│   │                                  from 5 tabs, Videos tab removed — v2 Phase G)
 │   ├── login/
 │   ├── register/
 │   ├── company-tracker/           ← company-wise DSA tracker with tick marks + Phase 6 pattern filter
@@ -319,8 +387,31 @@ src/app/
 │   ├── recall-drill/              ← Phase 5: /recall-drill — due entries, type-then-reveal, self-grade
 │   │   └── recall-drill.component.ts/html/scss  ← also accepts ?leetcodeId/&title/&patternSlug
 │   │                                                query params from the Solve Session completion screen
-│   └── progress-dashboard/        ← Phase 5: /progress — all StatsResponse metrics
-│       └── progress-dashboard.component.ts/html/scss
+│   ├── progress-dashboard/        ← Phase 5: /progress — StatsResponse metrics + v2 Phase F's
+│   │                                  mastery-card (recall streak, pattern-mastery tile grid,
+│   │                                  submissions-per-accepted trend, "Share stat card" button)
+│   └── visualizer/                ← v2 Phase B/C, ALL standalone components (see gotchas for why
+│       │                             this is the one feature that deviates from the AppModule
+│       │                             convention beyond styleguide)
+│       ├── model.ts               ← Frame/Trace/Highlight/Pointer/StructureKind — the engine's core types
+│       ├── viz-player.component.ts/html/scss   ← <app-viz-player>: play/pause/step/scrub/speed,
+│       │                                           keyboard (Space/←/→/r/0-9), ngSwitch over 7 renderers
+│       ├── renderers/             ← one per StructureKind, all pure SVG bound to the current frame
+│       │   ├── array-renderer, stack-renderer, linked-list-renderer, tree-renderer,
+│       │       trie-renderer, graph-renderer, grid-renderer (.component.ts/html/scss each)
+│       ├── traces/                ← one file per algorithm, each a pure (input) -> Trace function
+│       │   ├── linear-search.trace.ts   ← Phase B's own trivial acceptance-criteria trace
+│       │   └── array, two-pointer-window (2 generators — two-pointer + sliding-window),
+│       │       dutch-flag, string, monotonic-stack, prefix-sum, linked-list, tree, trie,
+│       │       graph, dp-table, sorting (.trace.ts each) — Phase C, one representative
+│       │       algorithm per category, not every sub-variant the spec listed (see gotchas)
+│       ├── visualizer-catalog.ts  ← slug -> {title, structure, presets, generate} — imports every
+│       │                             trace generator, so this file is intentionally NEVER imported
+│       │                             from an eagerly-loaded component (see visualizer-registry.ts)
+│       ├── visualizer-registry.ts ← LIGHT metadata-only twin of the catalog (slug/title/patternSlug,
+│       │                             no generator functions) — pattern-detail.component imports THIS,
+│       │                             not the catalog, to avoid pulling visualizer code into the eager bundle
+│       └── visualizer-page.component.ts/html/scss  ← /visualize/:slug, standalone + lazy-loaded
 ├── shared/
 │   ├── tilt.directive.ts
 │   └── command-palette/           ← v2 Phase D
@@ -332,10 +423,16 @@ src/app/
 │       └── styleguide.component.ts/html/scss  ← standalone, lazy-loaded, /styleguide
 └── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
                                        every feature here is declared directly in AppModule;
-                                       this codebase doesn't use per-feature NgModules — the
-                                       styleguide component is the one deliberate exception,
-                                       standalone + lazy so it isn't in the initial bundle)
+                                       this codebase doesn't use per-feature NgModules — styleguide
+                                       and the entire visualizer/ feature are the deliberate
+                                       exceptions, both standalone + lazy so their code isn't in
+                                       the initial bundle, per the v2 spec's performance budget)
 ```
+
+Pattern Library's detail page (`pattern-detail.component`) shows a "Watch this pattern, step by
+step" launcher card under Intuition when `visualizer-registry.ts` has an entry for that pattern
+slug — it links to `/visualize/{slug}` rather than embedding `<app-viz-player>` inline, keeping
+pattern-detail's own bundle free of the lazy-loaded visualizer engine (see gotchas).
 
 ## Design System (v2 Phase A) — `frontend/src/styles/`
 ```
@@ -558,13 +655,115 @@ point. Nav bar order in `app.component.html` follows: Pattern Library first, Dai
   review) and the Progress Dashboard's trigger log. Zero cost, zero new dependencies, consistent
   with the project's free-hosting constraint. Both pages wrap non-printable UI (nav, forms, stat
   cards on the same page as the log) in `.no-print`.
+- **The visualizer engine renders SVG via plain Angular template bindings, not a charting/canvas
+  library** — the spec's own hard rule ("no library over 30KB gzipped... no three.js, no
+  anime.js, no GSAP"). Every renderer takes `state`/`highlights`/`pointers` as `@Input()`s and
+  draws `<rect>`/`<circle>`/`<line>`/`<text>` directly; tweening between frames is plain CSS
+  `transition` on those SVG attributes/classes, keyed off the token system's `--duration-*`/
+  `--ease-out`. Adding a new algorithm is "write a `.trace.ts` file", never "write new UI" —
+  confirmed in practice: all 13 Phase C generators reuse the same 7 renderers.
+- **Phase C shipped one representative algorithm per category, not every sub-variant the spec
+  described** — e.g. C1 "Array" only covers three-reverse rotation (not also swap/Kadane in the
+  same visualizer), C12 "Sorting" is selection sort (not merge/quick/heap sort's dual views).
+  This was a deliberate scope cut under real time constraints, not an oversight — each shipped
+  generator is fully correct and uses the real algorithm, just narrower coverage than the spec's
+  wishlist. Two exceptions got extra coverage instead of less: C2 "Two Pointer & Sliding Window"
+  shipped as *two* separate catalog entries (`two-pointer-sum` + `sliding-window-unique`) since
+  the spec explicitly flagged it as the highest-value visualizer in the whole document.
+- **`visualizer-catalog.ts` vs `visualizer-registry.ts` is a deliberate, load-bearing split, not
+  duplication to clean up.** The catalog imports every trace-generator function (the actual
+  algorithm logic) and is only ever imported from the lazy `/visualize/:slug` route. The registry
+  is a hand-maintained, generator-free metadata list (slug/title/patternSlug) that
+  `pattern-detail.component` (part of the eager `AppModule` bundle) imports instead, specifically
+  so the "Watch this pattern, step by step" launcher doesn't drag the whole visualizer engine into
+  every page load. **Keeping these in sync is manual** — a new visualizer with a `patternSlug`
+  needs an entry in both files. This was checked and confirmed to actually work: the lazy
+  `visualizer-page-component` chunk size didn't change when the pattern-detail launcher was added.
+- **`GET /api/v1/visualizers` from the spec's "BACKEND FOR THIS PHASE" list was never built** —
+  deliberately, not an oversight. Trace generation is 100% client-side by the spec's own design
+  ("Trace generation happens client-side; do not round-trip animation frames"), and
+  `visualizer-catalog.ts` already serves as the metadata source the frontend needs. A backend
+  endpoint duplicating that same metadata would exist only to be unused.
+- **Phase E's `ComplexityBudget` table duplicates, but is not wired to,
+  `ConstraintAnalyzerService`'s hardcoded table (Phase 2).** The spec says the new table "Powers
+  the Phase 2 analyser" — that would mean refactoring already-shipped, tested logic to read from
+  the DB instead of a Java `List.of(...)`, which is real risk for a "content seeding" phase to
+  take on. Both currently hold the identical 7-row table by hand; if one changes, the other must
+  be updated too until someone deliberately does that consolidation refactor.
+- **`TriggerPhrase` (Phase E6, the static phrase→pattern dictionary) is a different entity from
+  `TriggerEntry` (Phase 5, the user's personal spaced-repetition log)** — same domain word,
+  unrelated tables (`trigger_phrases` vs `trigger_entries`), unrelated purpose (reference data vs
+  user data). Do not conflate them; `TriggerPhrase` has nothing to do with spaced repetition.
+- **`TopicPriority.rank` is mapped to column `topic_rank`, not `rank`** — `RANK` became a reserved
+  word in MySQL 8.0.2+ (window functions). Same class of gotcha as `TriggerEntry.trigger` ->
+  `trigger_text`; caught the same way (migration failed with a syntax error pointing right at the
+  column, fixed before it ever reached anything beyond local dev).
+- **`ComplexityBudget.maxNLabel` needed an explicit `@Column(name = "max_n_label")`** — Hibernate's
+  default naming strategy mangled the adjacent-capitals field name to `maxnlabel` instead of
+  `max_n_label`, failing schema validation. Any future field with a single-capital-letter segment
+  next to another capital (`...N<Capital>...`) should get an explicit `@Column` name rather than
+  trusting the naming strategy.
+- **`double` Java fields need `DOUBLE` migration columns, not `DECIMAL`** — `TriggerPhrase.confidence`
+  and `TopicPriority.estimatedHours` both originally used `DECIMAL(n,n)` in the migration, which
+  Hibernate schema-validation rejected against a `double`-typed field (Hibernate expects
+  `FLOAT(53)`/`DOUBLE`). Fixed before the migration ever reached a real deploy.
+- **Phase F's pattern-mastery tiers are a specific, documented interpretation** of "based on PASS
+  count at increasing review stages" (the spec doesn't give exact thresholds): LEARNING (no PASS
+  entries) → FAMILIAR (1-2 PASS) → SOLID (3+ PASS) → MASTERED (at least one entry reached
+  `reviewStage 3`, i.e. "retired" per Phase 5's own scheduling). This mirrors the SOLID threshold
+  used by the pre-existing "patterns mastered" stat (Phase 5, "3+ PASS entries") for consistency,
+  and adds MASTERED as a genuinely higher bar on top of it.
+- **Recall streak has a same-day grace period** — if today has no recall-drill review yet, the
+  streak still counts through yesterday rather than showing 0 the instant the user wakes up
+  (which would be a demoralizing, arguably-wrong UX for a retention feature). Only a day with zero
+  activity that has *already fully passed* breaks the streak.
+- **The share-card PNG is hand-drawn with `java.awt.Graphics2D`, not a library** — zero new backend
+  dependencies, consistent with the project's free-hosting constraint. Uses only JDK logical fonts
+  (`Font.MONOSPACED`/`Font.SANS_SERIF`) since Render's JRE image can't be assumed to have
+  JetBrains Mono/Inter installed as system fonts — do NOT try to reference those font names by
+  string; it silently falls back to a default face if the name isn't resolvable.
+- **Confetti (Phase F, all-PASS recall drill) is appended to `document.body`, not rendered inside
+  Angular's component tree** — needed so a burst outlives the component navigating away
+  mid-animation, but it also means the styling lives in the GLOBAL `styles.scss`
+  (`.confetti-burst`/`.confetti-piece`), not `recall-drill.component.scss`. Angular's emulated
+  view encapsulation doesn't reach dynamically-created DOM nodes appended outside the component's
+  own template, so component-scoped styles silently wouldn't apply here.
+- **The AI degraded state (`degraded: true`) only fires outside the `test` Spring profile** —
+  checked via `Environment.acceptsProfiles(Profiles.of("test"))`, not a manual flag. The richer
+  `buildConceptFallback` (curated notes by topic tag) still exists and still runs in `test`, so
+  any future test asserting on that fallback's shape doesn't need to change. Prod/dev see the
+  new minimal `buildDegradedState` instead whenever every real provider (Gemini/OpenAI/Claude)
+  fails — which, per BUG 3, is a live path, not a hypothetical.
+- **The YouTube integration was deleted outright, not deprecated** — the entire
+  `com.cpmentor.youtube` package (controller/service/DTO), `GET /api/v1/videos` from
+  `SecurityConfig`, `youtube.*` from `application.yml`, and all frontend references
+  (`ProblemService.getVideos`, `VideoDTO`, Analysis page's Videos tab) are gone. This does NOT
+  touch the plain-text YouTube *links* inside Home's "Free Learning Roadmap"
+  (`resources.data.ts`) — those were always just external URLs, unrelated to the deleted API
+  integration; verified no overlap before deleting anything.
+- **The problem bank (`Problem`/`DailyChallenge`) was investigated, not deleted, per explicit user
+  instruction** ("investigate and report back first"). Findings: it genuinely is a raw
+  LeetCode scrape with zero curation (`LeetCodeFetchService` reconstitutes LeetCode's own HTML
+  into text fields; nothing original). But the blast radius of deleting it isn't as contained as
+  "just a mirror" implies — `AIService.analyze(Long problemId)` has a hard dependency on
+  `Problem`'s internal DB id (not `leetcodeId`) for prompt-building, and the Analysis page's route
+  is keyed the same way. Company Tracker, Pattern Library, and Solve Session already treat
+  `leetcodeId` as a plain string with zero `Problem` dependency, so they're unaffected either way.
+  **Deletion is feasible but is a real refactor of `AIService`'s core contract (re-keying to
+  `leetcodeId`, fetching problem text on demand), not a cleanup — treat as its own scoped task if
+  pursued, don't fold it into a future "quick removal" pass.**
+- **Admin credential rotation is prepared but NOT applied** — see BUG 4 above. The new password
+  and its BCrypt hash were shared with the user directly in chat, deliberately not committed to
+  this file — applying them needs the production Aiven MySQL connection string, which this
+  session didn't have. Whoever runs the `UPDATE` statement should update BUG 4's status here
+  afterward, and rotate again in the future rather than treating a chat-shared credential as
+  long-term-safe.
 
 ## Environment Variables
 ```bash
 GEMINI_API_KEY=    # Google Gemini (free) — get from aistudio.google.com/app/apikey
 OPENAI_API_KEY=    # Optional — GPT-4o-mini fallback
 CLAUDE_API_KEY=    # Optional — Claude Haiku fallback
-YOUTUBE_API_KEY=   # Optional — real YouTube search (mock works without it)
 JWT_SECRET=        # Optional — default is hardcoded 512-bit key (change in prod)
 LEETCODE_USERNAME= # Optional — default: shivanshu_23. Whose public LeetCode profile the Home
                     #   dashboard shows (no API key needed, public GraphQL endpoint)
@@ -594,8 +793,8 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   focus-visible + staggered-entrance pattern cards, search-clear button
 - MySQL 8 + Flyway persistence (dev/prod) — accounts and progress survive restarts
 - LeetCode daily problem fetch (real problems via GraphQL, midnight scheduler)
-- AI Analysis — Gemini/OpenAI/Claude with fallback + mock
-- YouTube videos tab (curated mock + real API)
+- AI Analysis — Gemini/OpenAI/Claude, with an honest `degraded: true` state in prod/dev (no
+  fabricated content) when every provider fails — v2 Phase G, see gotchas
 - Company-wise DSA tracker UI (data loads from GitHub, tick marks, public GET — BUG 1 fixed)
 - Practice Method Phase 1 — Pattern Library: 25 seeded patterns (`com.cpmentor.method`), each with
   intuition, Java template, recognition/anti-triggers, common mistakes, edge cases, interview
@@ -629,9 +828,10 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   stack" — verified live, returns exactly the linked problems, empty page for unknown slugs,
   never an error). Company Tracker gained a Pattern filter dropdown. Progress Dashboard gained a
   full, printable Trigger Log. **All 6 Practice Method phases are now complete.**
-- Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker
+- Angular Material dark theme UI — Home, Analysis (2 tabs), Login, Register, Company Tracker
   (+ pattern filter), Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions
-  (+ printable completion review), Recall Drill, Progress Dashboard (+ printable trigger log)
+  (+ printable completion review), Recall Drill, Progress Dashboard (+ printable trigger log
+  + v2 Phase F mastery card)
 - Swagger UI at /swagger-ui.html
 - `docker-compose.yml` (cp-mentor root) — one-command local MySQL
 - **Live on the free stack**: Vercel (frontend) + Render free web service (backend) + Aiven
@@ -642,23 +842,57 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   4px spacing, 4/6/8 radius, type scale, 120–180ms motion), a custom Material theme built from
   those tokens (density -3), self-hosted Inter + JetBrains Mono via `@fontsource`, a dev-only
   `/styleguide` reference page. Existing pages NOT yet migrated to the new tokens — see gotchas.
+- **NovaCode v2 Phase B — Visualizer Engine**: shared `<app-viz-player>` (keyboard-driven
+  play/pause/step/scrub/speed) + 7 SVG structure renderers + the Frame/Trace model. Lazy-loaded,
+  standalone — see gotchas for the catalog/registry split that keeps it out of the eager bundle.
+- **NovaCode v2 Phase C — 12 visualizer categories, 13 trace generators**: array rotation,
+  two-pointer pair-sum, sliding-window longest-unique-substring, Dutch flag, anagram frequency
+  array, monotonic-stack next-greater, prefix-sum range query, linked-list fast/slow cycle
+  detection, tree in-order DFS, trie insert/search, graph BFS wave, DP-table climbing stairs,
+  selection sort. Reachable at `/visualize/{slug}`, plus a launcher card on the matching
+  pattern's detail page. One representative algorithm per category, not every sub-variant
+  described in the spec — see gotchas.
 - **NovaCode v2 Phase D — Command Palette**: `Cmd/Ctrl+K` opens a fuzzy-search palette (patterns,
   problems, companies, static routes/actions, recent items via localStorage), fully keyboard-
   driven (arrows/Enter/Esc), built from scratch with no new dependency. Global shortcuts: `/`
   focus-search, `g p` / `g d` chord navigation, `?` help overlay. Scope note: `j`/`k`, `t`, `h`,
   and worksheet `Enter`-advance are deferred to later, component-specific work — see gotchas.
+- **NovaCode v2 Phase E — Method content**: 9 seeded reference-data entities (5 method phases,
+  7-row complexity budget, 5 optimization moves, 6 stuck rungs, 5 recovery steps, 21 trigger
+  phrases w/ antiTriggers, 35-topic priority curriculum, 8-step interview script, company/pattern
+  frequency join), all public + cached. Frontend service exists (`method-content.service.ts`) but
+  no page consumes it yet — deeper integration (gating the solve-session stepper by rung timers,
+  the mandatory recovery checklist at hint level 4, the interview script on the completion
+  screen) is deferred, not built this round.
+- **NovaCode v2 Phase F — Retention-weighted gamification**: recall streak (with a same-day grace
+  period), pattern mastery tiers (Learning/Familiar/Solid/Mastered) as a tile grid, submissions-
+  per-accepted with an 8-week trend, a hand-drawn PNG share card (`java.awt.Graphics2D`, zero new
+  deps, rate-limited 10/day) on the Progress Dashboard. Confetti fires once, on completing a full
+  recall drill with every entry PASS — the one place the design brief allows it.
+- **NovaCode v2 Phase G — Removals**: honest `degraded: true` AI state in prod/dev (mock/concept
+  fallback survives in `test` profile only), YouTube integration deleted entirely
+  (frontend + backend + config), Analysis page collapsed 5→2 tabs, per-user `leetcodeUsername`
+  (`/leetcode-stats/me`, `/leetcode-stats/{username}`, 10-min cache with stale-on-error) replacing
+  the hardcoded default. Problem bank was investigated per explicit instruction and NOT deleted —
+  see gotchas for why the blast radius is bigger than "just a mirror" implied. Admin credential
+  rotation prepared but blocked on missing prod DB access — see BUG 4.
 
 ## What's Pending ❌
-- [ ] NovaCode v2 Phases B/C (Visualizer Engine + 12 visualizers), E (Method content seeding),
-      F (retention-weighted gamification), G (removals: mock AI in prod, YouTube tab, etc.)
+- [ ] Admin credential rotation — generated, not yet applied to production (BUG 4)
+- [ ] Deeper Phase E integration into Solve Session / Recall Drill UI (stepper rung-gating,
+      mandatory recovery checklist, interview script on completion)
+- [ ] Full app reskin to the v2 design tokens (Phase A only touched Material chrome + new
+      components; `.glass-card`/`--bg-0` pages are untouched)
+- [ ] Remaining Phase D shortcuts: `j`/`k` list nav, `t`/`h` worksheet shortcuts
+- [ ] Problem bank deletion (investigated, not decided — see gotchas; would need `AIService`
+      re-keyed from `Problem.id` to `leetcodeId` first)
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. NovaCode v2 Phase B — Visualizer Engine (wait for user confirmation before starting; the v2
-   spec's own DELIVERY line only authorized Phases A + D for the session that built them)
+1. Apply the admin credential rotation (BUG 4) once production DB access is available
 2. Redis setup
 3. Docker Compose for backend + frontend
 4. GitHub Actions CI/CD

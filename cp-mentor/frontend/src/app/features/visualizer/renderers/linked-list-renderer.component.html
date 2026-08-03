@@ -1,0 +1,32 @@
+<svg
+  class="ll-svg"
+  [attr.viewBox]="'0 0 ' + viewBoxWidth + ' 110'"
+  [attr.height]="110"
+  preserveAspectRatio="xMinYMid meet"
+  role="img"
+  aria-label="Linked list visualization">
+
+  <defs>
+    <marker id="ll-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" class="ll-arrowhead"></path>
+    </marker>
+  </defs>
+
+  <!-- forward links -->
+  <line *ngFor="let n of laidOut; let i = index" [style.display]="i === laidOut.length - 1 ? 'none' : null"
+        [attr.x1]="n.x + nodeW" [attr.y1]="28" [attr.x2]="n.x + nodeW + gap" [attr.y2]="28"
+        class="ll-edge" marker-end="url(#ll-arrow)"></line>
+
+  <!-- cycle back-edge, drawn as an arc beneath the chain -->
+  <path *ngIf="cycleBackEdge" class="ll-cycle-edge" marker-end="url(#ll-arrow)"
+        [attr.d]="'M ' + cycleBackEdge.fromX + ' 56 Q ' + ((cycleBackEdge.fromX + cycleBackEdge.toX) / 2) + ' 96 ' + cycleBackEdge.toX + ' 56'"></path>
+
+  <g *ngFor="let n of laidOut" [attr.transform]="'translate(' + n.x + ',0)'">
+    <rect [attr.class]="'ll-node tone-' + toneFor(n.id)" [attr.width]="nodeW" [attr.height]="56" rx="8"></rect>
+    <text class="ll-value" [attr.x]="nodeW / 2" [attr.y]="33" text-anchor="middle">{{ n.value }}</text>
+
+    <g *ngFor="let p of pointersAt(n.id); let pi = index" [attr.transform]="'translate(' + (nodeW / 2) + ',' + (72 + pi * 16) + ')'">
+      <text class="ll-pointer" text-anchor="middle">&#9650; {{ p.name }}</text>
+    </g>
+  </g>
+</svg>

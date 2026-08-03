@@ -133,6 +133,24 @@
   &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
 }
 
+.viz-launcher {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; }
+
+  .viz-launcher-icon {
+    color: var(--accent-blue);
+    mat-icon { font-size: 36px; width: 36px; height: 36px; }
+  }
+
+  .viz-launcher-title { font-weight: 700; color: var(--text-hi); font-size: 15px; }
+  .viz-launcher-sub { color: var(--text-lo); font-size: 13px; margin-top: 2px; }
+}
+
 .role-chip {
   border-radius: 6px;
   padding: 3px 10px;

@@ -1,0 +1,45 @@
+<div #playerRoot class="vp-root" tabindex="0" (keydown)="onKeydown($event)" role="application" aria-label="Algorithm visualizer, keyboard controlled">
+
+  <div class="vp-main">
+    <div class="vp-structure">
+      <ng-container [ngSwitch]="trace.structure">
+        <app-array-renderer *ngSwitchCase="'array'" [state]="$any(frame.state)" [highlights]="frame.highlights" [pointers]="frame.pointers"></app-array-renderer>
+        <app-stack-renderer *ngSwitchCase="'stack'" [state]="$any(frame.state)" [highlights]="frame.highlights" [pointers]="frame.pointers"></app-stack-renderer>
+        <app-linked-list-renderer *ngSwitchCase="'linked-list'" [state]="$any(frame.state)" [highlights]="frame.highlights" [pointers]="frame.pointers"></app-linked-list-renderer>
+        <app-tree-renderer *ngSwitchCase="'tree'" [state]="$any(frame.state)" [highlights]="frame.highlights" [pointers]="frame.pointers"></app-tree-renderer>
+        <app-trie-renderer *ngSwitchCase="'trie'" [state]="$any(frame.state)" [highlights]="frame.highlights"></app-trie-renderer>
+        <app-graph-renderer *ngSwitchCase="'graph'" [state]="$any(frame.state)" [highlights]="frame.highlights" [pointers]="frame.pointers"></app-graph-renderer>
+        <app-grid-renderer *ngSwitchCase="'grid'" [state]="$any(frame.state)" [highlights]="frame.highlights"></app-grid-renderer>
+      </ng-container>
+    </div>
+
+    <div class="vp-code">
+      <div class="vp-code-line" *ngFor="let line of codeLines; let i = index" [class.active]="i === frame.codeLine">{{ line }}</div>
+    </div>
+  </div>
+
+  <p class="vp-explanation">{{ frame.explanation }}</p>
+
+  <div class="vp-vars" *ngIf="varEntries().length">
+    <span class="vp-var" *ngFor="let entry of varEntries()"><b>{{ entry[0] }}</b> = {{ entry[1] }}</span>
+  </div>
+
+  <div class="vp-controls">
+    <button type="button" class="vp-btn" (click)="reset()" aria-label="Reset (r)"><mat-icon>restart_alt</mat-icon></button>
+    <button type="button" class="vp-btn" (click)="stepBack()" [disabled]="isFirst" aria-label="Step back (←)"><mat-icon>skip_previous</mat-icon></button>
+    <button type="button" class="vp-btn vp-btn-play" (click)="toggle()" [attr.aria-label]="playing ? 'Pause (space)' : 'Play (space)'">
+      <mat-icon>{{ playing ? 'pause' : 'play_arrow' }}</mat-icon>
+    </button>
+    <button type="button" class="vp-btn" (click)="stepForward()" [disabled]="isLast" aria-label="Step forward (→)"><mat-icon>skip_next</mat-icon></button>
+
+    <input type="range" class="vp-scrub" min="0" max="100" [value]="progressPct" (input)="scrub($event)" aria-label="Scrub timeline">
+
+    <div class="vp-speed">
+      <button type="button" *ngFor="let s of [0.5, 1, 2]" class="vp-speed-btn" [class.active]="speed === s" (click)="setSpeed(s)">{{ s }}&times;</button>
+    </div>
+
+    <span class="vp-step-count">{{ currentIndex + 1 }} / {{ trace.frames.length }}</span>
+  </div>
+
+  <p class="vp-kbd-hint">Space play/pause · &larr;/&rarr; step · r reset · 0-9 jump</p>
+</div>

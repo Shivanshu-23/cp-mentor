@@ -7,7 +7,7 @@
   <div *ngIf="loading" class="loading-block">
     <mat-spinner diameter="56" style="margin:0 auto"></mat-spinner>
     <p class="loading-title">🤖 AI Mentor is analyzing...</p>
-    <p class="loading-sub">Pattern recognition · Solutions · Interview tips · Videos</p>
+    <p class="loading-sub">Pattern recognition · Solutions · Interview tips</p>
   </div>
 
   <ng-container *ngIf="!loading && analysis && problem">
@@ -42,6 +42,20 @@
       </div>
     </div>
 
+    <!-- v2 Phase G: honest degraded state — every real AI provider failed.
+         Shown instead of the tabs, which would otherwise render mostly
+         empty (no solutions, no tiered explanations) and look like a
+         partial success rather than an outage. -->
+    <div class="glass-card degraded-banner" *ngIf="analysis.degraded">
+      <mat-icon>cloud_off</mat-icon>
+      <div>
+        <div class="degraded-title">AI analysis is unavailable right now</div>
+        <p class="degraded-text">{{ analysis.problemSummary }}</p>
+        <a routerLink="/solve" class="degraded-link">Try AI-free pattern identification in a Solve Session instead →</a>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!analysis.degraded">
     <!-- Data Structures + Algorithms row -->
     <div class="ds-algo-row">
       <div class="glass-card">
@@ -55,10 +69,14 @@
     </div>
 
     <!-- Tabs -->
-    <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="onTabChange($event)" animationDuration="200ms">
+    <!-- v2 Phase G: collapsed from 5 tabs to 2 (Analysis / Discussion) per
+         the design brief's "don't over-structure a page read once" rule.
+         Videos tab removed entirely — see CLAUDE.md; the app's curated
+         learning links now live on the Pattern Library resource tab. -->
+    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="200ms">
 
-      <!-- TAB 1: Explanation -->
-      <mat-tab label="💡 Explanation">
+      <!-- TAB 1: Analysis (Explanation + Solutions) -->
+      <mat-tab label="💡 Analysis">
         <div class="tab-content">
           <mat-accordion>
             <mat-expansion-panel [expanded]="true">
@@ -83,10 +101,7 @@
             <div class="code-block viz-block">{{ analysis.visualization }}</div>
           </div>
         </div>
-      </mat-tab>
 
-      <!-- TAB 2: Solutions -->
-      <mat-tab label="💻 Solutions">
         <div class="tab-content">
           <div *ngFor="let a of approaches" class="glass-card approach-card" [style.border-left]="'4px solid '+a.color">
             <div class="approach-head">
@@ -130,8 +145,8 @@
         </div>
       </mat-tab>
 
-      <!-- TAB 3: Interview -->
-      <mat-tab label="🎯 Interview">
+      <!-- TAB 2: Discussion (Interview + Revision) -->
+      <mat-tab label="🎯 Discussion">
         <div class="tab-content">
           <div class="glass-card" style="border-left:3px solid var(--accent-yellow)">
             <div class="section-title"><mat-icon>tips_and_updates</mat-icon>Interview Tips</div>
@@ -158,10 +173,7 @@
             </div>
           </div>
         </div>
-      </mat-tab>
 
-      <!-- TAB 4: Revision -->
-      <mat-tab label="📚 Revision">
         <div class="tab-content">
           <div class="glass-card revision-card">
             <div class="section-title"><mat-icon>sticky_note_2</mat-icon>Quick Revision Notes</div>
@@ -201,83 +213,7 @@
         </div>
       </mat-tab>
 
-      <!-- TAB 5: Videos (lazy loaded) -->
-      <mat-tab label="📺 Videos">
-        <div class="tab-content">
-
-          <!-- Loading spinner -->
-          <div *ngIf="loadingVideos" class="loading-block">
-            <mat-spinner diameter="44" style="margin:0 auto"></mat-spinner>
-            <p class="loading-title">Fetching curated tutorials...</p>
-          </div>
-
-          <!-- Video grid -->
-          <div *ngIf="!loadingVideos">
-
-            <div class="videos-head">
-              <div>
-                <div class="section-title" style="margin-bottom:4px"><mat-icon style="color:#ff0000">play_circle</mat-icon>Curated Tutorials</div>
-                <p class="videos-sub">Handpicked from top competitive programming educators</p>
-              </div>
-              <!-- Channel whitelist badge -->
-              <div class="channel-badge">
-                ✅ Channels: NeetCode · take U forward · Abdul Bari · William Fiset · Errichto
-              </div>
-            </div>
-
-            <!-- Video cards grid -->
-            <div class="video-grid">
-              <div *ngFor="let v of videos" (click)="openVideo(v.url)" class="video-card">
-
-                <!-- Thumbnail -->
-                <div class="video-thumb">
-                  <img [src]="v.thumbnailUrl" [alt]="v.title" class="video-thumb-img"
-                    onerror="this.src='https://via.placeholder.com/320x168/0d1117/58a6ff?text=Video'">
-
-                  <!-- Duration badge -->
-                  <div class="video-duration">{{ v.duration }}</div>
-
-                  <!-- Play overlay -->
-                  <div class="video-play-overlay">
-                    <mat-icon style="color:#fff;font-size:52px;width:52px;height:52px">play_circle_filled</mat-icon>
-                  </div>
-                </div>
-
-                <!-- Video info -->
-                <div class="video-info">
-                  <div class="video-title-clamp">{{ v.title }}</div>
-                  <div class="video-meta-row">
-                    <div class="video-channel">
-                      <div class="channel-dot">
-                        <mat-icon>play_arrow</mat-icon>
-                      </div>
-                      <span>{{ v.channelTitle }}</span>
-                    </div>
-                    <div class="video-views">
-                      <mat-icon>visibility</mat-icon>
-                      {{ v.viewCount }} views
-                    </div>
-                  </div>
-
-                  <!-- Whitelisted badge -->
-                  <div class="video-footer-row">
-                    <span class="curated-badge">✓ Curated</span>
-                    <span *ngIf="v.topic" class="topic-chip" style="font-size:11px;padding:2px 8px">{{ v.topic }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Empty state -->
-            <div *ngIf="videos.length === 0 && !loadingVideos" class="videos-empty">
-              <mat-icon>video_library</mat-icon>
-              <p>No videos found for this topic.</p>
-            </div>
-
-          </div>
-        </div>
-      </mat-tab>
-
     </mat-tab-group>
+    </ng-container>
   </ng-container>
 </div>

@@ -1,0 +1,30 @@
+<div class="vzp-page" *ngIf="def; else vzpNotFound">
+  <a routerLink="/patterns" class="vzp-back"><mat-icon>arrow_back</mat-icon> Back to patterns</a>
+
+  <h1 class="vzp-title">{{ def.title }}</h1>
+  <p class="vzp-desc">{{ def.description }}</p>
+
+  <div class="vzp-presets">
+    <button type="button" *ngFor="let p of def.presets; let i = index"
+            class="vzp-preset-btn" [class.active]="activePresetIndex === i"
+            (click)="loadPreset(i)">{{ p.label }}</button>
+  </div>
+
+  <div class="vzp-custom">
+    <label class="vzp-custom-label">{{ def.customInputLabel }}</label>
+    <div class="vzp-custom-row">
+      <input type="text" class="vzp-custom-input" [(ngModel)]="customInput" (keydown.enter)="runCustomInput()">
+      <button mat-stroked-button color="primary" (click)="runCustomInput()">Run</button>
+    </div>
+    <p class="vzp-custom-error" *ngIf="customError">{{ customError }}</p>
+  </div>
+
+  <app-viz-player *ngIf="trace" [trace]="trace" [autoFocus]="true"></app-viz-player>
+</div>
+
+<ng-template #vzpNotFound>
+  <div class="vzp-not-found">
+    <p>No visualizer at this address yet.</p>
+    <a routerLink="/patterns">Back to Pattern Library</a>
+  </div>
+</ng-template>

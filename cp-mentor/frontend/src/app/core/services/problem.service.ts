@@ -21,19 +21,7 @@ export interface AIAnalysis {
   dryRun: string; visualization: string; realWorldApplications: string[];
   companiesAsking: string[]; whenToUseThisAlgorithm: string; whenNotToUseThisAlgorithm: string;
   revisionNotes: string; relatedProblems: string[]; practiceOrder: string[];
-  flashCards: string[]; modelUsed: string; fromCache: boolean;
-}
-export interface VideoDTO {
-  videoId: string;
-  title: string;
-  channelTitle: string;
-  thumbnailUrl: string;
-  url: string;
-  duration: string;
-  viewCount: string;
-  publishedAt: string;
-  topic: string;
-  whitelisted: boolean;
+  flashCards: string[]; modelUsed: string; fromCache: boolean; degraded: boolean;
 }
 export interface PageResponse<T> { content: T[]; totalElements: number; totalPages: number; }
 
@@ -53,8 +41,5 @@ export class ProblemService {
   }
   analyzeWithAI(id: number): Observable<AIAnalysis> {
     return this.http.get<AIAnalysis>(`${this.API}/ai/analyze/${id}`);
-  }
-  getVideos(topic: string): Observable<VideoDTO[]> {
-    return this.http.get<VideoDTO[]>(`${this.API}/videos?topic=${encodeURIComponent(topic)}`);
   }
 }

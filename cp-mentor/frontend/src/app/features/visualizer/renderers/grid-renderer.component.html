@@ -1,0 +1,23 @@
+<svg
+  class="grid-svg"
+  [attr.viewBox]="'0 0 ' + viewBoxWidth + ' ' + viewBoxHeight"
+  [attr.height]="viewBoxHeight"
+  preserveAspectRatio="xMinYMid meet"
+  role="img"
+  aria-label="Grid visualization">
+
+  <defs>
+    <marker id="dp-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" class="grid-arrowhead"></path>
+    </marker>
+  </defs>
+
+  <path *ngFor="let e of depEdges" [attr.d]="edgePath(e)" class="grid-dep-edge" marker-end="url(#dp-arrow)"></path>
+
+  <g *ngFor="let row of state.cells; let r = index">
+    <g *ngFor="let v of row; let c = index" [attr.transform]="'translate(' + x(c) + ',' + y(r) + ')'">
+      <rect [attr.class]="'grid-cell tone-' + toneFor(r, c)" [attr.width]="cell" [attr.height]="cell" rx="6"></rect>
+      <text class="grid-value" [attr.x]="cell / 2" [attr.y]="cell / 2 + 5" text-anchor="middle">{{ v ?? '·' }}</text>
+    </g>
+  </g>
+</svg>

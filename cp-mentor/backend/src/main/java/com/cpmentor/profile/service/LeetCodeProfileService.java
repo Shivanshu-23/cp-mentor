@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 // Reads LeetCode's public GraphQL API (same one leetcode.com/u/<username> itself calls) —
 // no API key, no auth, works for any public profile. Mirrors the HttpURLConnection style
@@ -38,6 +39,16 @@ public class LeetCodeProfileService {
     private String defaultUsername;
 
     private static final String GRAPHQL_URL = "https://leetcode.com/graphql";
+    private static final long CACHE_TTL_MILLIS = 10 * 60 * 1000; // 10 min, per v2 Phase G
+
+    // Simple in-memory TTL cache with stale-on-error, keyed by username. Deliberately not a
+    // library (Caffeine/Redis) — one small cache for one low-volume endpoint doesn't justify
+    // a new dependency, consistent with the project's free-hosting/minimal-deps constraint.
+    // Not distributed — fine for a single Render instance; would need rethinking behind a
+    // multi-instance deploy.
+    private final Map<String, CachedEntry> cache = new ConcurrentHashMap<>();
+
+    private record CachedEntry(LeetCodeStatsDTO stats, long fetchedAtMillis) {}
 
     private static final String QUERY_TEMPLATE = """
         {"query":"query userProfile($username: String!) { \
@@ -54,10 +65,22 @@ public class LeetCodeProfileService {
     }
 
     public LeetCodeStatsDTO fetchStats(String username) {
+        CachedEntry cached = cache.get(username);
+        if (cached != null && System.currentTimeMillis() - cached.fetchedAtMillis() < CACHE_TTL_MILLIS) {
+            return cached.stats();
+        }
+
         try {
-            return fetchFromLeetCode(username);
+            LeetCodeStatsDTO fresh = fetchFromLeetCode(username);
+            cache.put(username, new CachedEntry(fresh, System.currentTimeMillis()));
+            return fresh;
         } catch (Exception e) {
             log.warn("LeetCode profile fetch failed for {}: {}", username, e.getMessage());
+            if (cached != null) {
+                log.info("Serving stale cached stats for {} (fetched {}ms ago)", username,
+                        System.currentTimeMillis() - cached.fetchedAtMillis());
+                return cached.stats();
+            }
             return LeetCodeStatsDTO.builder()
                     .username(username)
                     .profileUrl("https://leetcode.com/u/" + username + "/")

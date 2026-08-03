@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Service;
 
 import java.io.OutputStream;
@@ -28,6 +30,7 @@ public class AIService {
 
     private final ProblemRepository problemRepository;
     private final ObjectMapper objectMapper;
+    private final Environment environment;
 
     @Value("${gemini.api-key:}")  private String geminiKey;
     @Value("${openai.api-key:}")  private String openAiKey;
@@ -71,8 +74,32 @@ public class AIService {
             catch (Exception e) { log.warn("Claude failed: {}", e.getMessage()); }
         }
 
-        log.info("No working AI — returning static concept fallback for: {}", problem.getTitle());
-        return buildConceptFallback(problem);
+        // v2 Phase G: the rich concept fallback is test-profile-only now — it was reachable
+        // in prod/dev whenever every real provider failed (BUG 3's quota exhaustion made this
+        // a live path, not a hypothetical), and while it IS clearly labeled
+        // (modelUsed: "static-concept-fallback"), a partially-filled analysis with empty
+        // Solutions/tiered-explanation tabs still reads as "the app tried and half-worked"
+        // rather than the honest "AI is down" it actually is. Prod/dev now get a distinct,
+        // minimal degraded state instead.
+        if (environment.acceptsProfiles(Profiles.of("test"))) {
+            log.info("No working AI — returning test-profile concept fallback for: {}", problem.getTitle());
+            return buildConceptFallback(problem);
+        }
+
+        log.warn("No working AI provider for: {} — returning degraded state", problem.getTitle());
+        return buildDegradedState(problem);
+    }
+
+    private AIAnalysisDTO buildDegradedState(Problem problem) {
+        return AIAnalysisDTO.builder()
+            .problemId(problem.getId()).problemTitle(problem.getTitle())
+            .problemSummary("AI analysis is unavailable right now — every configured provider (Gemini/OpenAI/Claude) "
+                    + "failed to respond. This is not a partial result; nothing below is AI-generated.")
+            .recognizedPattern("Unavailable")
+            .modelUsed("unavailable")
+            .fromCache(false)
+            .degraded(true)
+            .build();
     }
 
     // ── Fast-fail detection ────────────────────────────────────────────────────

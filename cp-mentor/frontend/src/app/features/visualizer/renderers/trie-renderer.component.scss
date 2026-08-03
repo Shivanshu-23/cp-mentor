@@ -1,0 +1,18 @@
+.trie-svg { width: 100%; overflow: visible; font-family: var(--font-mono); }
+
+.trie-edge { stroke: var(--border-hairline-strong); stroke-width: 1.5; }
+.trie-edge-label { fill: var(--text-muted); font-size: 10px; }
+
+.trie-node {
+  fill: var(--surface-1);
+  stroke: var(--border-hairline-strong);
+  stroke-width: 1;
+  transition: fill var(--duration-base) var(--ease-out), stroke var(--duration-base) var(--ease-out);
+
+  &.is-end { stroke: var(--state-success); stroke-width: 2; }
+  &.tone-active { fill: var(--accent-dim); stroke: var(--accent); }
+  &.tone-answer { fill: var(--accent); stroke: var(--accent); }
+  &.tone-dim { opacity: 0.35; }
+}
+
+.trie-char { fill: var(--text-primary); font-size: 12px; font-weight: 600; }

@@ -31,6 +31,43 @@
       </div>
     </div>
 
+    <!-- Retention-weighted mastery (v2 Phase F) — the headline is the recall
+         streak, not problems solved, per the brief's "reward retention, not
+         volume" principle. -->
+    <div class="glass-card section-card mastery-card" *ngIf="!loadingMastery && mastery">
+      <div class="mastery-header">
+        <div class="streak-block">
+          <div class="streak-value">{{ mastery.recallStreak }}</div>
+          <div class="streak-label">day recall streak</div>
+        </div>
+        <button mat-stroked-button color="primary" (click)="shareCard()" [disabled]="sharingCard">
+          <mat-icon>ios_share</mat-icon> {{ sharingCard ? 'Generating…' : 'Share stat card' }}
+        </button>
+      </div>
+
+      <div class="mastery-grid-section">
+        <div class="section-title"><mat-icon>grid_view</mat-icon>Pattern Mastery</div>
+        <div class="mastery-grid" *ngIf="mastery.patternMastery.length; else noMastery">
+          <a *ngFor="let p of mastery.patternMastery" [routerLink]="['/patterns', p.patternSlug]"
+             class="mastery-tile" [style.background]="'var(' + tierColorVar(p.tier) + ')'"
+             [matTooltip]="p.patternSlug + ' — ' + p.tier"></a>
+        </div>
+        <ng-template #noMastery><p class="section-hint">No patterns logged yet.</p></ng-template>
+      </div>
+
+      <div class="submissions-trend-section">
+        <div class="section-title"><mat-icon>show_chart</mat-icon>Submissions per Accepted (target 1.00)</div>
+        <div class="trend-bars">
+          <div class="trend-bar-col" *ngFor="let t of mastery.submissionsPerAccepted.trend">
+            <div class="trend-bar-track">
+              <div class="trend-bar-fill" [style.height.%]="(t.avgSubmissions / maxTrendValue()) * 100" [class.zero]="t.avgSubmissions === 0"></div>
+            </div>
+            <div class="trend-bar-label">{{ t.weekLabel }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Difficulty breakdown -->
     <div class="glass-card section-card">
       <div class="section-title"><mat-icon>bar_chart</mat-icon>Problems Solved by Difficulty</div>

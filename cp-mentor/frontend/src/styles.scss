@@ -933,3 +933,32 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   .no-print, .navbar-glow-line, .app-navbar { display: none !important; }
   body { background: #fff !important; }
 }
+
+// ── Confetti (v2 Phase F — recall-drill.component.ts) ──────────────────
+// Global, not component-scoped: the pieces are appended straight to
+// document.body (outside any component's view) so a burst survives the
+// component that triggered it navigating away mid-animation. Hand-built,
+// no library — the one place the design brief allows this.
+.confetti-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: 40%;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: confettiFall 1.2s ease-out forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+@keyframes confettiFall {
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--x, 0), 260px) rotate(var(--rot, 180deg)); }
+}

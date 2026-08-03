@@ -1,0 +1,24 @@
+.grid-svg { width: 100%; overflow: visible; font-family: var(--font-mono); }
+
+.grid-cell {
+  fill: var(--surface-1);
+  stroke: var(--border-hairline-strong);
+  stroke-width: 1;
+  transition: fill var(--duration-base) var(--ease-out);
+
+  &.tone-active  { fill: var(--accent-dim); stroke: var(--accent); }
+  &.tone-compare { fill: rgba(94, 234, 212, 0.12); stroke: var(--state-warning); }
+  &.tone-answer  { fill: var(--accent); stroke: var(--accent); }
+  &.tone-dim     { opacity: 0.4; }
+}
+
+.grid-value { fill: var(--text-primary); font-size: 13px; font-weight: 600; }
+
+.grid-dep-edge {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0.7;
+}
+
+.grid-arrowhead { fill: var(--text-muted); }

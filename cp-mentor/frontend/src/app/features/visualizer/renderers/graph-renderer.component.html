@@ -1,0 +1,29 @@
+<svg
+  class="graph-svg"
+  [attr.viewBox]="viewBox"
+  [attr.height]="svgHeight"
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-label="Graph visualization">
+
+  <g *ngFor="let e of state.edges">
+    <ng-container *ngIf="nodeById(e.from) as from">
+      <ng-container *ngIf="nodeById(e.to) as to">
+        <line [attr.x1]="from.x" [attr.y1]="from.y" [attr.x2]="to.x" [attr.y2]="to.y"
+              [attr.class]="'graph-edge tone-' + edgeToneFor(e.from, e.to)"></line>
+        <text *ngIf="e.weight !== undefined"
+              [attr.x]="edgeMidpoint(from, to).x" [attr.y]="edgeMidpoint(from, to).y - 4"
+              class="graph-weight" text-anchor="middle">{{ e.weight }}</text>
+      </ng-container>
+    </ng-container>
+  </g>
+
+  <g *ngFor="let n of state.nodes" [attr.transform]="'translate(' + n.x + ',' + n.y + ')'">
+    <circle [attr.class]="'graph-node tone-' + nodeToneFor(n.id)" [attr.r]="nodeR"></circle>
+    <text class="graph-label" y="5" text-anchor="middle">{{ n.label }}</text>
+
+    <g *ngFor="let p of pointersAt(n.id); let pi = index" [attr.transform]="'translate(0,' + (-nodeR - 8 - pi * 14) + ')'">
+      <text class="graph-pointer" text-anchor="middle">{{ p.name }}</text>
+    </g>
+  </g>
+</svg>

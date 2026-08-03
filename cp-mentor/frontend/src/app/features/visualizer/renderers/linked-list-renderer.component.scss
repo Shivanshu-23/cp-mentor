@@ -1,0 +1,20 @@
+.ll-svg { width: 100%; overflow: visible; font-family: var(--font-mono); }
+
+.ll-node {
+  fill: var(--surface-1);
+  stroke: var(--border-hairline-strong);
+  stroke-width: 1;
+  transition: fill var(--duration-base) var(--ease-out), stroke var(--duration-base) var(--ease-out);
+
+  &.tone-active  { fill: var(--accent-dim); stroke: var(--accent); }
+  &.tone-compare { fill: rgba(94, 234, 212, 0.12); stroke: var(--state-warning); }
+  &.tone-answer  { fill: var(--accent); stroke: var(--accent); }
+  &.tone-dim     { opacity: 0.4; }
+}
+
+.ll-value { fill: var(--text-primary); font-size: 15px; font-weight: 600; }
+.ll-pointer { fill: var(--accent); font-size: 11px; font-weight: 600; }
+
+.ll-edge { stroke: var(--text-muted); stroke-width: 1.5; }
+.ll-cycle-edge { stroke: var(--state-warning); stroke-width: 1.5; fill: none; }
+.ll-arrowhead { fill: var(--text-muted); }

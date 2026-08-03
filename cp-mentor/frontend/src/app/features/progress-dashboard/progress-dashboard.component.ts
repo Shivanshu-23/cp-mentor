@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TriggerService, StatsResponse, TriggerEntryResponse } from '../../core/services/trigger.service';
+import { MasteryService, MasteryResponse, MasteryTier } from '../../core/services/mastery.service';
 
 @Component({
   selector: 'app-progress-dashboard',
@@ -15,7 +16,15 @@ export class ProgressDashboardComponent implements OnInit {
   triggerLog: TriggerEntryResponse[] = [];
   loadingLog = true;
 
-  constructor(private triggerService: TriggerService, private snack: MatSnackBar) {}
+  mastery: MasteryResponse | null = null;
+  loadingMastery = true;
+  sharingCard = false;
+
+  constructor(
+    private triggerService: TriggerService,
+    private masteryService: MasteryService,
+    private snack: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.triggerService.getStats().subscribe({
@@ -35,6 +44,40 @@ export class ProgressDashboardComponent implements OnInit {
         this.loadingLog = false;
       },
       error: () => this.loadingLog = false
+    });
+
+    this.masteryService.getMastery().subscribe({
+      next: m => { this.mastery = m; this.loadingMastery = false; },
+      error: () => { this.loadingMastery = false; }
+    });
+  }
+
+  tierColorVar(tier: MasteryTier): string {
+    return { LEARNING: '--text-muted', FAMILIAR: '--state-warning', SOLID: '--state-success', MASTERED: '--accent' }[tier] ?? '--text-muted';
+  }
+
+  maxTrendValue(): number {
+    if (!this.mastery?.submissionsPerAccepted.trend.length) return 1;
+    return Math.max(1, ...this.mastery.submissionsPerAccepted.trend.map(t => t.avgSubmissions));
+  }
+
+  shareCard(): void {
+    this.sharingCard = true;
+    this.masteryService.getShareCard().subscribe({
+      next: blob => {
+        this.sharingCard = false;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'novacode-stats.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.sharingCard = false;
+        const msg = err.status === 429 ? 'Daily share-card limit reached — try again tomorrow.' : 'Could not generate the stat card.';
+        this.snack.open(msg, 'Close', { duration: 4000 });
+      }
     });
   }
 

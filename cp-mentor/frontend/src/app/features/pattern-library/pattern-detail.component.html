@@ -45,6 +45,18 @@
             <div class="section-title"><mat-icon>alt_route</mat-icon>Variants</div>
             <p class="prose">{{ pattern.variants }}</p>
           </div>
+
+          <!-- Poster frame + play button, per the visualizer brief — never
+               autoplay. Links out to /visualize/{slug} rather than embedding
+               the player inline, so this page's bundle stays free of the
+               lazy-loaded visualizer engine. -->
+          <a class="glass-card hover-lift viz-launcher" *ngIf="visualizerSlug" [routerLink]="['/visualize', visualizerSlug]">
+            <div class="viz-launcher-icon"><mat-icon>play_circle</mat-icon></div>
+            <div class="viz-launcher-text">
+              <div class="viz-launcher-title">Watch this pattern, step by step</div>
+              <div class="viz-launcher-sub">Interactive visualizer — keyboard-driven, opens in a new page</div>
+            </div>
+          </a>
         </div>
       </mat-tab>
 
