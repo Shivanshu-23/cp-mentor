@@ -1,7 +1,7 @@
 # Production (Render) — MySQL, connection details supplied entirely via env vars.
 spring:
   datasource:
-    url: ${DB_URL} # e.g. jdbc:mysql://<host>:3306/<db>?useSSL=true&serverTimezone=UTC
+    url: ${DB_URL} # e.g. jdbc:mysql://<host>:<port>/<db>?sslMode=REQUIRED&serverTimezone=UTC (Aiven requires TLS)
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
