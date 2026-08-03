@@ -38,6 +38,8 @@ import { CompanyTrackerComponent } from './features/company-tracker/company-trac
 import { PatternLibraryComponent } from './features/pattern-library/pattern-library.component';
 import { PatternDetailComponent } from './features/pattern-library/pattern-detail.component';
 import { ConstraintAnalyzerComponent } from './features/constraint-analyzer/constraint-analyzer.component';
+import { SolveSessionListComponent } from './features/solve-session/solve-session-list.component';
+import { SolveSessionWorksheetComponent } from './features/solve-session/solve-session-worksheet.component';
 import { TiltDirective } from './shared/tilt.directive';
 
 @NgModule({
@@ -51,6 +53,8 @@ import { TiltDirective } from './shared/tilt.directive';
     PatternLibraryComponent,
     PatternDetailComponent,
     ConstraintAnalyzerComponent,
+    SolveSessionListComponent,
+    SolveSessionWorksheetComponent,
     TiltDirective
   ],
   imports: [

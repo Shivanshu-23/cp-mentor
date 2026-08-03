@@ -20,6 +20,9 @@
     <a mat-button routerLink="/constraint-analyzer" routerLinkActive="active-link">
       <mat-icon>analytics</mat-icon> Constraint Analyzer
     </a>
+    <a mat-button routerLink="/solve" routerLinkActive="active-link" *ngIf="isLoggedIn">
+      <mat-icon>edit_note</mat-icon> Solve Sessions
+    </a>
   </nav>
 
   <ng-container *ngIf="isLoggedIn; else guestNav">

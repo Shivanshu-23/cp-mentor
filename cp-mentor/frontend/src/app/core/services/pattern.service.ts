@@ -52,10 +52,48 @@ export interface MethodResource {
 
 export interface PageResponse<T> { content: T[]; totalElements: number; totalPages: number; }
 
+export interface PatternCandidate {
+  patternSlug: string;
+  confidence: number;
+  matchedTriggers: string[];
+  whyItFits: string;
+  whyItMightNotFit: string;
+}
+
+export interface PatternIdentificationResult {
+  candidates: PatternCandidate[];
+  suggestedBruteForce: string;
+  bottleneckQuestion: string;
+}
+
+export interface HintRequestPayload {
+  problemStatement: string;
+  problemIdentifier?: string;
+  level: number;
+  previousHints?: string[];
+  patternSlug?: string | null;
+  confirmLevel4?: boolean;
+}
+
+export interface HintResult {
+  level: number;
+  hint: string;
+  containsCode: boolean;
+  matchedPatternSlug: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class PatternService {
   private API = '/api/v1/method';
   constructor(private http: HttpClient) {}
+
+  identifyPattern(problemStatement: string, constraints?: string): Observable<PatternIdentificationResult> {
+    return this.http.post<PatternIdentificationResult>(`${this.API}/identify-pattern`, { problemStatement, constraints });
+  }
+
+  getHint(payload: HintRequestPayload): Observable<HintResult> {
+    return this.http.post<HintResult>(`${this.API}/hint`, payload);
+  }
 
   getPatterns(category?: PatternCategory, page = 0, size = 100): Observable<PageResponse<PatternSummary>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) });

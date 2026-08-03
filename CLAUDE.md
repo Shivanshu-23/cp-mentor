@@ -113,9 +113,15 @@ com.cpmentor/
 │   │                                                fields only, + rate limiting (no AI)
 │   ├── entity/HintRequestLog.java                ← Phase 3: rate-limit bookkeeping, not exposed via API
 │   ├── repository/HintRequestLogRepository.java
+│   ├── controller/SolveSessionController.java    ← Phase 4: /api/v1/method/sessions, all JWT-private
+│   ├── service/SolveSessionService.java          ← Phase 4: ownership-checked CRUD + duration calc
+│   ├── entity/SolveSession.java                  ← Phase 4: the solve worksheet, 5 phases worth of fields
+│   ├── repository/SolveSessionRepository.java
 │   └── dto/ (PatternSummaryDTO, PatternDetailDTO, PatternProblemDTO, ResourceDTO,
 │             ConstraintAnalysisRequest/Response, EdgeCaseRequest/Response,
-│             PatternIdentificationRequest/Response, PatternCandidateDTO, HintRequest/Response)
+│             PatternIdentificationRequest/Response, PatternCandidateDTO, HintRequest/Response,
+│             SolveSessionCreateRequest, SolveSessionUpdateRequest, SolveSessionCompleteRequest,
+│             SolveSessionResponse)
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -157,6 +163,10 @@ POST /api/v1/method/analyze-constraints       (Phase 2 — {n, sorted, negatives
 POST /api/v1/method/edge-cases                (Phase 2 — {inputType, ...flags, patternSlug?} -> edge-case checklist, merges in a known pattern's own checklist)
 POST /api/v1/method/identify-pattern          (Phase 3, JWT — {problemStatement, constraints?} -> top-3 candidates by keyword match, no AI)
 POST /api/v1/method/hint                      (Phase 3, JWT — {problemStatement, problemIdentifier, level 1-4, patternSlug?, confirmLevel4} -> one hint at exactly that level, rate-limited)
+POST   /api/v1/method/sessions                (Phase 4, JWT — start a solve session)
+PATCH  /api/v1/method/sessions/{id}           (Phase 4, JWT — partial autosave, owner-only)
+POST   /api/v1/method/sessions/{id}/complete  (Phase 4, JWT — sets endedAt, computes durationSeconds)
+GET    /api/v1/method/sessions[/{id}]         (Phase 4, JWT — list (paginated, ?difficulty=/?solvedUnaided=) or fetch one, owner-only)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -177,6 +187,9 @@ GET /api/v1/method/**   // Pattern Library reference data (Phase 1)
 POST /api/v1/method/analyze-constraints, /api/v1/method/edge-cases   // Phase 2 — stateless reference logic, no writes
 // Phase 3 identify-pattern/hint are deliberately NOT in any permitAll list — they fall through
 // to the default `.anyRequest().authenticated()` rule, matching the spec's "(JWT)" requirement.
+// Phase 4 sessions/** are private per-user data — this is WHY the GET permitAll rule above was
+// narrowed from a "/api/v1/method/**" wildcard to explicit patterns/resources paths only (see
+// gotchas) — a wildcard would have made GET /api/v1/method/sessions publicly readable.
 
 // Everything else → requires JWT Bearer token
 ```
@@ -235,12 +248,13 @@ src/app/
 │   ├── services/
 │   │   ├── auth.service.ts        ← login, register, JWT localStorage
 │   │   ├── problem.service.ts     ← all API calls + interfaces
-│   │   ├── pattern.service.ts     ← Pattern Library API calls + interfaces (Phase 1)
-│   │   └── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
+│   │   ├── pattern.service.ts     ← Pattern Library (Phase 1) + identify-pattern/hint (Phase 3)
+│   │   ├── constraint-analyzer.service.ts  ← Phase 2 API calls + interfaces
+│   │   └── solve-session.service.ts        ← Phase 4 API calls + interfaces
 │   ├── interceptors/
 │   │   └── auth.interceptor.ts    ← attaches Bearer token to all requests
 │   └── guards/
-│       └── auth.guard.ts
+│       └── auth.guard.ts          ← used by Phase 4's /solve routes (see gotchas)
 ├── features/
 │   ├── home/                      ← daily problem + problem bank
 │   ├── analysis/                  ← 5-tab AI analysis page
@@ -251,8 +265,13 @@ src/app/
 │   │   ├── pattern-library.component.ts/html/scss   ← searchable/filterable grid
 │   │   └── pattern-detail.component.ts/html/scss    ← 6-tab detail (Intuition/Template/
 │   │                                                    Recognition/Mistakes/Problems/Follow-ups)
-│   └── constraint-analyzer/       ← Phase 2: /constraint-analyzer — form + results + printable checklist
-│       └── constraint-analyzer.component.ts/html/scss
+│   ├── constraint-analyzer/       ← Phase 2: /constraint-analyzer — form + results + printable checklist
+│   │   └── constraint-analyzer.component.ts/html/scss
+│   └── solve-session/             ← Phase 4: /solve (list+start) + /solve/:id (worksheet), AuthGuard-ed
+│       ├── solve-session-list.component.ts/html/scss
+│       └── solve-session-worksheet.component.ts/html/scss  ← 5-step stepper, live timer w/
+│                                                               difficulty cap, autosave via PATCH,
+│                                                               consumes Phase 3's identify-pattern/hint
 └── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
                                        every feature here is declared directly in AppModule;
                                        this codebase doesn't use per-feature NgModules)
@@ -322,10 +341,24 @@ src/app/
   fallback rather than surfacing those patterns — verified live. Keyword matching only works when
   the pasted problem statement happens to contain a stored trigger phrase (e.g. "next greater
   element"). This is an inherent, expected limitation of the AI-free design, not a bug.
-- **No frontend for Phase 3.** The spec's Phase 3 section (unlike Phases 1-2) never described a
-  standalone page — `identify-pattern`/`hint` are clearly meant to be consumed from Phase 4's
-  Solve Session worksheet stepper, which doesn't exist yet. Building a standalone UI now would be
-  orphaned. Revisit once Phase 4 exists.
+- **No frontend for Phase 3 in isolation** — its `identify-pattern`/`hint` endpoints are consumed
+  from Phase 4's Solve Session worksheet (step 3 "Hand-Solve & Bottleneck") instead of getting
+  their own page, exactly as anticipated.
+- **`GET /api/v1/method/**` permitAll was narrowed to explicit paths** (`/patterns`, `/patterns/**`,
+  `/resources`) when Phase 4 added private per-user GETs (`/sessions`, `/sessions/{id}`) under the
+  same `/api/v1/method` prefix. A wildcard `permitAll` there would have made solve-session data
+  world-readable. Any future public method-package endpoint must be added to that explicit list —
+  never widen it back to a wildcard while private resources share the prefix.
+- **`SolveSession.patternSlug` is not in the original spec's field list** for that entity —
+  documented, deliberate addition. Phase 6 needs to know which pattern a session resolved to in
+  order to surface `Pattern.interviewFollowUps` on the completion screen; the spec's own field
+  list for `TriggerEntry` (Phase 5) has a `patternSlug`, so this mirrors that existing precedent.
+- **`AuthGuard` was built but never wired to any route before Phase 4** — `company-tracker` and
+  other mixed public/private pages check `auth.isLoggedIn()` inside the component instead of
+  guarding the route, since they have a public read path. Phase 4's `/solve` and `/solve/:id`
+  are the first entirely-private pages, so they're the first to actually use `canActivate:
+  [AuthGuard]`. Follow this precedent for any future fully-private route; keep the inline-check
+  pattern for pages with a public read path.
 
 ## Environment Variables
 ```bash
@@ -367,9 +400,15 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   `/constraint-analyzer` page with printable results
 - Practice Method Phase 3 — Pattern identification (keyword match, JWT) and progressive hints
   (JWT, rate-limited: sequential level access, cooldown, explicit level-4 confirmation) — both
-  AI-free by deliberate user decision (see gotchas). Backend only, no page yet (see gotchas).
+  AI-free by deliberate user decision (see gotchas). No standalone page — consumed from Phase 4.
+- Practice Method Phase 4 — Solve Session worksheet at `/solve` (list+start) and `/solve/:id`
+  (5-step stepper: Constraints -> Restate+BruteForce -> Hand-Solve+Bottleneck (consumes Phase 3's
+  identify-pattern/hint) -> Final Approach -> Edge Cases+Code). Constraints step is a write-only
+  gate — the pasted problem statement isn't shown back until it's locked in. Live timer with a
+  difficulty-based cap (15/35/55 min) and overrun warning. Autosaves via PATCH per step. JWT-only
+  via `AuthGuard` (first route in the app to actually use it — see gotchas).
 - Angular Material dark theme UI — Home, Analysis (5 tabs), Login, Register, Company Tracker,
-  Pattern Library (grid + detail), Constraint Analyzer
+  Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions
 - Swagger UI at /swagger-ui.html
 - `docker-compose.yml` (cp-mentor root) — one-command local MySQL
 - **Live on the free stack**: Vercel (frontend) + Render free web service (backend) + Aiven
@@ -377,8 +416,6 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   after a quiet period is slow (cold start), that's expected.
 
 ## What's Pending ❌
-- [ ] Practice Method Phase 4 — Solve Session worksheet (stepper UI); this is also where Phase 3's
-      identify-pattern/hint endpoints should get their first frontend consumer
 - [ ] Practice Method Phases 5-6 — spaced repetition/trigger log, interview follow-up bank,
       company cross-link, PDF export
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
@@ -387,7 +424,7 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
 - [ ] GitHub Actions CI/CD
 
 ## Next Steps Priority
-1. Practice Method Phase 4 — Solve Session worksheet (SolveSession entity, stepper UI, first
-   real UI consumer of Phase 3's identify-pattern/hint endpoints)
+1. Practice Method Phase 5 — Trigger Log + Spaced Repetition (TriggerEntry entity, recall drill
+   page, progress dashboard)
 2. Redis setup
 3. Docker Compose for backend + frontend

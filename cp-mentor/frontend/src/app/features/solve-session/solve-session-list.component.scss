@@ -1,0 +1,70 @@
+.list-header {
+  text-align: center;
+  padding: 32px 0 24px;
+
+  .list-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .list-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
+}
+
+.start-card { padding: 20px; margin-bottom: 24px; }
+
+.start-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+
+  .glass-input { flex: 2; min-width: 160px; }
+  .glass-select { flex: 1; min-width: 120px; }
+}
+
+.glass-input {
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text-hi);
+  font-size: 14px;
+  font-family: inherit;
+
+  &::placeholder { color: var(--text-muted); }
+  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+}
+
+.loading-block { text-align: center; padding: 60px; }
+
+.sessions-header, .sessions-row { grid-template-columns: 1fr 100px 130px 110px 110px; }
+
+.sessions-row { cursor: pointer; &:hover { background: var(--bg-hover, rgba(255,255,255,0.03)); } }
+
+.row-title-cell { display: flex; flex-direction: column; gap: 2px; }
+.row-id { color: var(--text-lo); font-size: 12px; }
+
+.status-pill {
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &.complete { background: rgba(63, 185, 80, 0.12); color: var(--accent-green); }
+  &.in-progress { background: rgba(210, 153, 34, 0.12); color: var(--accent-yellow); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px;
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px; }
+  .empty-title { color: var(--text-lo); font-size: 16px; margin-bottom: 8px; }
+  .empty-sub { color: var(--text-muted); font-size: 13px; max-width: 400px; margin: 0 auto; }
+}
+
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+
+  .page-indicator { color: var(--text-lo); font-size: 13px; }
+}

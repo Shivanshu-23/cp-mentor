@@ -9,6 +9,8 @@ import { CompanyTrackerComponent } from './features/company-tracker/company-trac
 import { PatternLibraryComponent } from './features/pattern-library/pattern-library.component';
 import { PatternDetailComponent } from './features/pattern-library/pattern-detail.component';
 import { ConstraintAnalyzerComponent } from './features/constraint-analyzer/constraint-analyzer.component';
+import { SolveSessionListComponent } from './features/solve-session/solve-session-list.component';
+import { SolveSessionWorksheetComponent } from './features/solve-session/solve-session-worksheet.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -20,6 +22,8 @@ const routes: Routes = [
   { path: 'patterns', component: PatternLibraryComponent },
   { path: 'patterns/:slug', component: PatternDetailComponent },
   { path: 'constraint-analyzer', component: ConstraintAnalyzerComponent },
+  { path: 'solve', component: SolveSessionListComponent, canActivate: [AuthGuard] },
+  { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'home' }
 
 ];

@@ -53,7 +53,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/ai/**").permitAll()
                 .requestMatchers("/api/v1/daily-challenge/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/company-problems", "/api/v1/company-problems/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/method/**").permitAll()
+                // Public reference-data GETs only — do NOT widen this to "/api/v1/method/**".
+                // Private per-user resources (sessions, triggers, stats) live under the same
+                // /api/v1/method prefix and must fall through to .anyRequest().authenticated().
+                .requestMatchers(HttpMethod.GET, "/api/v1/method/patterns", "/api/v1/method/patterns/**",
+                        "/api/v1/method/resources").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/method/analyze-constraints", "/api/v1/method/edge-cases").permitAll()
                 .anyRequest().authenticated()
             )

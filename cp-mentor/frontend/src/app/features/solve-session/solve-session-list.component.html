@@ -1,0 +1,69 @@
+<div class="page-container page-fade-in">
+
+  <div class="list-header">
+    <h1 class="gradient-text list-title">Solve Sessions</h1>
+    <p class="list-sub">A structured worksheet that makes you work out constraints and a brute force before you can even see the code editor.</p>
+  </div>
+
+  <!-- Start new session -->
+  <div class="glass-card start-card">
+    <div class="section-title"><mat-icon>add_circle</mat-icon>Start a New Session</div>
+    <div class="start-form">
+      <input type="text" class="glass-input" placeholder="LeetCode ID (e.g. 42)" [(ngModel)]="leetcodeId">
+      <input type="text" class="glass-input" placeholder="Problem title" [(ngModel)]="title">
+      <select class="glass-select" [(ngModel)]="difficulty">
+        <option *ngFor="let d of difficulties" [value]="d">{{ d }}</option>
+      </select>
+      <button mat-raised-button color="primary" (click)="startSession()" [disabled]="creating">
+        <mat-icon>play_arrow</mat-icon> Start
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-block">
+    <mat-spinner diameter="40" style="margin:0 auto"></mat-spinner>
+  </div>
+
+  <!-- Session list -->
+  <div *ngIf="!loading" class="glass-table">
+    <div class="table-header-row sessions-header">
+      <div>Title</div>
+      <div>Difficulty</div>
+      <div>Status</div>
+      <div>Duration</div>
+      <div>Submissions</div>
+    </div>
+    <div class="table-row sessions-row" *ngFor="let s of sessions" (click)="resume(s)">
+      <div class="row-title-cell">
+        <span class="row-title-link">{{ s.title }}</span>
+        <span class="row-id mono">#{{ s.leetcodeId }}</span>
+      </div>
+      <div><span class="badge" [class]="(s.difficulty || 'easy').toLowerCase()">{{ s.difficulty || '—' }}</span></div>
+      <div>
+        <span class="status-pill" [class.complete]="isComplete(s)" [class.in-progress]="!isComplete(s)">
+          {{ isComplete(s) ? 'Complete' : 'In Progress' }}
+        </span>
+      </div>
+      <div class="mono">{{ formatDuration(s.durationSeconds) }}</div>
+      <div class="mono">{{ s.submissionCount }}</div>
+    </div>
+
+    <div *ngIf="sessions.length === 0" class="empty-state">
+      <mat-icon>edit_note</mat-icon>
+      <p class="empty-title">No solve sessions yet</p>
+      <p class="empty-sub">Start one above — you'll work through constraints, a brute force, and your final approach before writing any code.</p>
+    </div>
+
+    <div *ngIf="totalPages > 1" class="table-pagination">
+      <button mat-stroked-button (click)="prevPage()" [disabled]="page === 0">
+        <mat-icon>chevron_left</mat-icon> Previous
+      </button>
+      <span class="page-indicator">Page {{ page + 1 }} of {{ totalPages }}</span>
+      <button mat-stroked-button (click)="nextPage()" [disabled]="page >= totalPages - 1">
+        Next <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</div>
