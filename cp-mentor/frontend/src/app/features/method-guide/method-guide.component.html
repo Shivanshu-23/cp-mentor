@@ -13,42 +13,26 @@
   <section id="mindset" class="guide-section glass-card">
     <div class="section-kicker">Part 0</div>
     <h2><mat-icon>psychology_alt</mat-icon>The Mindset Shift</h2>
-    <p>On a first attempt, your goal is not to solve the problem. Your goal is to produce two artefacts:</p>
-    <ol>
-      <li>A working brute force.</li>
-      <li>One sentence stating exactly why it is too slow.</li>
-    </ol>
-    <p>If you have both, the attempt succeeded — even if you never reached the optimal solution.</p>
-    <div class="callout">
-      <strong>Why this matters:</strong> "I couldn't solve it" is a demoralising and useless signal.
-      "I found the O(n²), and the bottleneck is that I recompute the same suffix maximum at every index" is
-      precise and fixable. It is also literally what interviewers score. Nobody expects instant optimal.
-      They expect structured progress from a stated starting point.
-    </div>
-    <p>The second reframe, equally important:</p>
-    <div class="callout callout-purple">
-      <strong>Never model the physics. Model the computation.</strong> Beginners get stuck on Trapping Rain
-      Water because they imagine water flowing and pooling. Water does not flow in your program. Your program
-      sums numbers. The moment you switch from "how does water behave" to "what number do I compute at each
-      index," the problem collapses.
-    </div>
+    <ng-container *ngFor="let r of mindsetReframes; let first = first">
+      <div class="callout" [class.callout-purple]="!first">
+        <strong>{{ r.statement }}</strong>
+      </div>
+      <p style="white-space: pre-line;">{{ r.body }}</p>
+    </ng-container>
   </section>
 
   <!-- ── Part 1 — Five Phases ─────────────────────────────────────── -->
   <section id="phases" class="guide-section glass-card">
     <div class="section-kicker">Part 1</div>
     <h2><mat-icon>list_alt</mat-icon>The Five Phases</h2>
-    <p>Total budget for a medium: about 35 minutes.</p>
+    <p>{{ phaseBudgetNote }}</p>
     <div class="guide-table-wrap">
       <table class="guide-table">
         <thead><tr><th>Phase</th><th>What you do</th><th>Time</th></tr></thead>
         <tbody>
-          <tr><td class="mono">0</td><td>Read the constraints before the statement</td><td>2 min</td></tr>
-          <tr><td class="mono">1</td><td>Restate in one sentence, state a brute force</td><td>5 min</td></tr>
-          <tr><td class="mono">2</td><td>Solve n = 5 by hand, on paper</td><td>5 min</td></tr>
-          <tr><td class="mono">3</td><td>Name the bottleneck, run the five moves</td><td>10-15 min</td></tr>
-          <tr><td class="mono">4</td><td>Code</td><td>8-10 min</td></tr>
-          <tr><td class="mono">5</td><td>Dry run edge cases, then submit</td><td>3 min</td></tr>
+          <tr *ngFor="let p of phases">
+            <td class="mono">{{ p.number }}</td><td>{{ p.whatYouDo }}</td><td>{{ p.timeBudget }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -57,176 +41,96 @@
   <!-- ── Phase 0 — Constraints ────────────────────────────────────── -->
   <section id="constraints" class="guide-section glass-card">
     <h2><mat-icon>rule</mat-icon>Phase 0 — Constraints First</h2>
-    <p>This is the single most underused technique on LeetCode. Constraints leak the intended complexity
-      before you read a word of the problem.</p>
+    <p>{{ constraintsIntro }}</p>
     <div class="guide-table-wrap">
       <table class="guide-table">
         <thead><tr><th>Constraint on n</th><th>Intended complexity</th><th>Typical technique</th></tr></thead>
         <tbody>
-          <tr><td class="mono">n ≤ 10-12</td><td class="mono">O(n!)</td><td>Permutations, full backtracking</td></tr>
-          <tr><td class="mono">n ≤ 20-25</td><td class="mono">O(2ⁿ)</td><td>Bitmask DP, subset enumeration</td></tr>
-          <tr><td class="mono">n ≤ 100-500</td><td class="mono">O(n³)</td><td>Interval DP, Floyd-Warshall, matrix chain</td></tr>
-          <tr><td class="mono">n ≤ 2,000-5,000</td><td class="mono">O(n²)</td><td>2D DP, all-pairs comparison</td></tr>
-          <tr><td class="mono">n ≤ 10⁵-10⁶</td><td class="mono">O(n log n) or O(n)</td><td>Sort, heap, two pointer, sliding window, hashing</td></tr>
-          <tr><td class="mono">n ≤ 10⁹</td><td class="mono">O(log n) or O(1)</td><td>Binary search on the answer, maths, bit tricks</td></tr>
-          <tr><td class="mono">n ≤ 10¹⁸</td><td class="mono">O(log n)</td><td>Matrix exponentiation, digit DP, number theory</td></tr>
+          <tr *ngFor="let row of complexityBudget">
+            <td class="mono">{{ row.nConstraint }}</td>
+            <td class="mono">{{ row.intendedComplexity }}</td>
+            <td>{{ row.typicalTechnique }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
     <p>Also extract from the constraints:</p>
     <ul>
-      <li>Can values be negative? → kills many greedy and prefix-sum shortcuts</li>
-      <li>Can values be zero? → division-based tricks die</li>
-      <li>Are values bounded and small (e.g. <code class="mono">0 &lt;= v &lt;= 100</code>)? → counting sort, frequency array of fixed size, bitset</li>
-      <li>Is the array sorted? → two pointer and binary search are immediately live</li>
-      <li>Are elements distinct or can they repeat? → changes almost every two-pointer implementation</li>
-      <li>What is the minimum n? <code class="mono">n &gt;= 1</code> versus <code class="mono">n &gt;= 0</code> changes your guard clauses</li>
+      <li *ngFor="let q of alsoExtractQuestions">{{ q.question }} → {{ q.implication }}</li>
     </ul>
-    <p>Write the target down before continuing. Literally type it as a comment:</p>
-    <div class="code-block">// n &lt;= 2*10^4 -&gt; O(n^2) = 4*10^8, too slow. Need O(n) or O(n log n).
-// height[i] can be 0. n can be 1.</div>
+    <p>{{ constraintsAction }}</p>
+    <div class="code-block">{{ constraintsCommentTemplate }}</div>
   </section>
 
   <!-- ── Phase 1 — Restate ────────────────────────────────────────── -->
   <section id="restate" class="guide-section glass-card">
     <h2><mat-icon>chat_bubble_outline</mat-icon>Phase 1 — Restate and Brute Force</h2>
-    <p>Restate the problem in one sentence, in your own words.</p>
-    <p>If you cannot, you have misread it. Misreading is a top-three cause of wasted hours and it is
-      invisible until you have already lost forty minutes.</p>
-    <div class="callout callout-red"><strong>Bad restatement:</strong> "Find the water."</div>
-    <div class="callout callout-green"><strong>Good restatement:</strong> "For each index, compute how much
-      water sits directly above that bar, and return the sum."</div>
-    <p>Notice the good restatement already contains the algorithm's shape.</p>
-    <p>Then state a brute force out loud, however absurd. You should never be at zero. Enumerate everything
-      and check each candidate. If the brute force is O(n!), say so and move on — you have still established
-      a baseline and, more importantly, a definition of correctness you can test the fast solution against.</p>
-    <div class="callout callout-purple"><strong>Diagnostic:</strong> if you cannot even state a brute force,
-      you almost always have the wrong unit of analysis. Go straight to Phase 2.</div>
+    <p>{{ restateGuidance.instruction }}</p>
+    <p>{{ restateGuidance.whyItMatters }}</p>
+    <div class="callout callout-red"><strong>Bad restatement:</strong> "{{ restateGuidance.badExample }}"</div>
+    <div class="callout callout-green"><strong>Good restatement:</strong> "{{ restateGuidance.goodExample }}"</div>
+    <p>{{ restateGuidance.goodExampleNote }}</p>
+    <p>{{ restateGuidance.bruteForceInstruction }}</p>
+    <div class="callout callout-purple"><strong>Diagnostic:</strong> {{ restateGuidance.diagnostic }}</div>
   </section>
 
   <!-- ── Phase 2 — Hand-solve ─────────────────────────────────────── -->
   <section id="hand-solve" class="guide-section glass-card">
     <h2><mat-icon>edit</mat-icon>Phase 2 — Solve a Tiny Case By Hand</h2>
-    <p>Take n = 4 or 5. Get out paper. Produce the answer manually.</p>
-    <p>On paper, not in your head. In-head reasoning skips steps and hides exactly the insight you are
-      looking for.</p>
+    <p>{{ handSolveGuidance.instruction }}</p>
+    <p>{{ handSolveGuidance.whyPaper }}</p>
     <p>Then ask the question that does the work:</p>
-    <div class="callout"><strong>What did my brain actually just do?</strong></div>
-    <p>Your hand-method is usually the algorithm in disguise. Examples:</p>
+    <div class="callout"><strong>{{ handSolveGuidance.theQuestion }}</strong></div>
+    <p>{{ handSolveGuidance.followUp }} Examples:</p>
     <div class="guide-table-wrap">
       <table class="guide-table">
         <thead><tr><th>Problem</th><th>What your hand does</th><th>The algorithm</th></tr></thead>
         <tbody>
-          <tr><td>Next Permutation</td><td>Scan right-to-left looking for the first dip</td><td>Exactly the algorithm</td></tr>
-          <tr><td>Trapping Rain Water</td><td>Look left and right of each hole for walls</td><td>Prefix max and suffix max</td></tr>
-          <tr><td>Valid Parentheses</td><td>Cross off matched pairs inwards</td><td>Stack</td></tr>
-          <tr><td>Merge Intervals</td><td>Sort them mentally, then glue overlaps</td><td>Sort + linear merge</td></tr>
-          <tr><td>Two Sum</td><td>Remember what you have seen so far</td><td>Hash map</td></tr>
+          <tr *ngFor="let ex of handSolveExamples">
+            <td>{{ ex.problem }}</td><td>{{ ex.whatYourHandDoes }}</td><td>{{ ex.theAlgorithm }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <p>If your hand-method is genuinely brute force (you checked all pairs), that is information too — it
-      means the insight is not in the problem's surface and you will need Phase 3 to find it.</p>
+    <p>{{ handSolveGuidance.diagnostic }}</p>
   </section>
 
   <!-- ── Phase 3 — Bottleneck + Five Moves ────────────────────────── -->
   <section id="bottleneck" class="guide-section glass-card">
     <h2><mat-icon>bolt</mat-icon>Phase 3 — Name the Bottleneck, Run the Five Moves</h2>
     <p>Ask exactly one question:</p>
-    <div class="callout"><strong>What am I recomputing?</strong></div>
-    <p>Answer it precisely, not vaguely.</p>
-    <div class="callout callout-red"><strong>Vague and useless:</strong> "the maximums."</div>
-    <div class="callout callout-green"><strong>Precise and actionable:</strong> "when I move from index i to
-      i+1, I re-scan almost the identical left portion of the array to find a value I already computed one
-      step ago."</div>
-    <p>The precise version basically names its own fix.</p>
-    <p>Then run this checklist explicitly. Around 90% of mediums fall to one of these five.</p>
+    <div class="callout"><strong>{{ bottleneckQuestion }}</strong></div>
+    <p>{{ bottleneckGuidance.instruction }}</p>
+    <div class="callout callout-red"><strong>Vague and useless:</strong> "{{ bottleneckGuidance.vagueExample }}"</div>
+    <div class="callout callout-green"><strong>Precise and actionable:</strong> "{{ bottleneckGuidance.preciseExample }}"</div>
+    <p>{{ bottleneckGuidance.closing }}</p>
+    <p>{{ bottleneckGuidance.checklistIntro }}</p>
 
-    <div class="glass-card move-card">
-      <div class="move-title">Move 1 — Store instead of recompute</div>
-      <p>The value you need was already computed; save it.</p>
-      <p><strong>Techniques:</strong> hash map, prefix sum, prefix/suffix arrays, memoisation, frequency counts.</p>
-      <p><strong>Examples:</strong> Two Sum, Subarray Sum Equals K, Product of Array Except Self, Trapping Rain
-        Water, Longest Consecutive Sequence, every top-down DP.</p>
-      <span class="move-trigger">Trigger: "I keep re-scanning the same region."</span>
-    </div>
-
-    <div class="glass-card move-card">
-      <div class="move-title">Move 2 — A pointer or window never needs to move backwards</div>
-      <p>If expanding the window can only ever help and shrinking is monotonic, you get O(n) instead of O(n²).</p>
-      <p><strong>Techniques:</strong> two pointer, sliding window (fixed and variable), fast/slow pointer.</p>
-      <p><strong>Examples:</strong> Longest Substring Without Repeating Characters, Minimum Window Substring,
-        Container With Most Water, Remove Duplicates, Linked List Cycle.</p>
-      <span class="move-trigger">Trigger: "contiguous subarray/substring" + "longest / shortest / at most K."</span>
-    </div>
-
-    <div class="glass-card move-card">
-      <div class="move-title">Move 3 — Sort first, then the structure becomes exploitable</div>
-      <p>Sorting costs O(n log n) but often turns an O(n²) search into an O(n) sweep.</p>
-      <p><strong>Techniques:</strong> greedy after sort, two pointer on sorted array, sweep line, interval merging.</p>
-      <p><strong>Examples:</strong> Merge Intervals, 3Sum, Meeting Rooms II, Non-overlapping Intervals, Minimum
-        Number of Arrows.</p>
-      <div class="callout callout-red" style="margin: 10px 0 0;"><strong>Warning:</strong> sorting destroys
-        original indices. If the answer requires indices, store pairs or use a different move.</div>
-    </div>
-
-    <div class="glass-card move-card">
-      <div class="move-title">Move 4 — Only the max/min matters, not the whole set</div>
-      <p>You are carrying a whole collection when you only ever query one end of it.</p>
-      <p><strong>Techniques:</strong> heap / PriorityQueue, monotonic stack, monotonic deque, running max/min variables.</p>
-      <p><strong>Examples:</strong> Kth Largest, Merge K Sorted Lists, Next Greater Element, Largest Rectangle
-        in Histogram, Sliding Window Maximum, Task Scheduler.</p>
-      <span class="move-trigger">Trigger: "next greater / previous smaller" → monotonic stack. "top K" / "K-th" → heap.</span>
-    </div>
-
-    <div class="glass-card move-card">
-      <div class="move-title">Move 5 — The answer is monotonic in some parameter</div>
-      <p>If "can I achieve X?" is easy to check, and being able to achieve X implies being able to achieve
-        X+1, binary search the answer.</p>
-      <p><strong>Techniques:</strong> binary search on answer space, not on the array.</p>
-      <p><strong>Examples:</strong> Koko Eating Bananas, Split Array Largest Sum, Capacity to Ship Packages,
-        Minimise Max Distance to Gas Station, Median of Two Sorted Arrays.</p>
-      <span class="move-trigger">Trigger: "minimise the maximum" or "maximise the minimum."</span>
+    <div class="glass-card move-card" *ngFor="let m of moves">
+      <div class="move-title">Move {{ m.number }} — {{ m.title }}</div>
+      <p>{{ m.revealingQuestion }}</p>
+      <p *ngIf="m.techniques.length"><strong>Techniques:</strong> {{ m.techniques.join(', ') }}.</p>
+      <p *ngIf="m.exampleProblems.length"><strong>Examples:</strong> {{ m.exampleProblems.join(', ') }}.</p>
+      <div class="callout callout-red" *ngIf="m.warning" style="margin: 10px 0 0;"><strong>Warning:</strong> {{ m.warning }}</div>
+      <span class="move-trigger" *ngIf="m.triggerPhrase">Trigger: {{ m.triggerPhrase }}</span>
     </div>
 
     <h3>Beyond the five</h3>
-    <p>If none of the five fit, ask these in order:</p>
+    <p>{{ beyondTheFiveIntro }}</p>
     <ul>
-      <li>Does the problem have overlapping subproblems and optimal substructure? → DP. Then define the state
-        as a sentence: "dp[i][j] = the best answer considering the first i items with j capacity remaining."
-        Never write DP code before you can say that sentence.</li>
-      <li>Are there entities and relationships? → graph. Then decide: shortest path (BFS/Dijkstra),
-        connectivity (DSU/DFS), ordering (topological sort), or cycle detection.</li>
-      <li>Does a local greedy choice provably never hurt? → greedy. You must be able to argue why, or you
-        will fail on a counterexample.</li>
-      <li>Is it about individual bits, or n ≤ 25 with subsets? → bit manipulation.</li>
+      <li *ngFor="let b of beyondTheFive">{{ b.question }} {{ b.answer }}</li>
     </ul>
   </section>
 
   <!-- ── Phase 4 — Code ───────────────────────────────────────────── -->
   <section id="code" class="guide-section glass-card">
     <h2><mat-icon>code</mat-icon>Phase 4 — Code</h2>
-    <div class="callout callout-red">If you did not finish Phase 3 with a clear plan, do not start typing.
-      Coding while confused is how a 30-minute problem becomes a two-hour problem.</div>
+    <div class="callout callout-red">{{ codeGuidance.warning }}</div>
     <p>Before the first line, write two comments:</p>
-    <div class="code-block">// Approach: &lt;one sentence&gt;
-// Time: O(?) Space: O(?)</div>
+    <div class="code-block">{{ codeGuidance.headerComment }}</div>
     <p>Java-specific habits that show up in interview feedback:</p>
     <ul>
-      <li>Use <code class="mono">int mid = lo + (hi - lo) / 2;</code> — never <code class="mono">(lo + hi) / 2</code>, which overflows.</li>
-      <li><code class="mono">long</code> for sums that can exceed 2³¹, which happens more often than you think.</li>
-      <li>Name variables for meaning: <code class="mono">leftMax</code>, <code class="mono">writeIndex</code>,
-        <code class="mono">windowStart</code> — not <code class="mono">a</code>, <code class="mono">temp</code>,
-        <code class="mono">x</code>. Interviewers grade this.</li>
-      <li>Prefer <code class="mono">int[]</code> over <code class="mono">List&lt;Integer&gt;</code> in hot
-        loops; autoboxing is a real cost.</li>
-      <li><code class="mono">HashMap.getOrDefault(key, 0)</code> and <code class="mono">map.merge(key, 1,
-        Integer::sum)</code> keep frequency code short.</li>
-      <li><code class="mono">Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();</code> — not
-        <code class="mono">Stack</code>, which is legacy and synchronised.</li>
-      <li><code class="mono">Arrays.sort()</code> on <code class="mono">int[]</code> is dual-pivot quicksort
-        with O(n²) worst case; on <code class="mono">Integer[]</code> it is stable TimSort. This distinction
-        has been an actual interview question.</li>
+      <li *ngFor="let h of javaHabits">{{ h.habit }}</li>
     </ul>
   </section>
 
@@ -235,17 +139,9 @@
     <h2><mat-icon>fact_check</mat-icon>Phase 5 — Dry Run Before Submitting</h2>
     <p>Run this checklist mentally, every time:</p>
     <ul class="checklist">
-      <li><mat-icon>check_box_outline_blank</mat-icon>Minimum input: n = 1, or the empty case if permitted</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>All elements identical</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>All negatives (if values can be negative)</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>Already sorted, and sorted in reverse</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>Duplicates present</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>Maximum size — does anything overflow?</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>The answer is at the very first or very last index</li>
-      <li><mat-icon>check_box_outline_blank</mat-icon>No valid answer exists — what do you return?</li>
+      <li *ngFor="let item of dryRunChecklist"><mat-icon>check_box_outline_blank</mat-icon>{{ item }}</li>
     </ul>
-    <p>Getting a wrong-answer verdict you could have predicted costs you the debugging time and the
-      confidence. Both are expensive.</p>
+    <p>{{ dryRunClosing }}</p>
   </section>
 
   <!-- ── Part 2 — Time Caps ───────────────────────────────────────── -->
@@ -256,42 +152,26 @@
       <table class="guide-table">
         <thead><tr><th>Difficulty</th><th>Cap before escalating</th></tr></thead>
         <tbody>
-          <tr><td class="badge easy" style="display:inline-block;">Easy</td><td>15 minutes</td></tr>
-          <tr><td class="badge medium" style="display:inline-block;">Medium</td><td>35 minutes</td></tr>
-          <tr><td class="badge hard" style="display:inline-block;">Hard</td><td>55 minutes</td></tr>
+          <tr *ngFor="let t of timeCaps">
+            <td><span class="badge" [ngClass]="t.difficulty.toLowerCase()">{{ t.difficulty }}</span></td>
+            <td>{{ t.cap }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <p>Set an actual timer.</p>
-    <div class="callout">Past the cap, additional staring produces near-zero learning — you are only
-      rehearsing being stuck. Discipline here is the difference between 300 problems and 300 hours.</div>
+    <p>{{ timeCapInstruction }}</p>
+    <div class="callout">{{ timeCapRationale }}</div>
   </section>
 
   <!-- ── Part 3 — Stuck Ladder ────────────────────────────────────── -->
   <section id="stuck-ladder" class="guide-section glass-card">
     <div class="section-kicker">Part 3</div>
     <h2><mat-icon>stairs</mat-icon>The Stuck Ladder</h2>
-    <p>Never jump to the editorial. Climb one rung at a time and stop the moment something unlocks.</p>
+    <p>{{ stuckLadderIntro }}</p>
     <ol class="rung-list">
-      <li class="rung-item"><strong>Re-read the constraints.</strong> (2 min) You skipped Phase 0 more often
-        than you would like to admit. The complexity target is itself a hint: O(n) rules out any nested loop,
-        which sharply constrains the shape of the answer.</li>
-      <li class="rung-item"><strong>Try a differently-shaped example.</strong> (5 min) Not a bigger one — a
-        weirder one. All duplicates. Sorted descending. All negatives. n = 1. Values equal to zero. The
-        counterexample that breaks your current idea usually reveals the correct one.</li>
-      <li class="rung-item"><strong>Name the family, do not find the solution.</strong> (5 min) Ask only:
-        which pattern is this? Two pointer, sliding window, binary search, prefix sum, hashing, monotonic
-        stack, heap, greedy, DP, backtracking, graph traversal, union-find, bit manipulation, intervals,
-        maths. Guessing the family narrows the search space enormously without spoiling the derivation.</li>
-      <li class="rung-item"><strong>Look at the LeetCode tags only.</strong> Open the tags, read nothing
-        else, close the tab. This is a controlled hint: it confirms the family and preserves the derivation,
-        which is the part that actually builds skill.</li>
-      <li class="rung-item"><strong>Ask for a Level 1 or Level 2 hint.</strong> Level 1 is a single
-        observation. Level 2 names the pattern and explains why it fits. Both leave the real work with you.</li>
-      <li class="rung-item"><strong>Read the solution, and stop reading the instant you understand.</strong>
-        The moment the key idea lands, close the tab. Do not read the code. Do not read the complexity
-        analysis. You have the idea; implementing it is your job, and implementing it is where retention
-        comes from.</li>
+      <li class="rung-item" *ngFor="let r of stuckLadder">
+        <strong>{{ r.title }}</strong><span *ngIf="r.timeBudget"> ({{ r.timeBudget }})</span> {{ r.body }}
+      </li>
     </ol>
   </section>
 
@@ -299,18 +179,11 @@
   <section id="recovery" class="guide-section glass-card">
     <div class="section-kicker">Part 4</div>
     <h2><mat-icon>restore</mat-icon>The Recovery Protocol</h2>
-    <p>Reading a solution teaches you almost nothing. Solving problems and then forgetting them happens
-      because reading feels like learning. It is not. Here is what converts a read solution into a
-      retained one.</p>
+    <p>{{ recoveryIntro }}</p>
     <ol class="recovery-list">
-      <li class="recovery-item"><strong>Close everything.</strong> Every tab, every note.</li>
-      <li class="recovery-item"><strong>Wait 10 minutes.</strong> Do a different problem, get water, walk around.</li>
-      <li class="recovery-item"><strong>Re-implement from a blank editor, no reference.</strong> If you
-        cannot, you did not learn it — go back to the idea, not the code.</li>
-      <li class="recovery-item"><strong>Log the missed observation.</strong> Not the solution. The single
-        thing you failed to notice.</li>
-      <li class="recovery-item"><strong>Re-solve at Day+2 and Day+7.</strong> The problem counts as
-        genuinely solved only after the Day+7 re-solve succeeds.</li>
+      <li class="recovery-item" *ngFor="let s of recoverySteps">
+        <strong>{{ s.title }}</strong> {{ s.body }}
+      </li>
     </ol>
   </section>
 
@@ -318,26 +191,16 @@
   <section id="trigger-log" class="guide-section glass-card">
     <div class="section-kicker">Part 5</div>
     <h2><mat-icon>description</mat-icon>The Trigger Log</h2>
-    <p>Keep one file. This is the highest-leverage artefact in your entire preparation.</p>
+    <p>{{ triggerLogIntro }}</p>
     <h3>Format</h3>
-    <div class="glass-card trigger-log-card">LC 152 — Maximum Product Subarray
-Trigger: subarray + multiplication
-Missed: negatives swap min and max, so carry BOTH running values
-Family: Kadane variant
-Reuse in: any running-state scan where the operation is not monotonic
-Redo: Aug 04 [x] Aug 09 [ ] Aug 23 [ ]</div>
-    <h3>Why Trigger is the most valuable line</h3>
-    <p>Trigger records the surface feature you will see in a future problem that should make you reach for
-      this idea.</p>
-    <div class="callout callout-green"><strong>"subarray + multiplication"</strong> is retrievable under
-      interview pressure.</div>
-    <div class="callout callout-red"><strong>"the solution uses two variables"</strong> is not.</div>
-    <p>You are not memorising solutions. You are building a lookup table from problem symptoms to pattern
-      names.</p>
+    <div class="glass-card trigger-log-card">{{ triggerLogFormatExample }}</div>
+    <h3>{{ whyTriggerMatters.heading }}</h3>
+    <p>{{ whyTriggerMatters.body }}</p>
+    <div class="callout callout-green"><strong>"{{ whyTriggerMatters.goodExample }}"</strong></div>
+    <div class="callout callout-red"><strong>"{{ whyTriggerMatters.badExample }}"</strong></div>
+    <p>{{ whyTriggerMatters.closing }}</p>
     <h3>Daily revision</h3>
-    <p>At the start of every session, read only the trigger lines — not the full entries — for five minutes.
-      That is your entire revision block. It works because recognition of surface features is precisely the
-      skill that decays, and precisely the skill interviews test.</p>
+    <p>{{ dailyRevision }}</p>
     <div class="callout">
       Drona tracks this for you — log real entries in the
       <a routerLink="/recall-drill" class="cta-link">Recall Drill</a>, spaced-repetition scheduled
@@ -349,28 +212,14 @@ Redo: Aug 04 [x] Aug 09 [ ] Aug 23 [ ]</div>
   <section id="dictionary" class="guide-section glass-card">
     <div class="section-kicker">Part 6</div>
     <h2><mat-icon>menu_book</mat-icon>Trigger Dictionary</h2>
-    <p>Build your own version of this as you go. Starter set:</p>
+    <p>{{ triggerDictionaryNote }}</p>
     <div class="guide-table-wrap">
       <table class="guide-table">
         <thead><tr><th>You see this in the problem</th><th>Reach for this</th></tr></thead>
         <tbody>
-          <tr><td>"contiguous subarray" + longest/shortest</td><td>Sliding window</td></tr>
-          <tr><td>"subarray sum equals K"</td><td>Prefix sum + hash map</td></tr>
-          <tr><td>Sorted array, find a pair/triplet</td><td>Two pointer</td></tr>
-          <tr><td>"next greater" / "previous smaller" / histogram</td><td>Monotonic stack</td></tr>
-          <tr><td>"top K" / "K-th largest" / "median of stream"</td><td>Heap</td></tr>
-          <tr><td>"minimise the maximum" / "maximise the minimum"</td><td>Binary search on answer</td></tr>
-          <tr><td>Overlapping ranges, meetings, merging</td><td>Sort by start, sweep</td></tr>
-          <tr><td>"number of ways" / "minimum cost to reach"</td><td>DP</td></tr>
-          <tr><td>"all combinations" / "all permutations"</td><td>Backtracking</td></tr>
-          <tr><td>Grid, islands, regions, flood</td><td>BFS or DFS</td></tr>
-          <tr><td>"prerequisites" / "ordering" / "course schedule"</td><td>Topological sort</td></tr>
-          <tr><td>Connectivity, "are these in the same group"</td><td>Union-Find (DSU)</td></tr>
-          <tr><td>Prefix matching, autocomplete, word search</td><td>Trie</td></tr>
-          <tr><td>n ≤ 25, choose a subset</td><td>Bitmask</td></tr>
-          <tr><td>Answer at index i depends on both sides</td><td>Prefix array + suffix array</td></tr>
-          <tr><td>Cycle in a linked list or a functional graph</td><td>Fast and slow pointer</td></tr>
-          <tr><td>Repeated range queries with updates</td><td>Segment tree / Fenwick tree</td></tr>
+          <tr *ngFor="let row of triggerDictionary">
+            <td>{{ row.surfaceFeature }}</td><td>{{ row.reachFor }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -381,157 +230,49 @@ Redo: Aug 04 [x] Aug 09 [ ] Aug 23 [ ]</div>
     </div>
   </section>
 
-  <!-- ── Part 7 — Worked Examples ──────────────────────────────────── -->
+  <!-- ── Parts 7-9 — Worked Examples ──────────────────────────────── -->
   <section id="worked-examples" class="guide-section">
     <div class="section-kicker">Parts 7–9</div>
     <h2 style="margin-bottom: 16px;"><mat-icon>science</mat-icon>Worked Examples</h2>
 
-    <!-- Example A -->
-    <div class="glass-card worked-example">
-      <div class="we-title">Trapping Rain Water</div>
-      <div class="we-sub">LC 42 · Hard</div>
+    <div class="glass-card worked-example" *ngFor="let ex of workedExamples">
+      <div class="we-title">{{ ex.title }}</div>
+      <div class="we-sub">LC {{ ex.leetcodeId }} · {{ ex.difficulty }}<span *ngIf="ex.intro"> — {{ ex.intro }}</span></div>
 
       <h3>Phase 0 — Constraints</h3>
-      <div class="code-block">n == height.length
-1 &lt;= n &lt;= 2 * 10^4
-0 &lt;= height[i] &lt;= 10^5</div>
-      <p>n = 2×10⁴ → O(n²) ≈ 4×10⁸ operations, over budget. Target O(n) or O(n log n). height[i] can be 0. n
-        can be 1, so a single bar must return 0 without crashing.</p>
+      <div class="code-block" *ngIf="ex.constraints.raw">{{ ex.constraints.raw }}</div>
+      <p>{{ ex.constraints.analysis }}</p>
 
       <h3>Phase 1 — Restate and brute force</h3>
-      <p>Here is what makes this problem an excellent diagnostic: most people cannot state a brute force.
-        They picture water flowing, pooling, levels rising — and freeze.</p>
-      <div class="callout callout-purple">That freeze is the signal. It means the unit of analysis is wrong.
-        You are modelling physics, not computation.</div>
+      <p *ngFor="let line of ex.restateAndBruteForce.body" style="white-space: pre-line;">{{ line }}</p>
 
       <h3>Phase 2 — Hand-solve</h3>
-      <p>Take <code class="mono">height = [3, 0, 2, 0, 4]</code>. Compute the water manually.</p>
-      <p>You did not simulate flowing water. You went position by position and asked "how high can water sit
-        here?", answering it by looking left and right for walls.</p>
-      <div class="callout callout-green">That is the reframe: do not ask how much water the terrain holds.
-        Ask how much water sits on top of each individual bar, then sum. Water decomposes into vertical
-        columns, not pools.</div>
-      <div class="code-block">water[i] = min( max(height[0..i]), max(height[i..n-1]) ) - height[i]
-answer = sum of water[i], clamped at 0</div>
+      <p *ngFor="let line of ex.handSolve.body" style="white-space: pre-line;">{{ line }}</p>
 
       <h3>Phase 3 — Bottleneck</h3>
-      <p>Brute force from that formula: for every index, scan left for max, scan right for max. O(n²) time,
-        O(1) space. Correct, but over budget.</p>
-      <p><strong>What am I recomputing?</strong> Precisely: moving from index i to i+1, I re-scan an almost
-        identical left portion to find a value I computed one step ago.</p>
-      <p>Five moves:</p>
-      <ul>
-        <li>1. Store instead of recompute → <code class="mono">leftMax[i]</code> relates to
-          <code class="mono">leftMax[i-1]</code> by a one-line rule. ✅ This lands.</li>
-        <li>2. Window never moves backwards → not obvious yet.</li>
-        <li>3. Sort first → destroys position, and position is the entire problem. ✗</li>
-        <li>4. Only max/min matters → interesting; hold this thought.</li>
-        <li>5. Binary search on answer → no monotonic parameter. ✗</li>
-      </ul>
-      <p>Move 1 gives O(n) time, O(n) space: build a prefix-max array and a suffix-max array in two passes,
-        then one final pass applying the formula.</p>
+      <p *ngFor="let line of ex.bottleneck.body" style="white-space: pre-line;">{{ line }}</p>
 
-      <h3>Phase 4 and 5</h3>
-      <p>Code it. Dry run <code class="mono">[5]</code>, <code class="mono">[1,2,3,4]</code> (answer 0 — a
-        classic index-bug catcher), <code class="mono">[3,3,3]</code>,
-        <code class="mono">[4,2,0,3,2,5]</code> (answer 9).</p>
+      <ng-container *ngIf="ex.codeAndDryRun">
+        <h3>Phase 4 and 5</h3>
+        <p *ngFor="let line of ex.codeAndDryRun!.body">{{ line }}</p>
+      </ng-container>
 
-      <h3>The follow-up</h3>
-      <p>An interviewer seeing O(n) time / O(n) space will ask for O(1) space. Return to move 4, which you
-        set aside. Hint, no more: with two pointers at opposite ends, if you know the left max is smaller
-        than the right max, is there anything the right side could still tell you about the left pointer's
-        water level?</p>
-      <div class="callout callout-red">Do not chase this until the O(n)-space version is green. One working
-        solution beats two half-built ones.</div>
+      <ng-container *ngIf="ex.followUp">
+        <h3>The follow-up</h3>
+        <p *ngFor="let line of ex.followUp!.body">{{ line }}</p>
+      </ng-container>
+
+      <ng-container *ngIf="ex.javaGotcha">
+        <h3>Java gotcha</h3>
+        <p *ngFor="let line of ex.javaGotcha!.body">{{ line }}</p>
+      </ng-container>
 
       <h3>Log entry</h3>
-      <div class="glass-card trigger-log-card">LC 42 — Trapping Rain Water
-Trigger: answer at index i depends on a prefix aggregate AND a suffix aggregate
-Missed: decompose per column, not per pool
-Family: prefix/suffix precomputation -&gt; two pointer for O(1) space
-Reuse in: Product of Array Except Self, Candy, Best Time to Buy and Sell Stock III</div>
-    </div>
-
-    <!-- Example B -->
-    <div class="glass-card worked-example">
-      <div class="we-title">Koko Eating Bananas</div>
-      <div class="we-sub">LC 875 · Medium — a deliberately different family, to show the method generalises</div>
-
-      <h3>Phase 0 — Constraints</h3>
-      <div class="code-block">1 &lt;= piles.length &lt;= 10^4
-piles.length &lt;= h &lt;= 10^9
-1 &lt;= piles[i] &lt;= 10^9</div>
-      <p>Two things jump out. <code class="mono">piles[i]</code> up to 10⁹ means the answer space is huge
-        even though the array is small. And h up to 10⁹ means any solution that iterates over hours is dead.</p>
-      <div class="callout callout-purple">When the array is small (10⁴) but the value range is enormous
-        (10⁹), that mismatch is itself the hint: you are searching over values, not over positions.</div>
-
-      <h3>Phase 1 — Restate and brute force</h3>
-      <p>Restated: "Find the smallest eating speed k such that finishing all piles at k bananas per hour
-        takes at most h hours."</p>
-      <p>Brute force: try k = 1, 2, 3, ... up to max(piles). For each, compute hours needed. Return the first
-        k that fits. O(max(piles) × n) = 10⁹ × 10⁴. Absurdly slow, but it is a baseline and it defines
-        correctness.</p>
-
-      <h3>Phase 2 — Hand-solve</h3>
-      <p><code class="mono">piles = [3, 6, 7, 11]</code>, <code class="mono">h = 8</code>.</p>
-      <ul>
-        <li>k = 1 → 3 + 6 + 7 + 11 = 27 hours. Too slow.</li>
-        <li>k = 2 → 2 + 3 + 4 + 6 = 15. Too slow.</li>
-        <li>k = 3 → 1 + 2 + 3 + 4 = 10. Too slow.</li>
-        <li>k = 4 → 1 + 2 + 2 + 3 = 8. Fits.</li>
-        <li>k = 5 → 1 + 2 + 2 + 3 = 8. Also fits.</li>
-      </ul>
-      <p>Answer: 4.</p>
-      <div class="callout callout-green">What did your hand notice? Hours needed only ever decreases as k
-        increases. Once a speed works, every faster speed also works.</div>
-
-      <h3>Phase 3 — Bottleneck</h3>
-      <p><strong>What am I recomputing?</strong> I am testing every k one at a time, when the results have a
-        monotonic structure I am ignoring.</p>
-      <ul>
-        <li>1. Store instead of recompute → nothing repeats meaningfully. ✗</li>
-        <li>2. Window never moves backwards → not a window problem. ✗</li>
-        <li>3. Sort first → order of piles is irrelevant to the answer. ✗</li>
-        <li>4. Only max/min matters → not quite. ✗</li>
-        <li>5. The answer is monotonic in a parameter → ✅ k works ⟹ k+1 works.</li>
-      </ul>
-      <p>Binary search over k in the range <code class="mono">[1, max(piles)]</code>. Each check is O(n).
-        Total O(n log(max piles)) ≈ 10⁴ × 30. Trivially fast.</p>
-      <div class="callout">The key structural insight, and the one worth logging: you are binary searching
-        the answer space, not the input array. The array is never sorted at all.</div>
-
-      <h3>Java gotcha</h3>
-      <p>Hours for one pile is <code class="mono">ceil(pile / k)</code>, which in integer arithmetic is
-        <code class="mono">(pile + k - 1) / k</code>. Accumulate into a <code class="mono">long</code> —
-        with 10⁴ piles of 10⁹ each and k = 1, the sum overflows int immediately. This exact overflow is the
-        most common wrong-answer on this problem.</p>
-
-      <h3>Log entry</h3>
-      <div class="glass-card trigger-log-card">LC 875 — Koko Eating Bananas
-Trigger: "minimum X such that a condition holds" + huge value range, small array
-Missed: feasibility is monotonic in k -&gt; binary search the ANSWER, not the array
-Family: binary search on answer space
-Reuse in: Split Array Largest Sum, Capacity to Ship Packages, Min Days to Make Bouquets</div>
-    </div>
-
-    <!-- Example C -->
-    <div class="glass-card worked-example">
-      <div class="we-title">Longest Substring Without Repeating Characters</div>
-      <div class="we-sub">LC 3 · Medium — compressed walkthrough</div>
-      <p><strong>Phase 0:</strong> n ≤ 5×10⁴ → need O(n). Characters include digits, symbols, spaces — do
-        not assume lowercase-only.</p>
-      <p><strong>Phase 1:</strong> Restate: "the longest contiguous stretch with no character appearing
-        twice." Brute force: check every substring for uniqueness, O(n³), or O(n²) with an incremental set.</p>
-      <p><strong>Phase 2:</strong> On <code class="mono">"abcabcbb"</code> by hand, you extend right until
-        you hit a repeat, then you move the left edge past the previous occurrence of that character — you
-        never move left backwards.</p>
-      <p><strong>Phase 3:</strong> Bottleneck: I re-check characters already known to be unique. Move 2
-        fires — the left pointer is monotonic. Move 1 also fires — a hash map storing the last index of each
-        character makes the left jump O(1) instead of a scan. Result: O(n) time, O(min(n, alphabet)) space.</p>
-      <span class="move-trigger">Trigger: "longest contiguous stretch satisfying a constraint" → variable-size sliding window.</span>
-      <p style="margin-top: 10px;"><strong>Edge cases:</strong> empty string, all identical characters, all
-        distinct, a single space.</p>
+      <div class="glass-card trigger-log-card">{{ ex.logEntry.title }}
+Trigger: {{ ex.logEntry.trigger }}
+Missed: {{ ex.logEntry.missed }}
+Family: {{ ex.logEntry.family }}
+Reuse in: {{ ex.logEntry.reuseIn }}</div>
     </div>
   </section>
 
@@ -539,105 +280,40 @@ Reuse in: Split Array Largest Sum, Capacity to Ship Packages, Min Days to Make B
   <section id="script" class="guide-section glass-card">
     <div class="section-kicker">Part 10</div>
     <h2><mat-icon>record_voice_over</mat-icon>Interview Communication Script</h2>
-    <p>Everything above is also your talk track. In a real interview, narrate the phases out loud — that
-      narration is the signal being graded.</p>
+    <p>{{ scriptIntro }}</p>
     <ol class="script-list">
-      <li class="script-line">"Let me check the constraints first. n is up to 10⁵, so I'm targeting O(n log n) or better."</li>
-      <li class="script-line">"Let me restate to make sure I have it: ..."</li>
-      <li class="script-line">"The brute force would be ... which is O(n²). Let me confirm that's correct, then optimise."</li>
-      <li class="script-line">"Let me trace a small example to find the structure." — and actually write it on the board.</li>
-      <li class="script-line">"The bottleneck is that I recompute ... at every step. I can store that instead."</li>
-      <li class="script-line">"Approach: ... Time O(n), space O(n). Shall I code it?"</li>
-      <li class="script-line">Code, then: "Let me trace it on the example, and check the edge cases: empty, single element, all duplicates."</li>
-      <li class="script-line">"For the follow-up on space, I think we could ..."</li>
+      <li class="script-line" *ngFor="let s of interviewScript">{{ s.line }}</li>
     </ol>
-    <div class="callout callout-red"><strong>Never go silent.</strong> Silence is the only unrecoverable
-      interview failure. If you are stuck, say what you have tried and what you have ruled out — that is
-      still visible progress.</div>
+    <div class="callout callout-red"><strong>Never go silent.</strong> {{ scriptClosing }}</div>
   </section>
 
   <!-- ── Part 11 — Worksheet ──────────────────────────────────────── -->
   <section id="worksheet" class="guide-section">
     <div class="section-kicker">Part 11</div>
     <h2 style="margin-bottom: 4px;"><mat-icon>assignment</mat-icon>Per-Problem Worksheet</h2>
-    <p style="margin-bottom: 16px;">Fill one of these for every problem you attempt. Twenty minutes of
-      filled worksheets is worth more revision value than two hours of re-reading solutions. Drona's own
-      interactive version of this exact worksheet is the
+    <p style="margin-bottom: 16px;">
+      {{ worksheetIntro }} Drona's own interactive version of this exact worksheet is the
       <a routerLink="/solve" class="cta-link">Solve Session</a> workflow — this printable version is for
-      offline practice.</p>
+      offline practice.
+    </p>
 
     <div class="glass-card worksheet-card">
-      <div class="worksheet-row"><span class="wk-label">Problem</span><span class="wk-blank"></span><span class="wk-label">LC #</span><span class="wk-blank" style="flex: 0 0 80px;"></span><span class="wk-label">Difficulty</span><span class="wk-blank" style="flex: 0 0 100px;"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Date</span><span class="wk-blank" style="flex: 0 0 140px;"></span><span class="wk-label">Timer started at</span><span class="wk-blank" style="flex: 0 0 100px;"></span></div>
-
-      <div class="worksheet-divider">Phase 0 — Constraints (before reading the statement)</div>
-      <div class="worksheet-row"><span class="wk-label">n up to</span><span class="wk-blank"></span><span class="wk-label">Values range</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Sorted?</span><span class="wk-blank" style="flex: 0 0 60px;"></span><span class="wk-label">Negatives?</span><span class="wk-blank" style="flex: 0 0 60px;"></span><span class="wk-label">Zeros?</span><span class="wk-blank" style="flex: 0 0 60px;"></span><span class="wk-label">Duplicates?</span><span class="wk-blank" style="flex: 0 0 60px;"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Target complexity</span><span class="wk-blank"></span></div>
-
-      <div class="worksheet-divider">Phase 1 — Restate + Brute Force</div>
-      <div class="worksheet-row"><span class="wk-label">One-sentence restatement</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Brute force idea</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Complexity</span><span class="wk-label">Time</span><span class="wk-blank" style="flex: 0 0 80px;"></span><span class="wk-label">Space</span><span class="wk-blank" style="flex: 0 0 80px;"></span></div>
-
-      <div class="worksheet-divider">Phase 2 — Hand-Solve</div>
-      <div class="worksheet-row"><span class="wk-label">Small input used</span><span class="wk-blank"></span><span class="wk-label">Answer by hand</span><span class="wk-blank" style="flex: 0 0 100px;"></span></div>
-      <div class="worksheet-row"><span class="wk-label">What did my brain actually do?</span><span class="wk-blank"></span></div>
-
-      <div class="worksheet-divider">Phase 3 — Bottleneck</div>
-      <div class="worksheet-row"><span class="wk-label">What exactly am I recomputing?</span><span class="wk-blank"></span></div>
-      <p style="color: var(--text-lo); font-size: 13px; margin: 6px 0;">Five moves — tick what fires:</p>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>1. Store instead of recompute (hash / prefix / memo)</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>2. Pointer or window never moves backwards</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>3. Sort first, then sweep</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>4. Only max/min matters (heap / monotonic stack)</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>5. Answer is monotonic (binary search the answer)</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>None fired → DP? graph? greedy? bitmask?</div>
-      <div class="worksheet-row" style="margin-top: 8px;"><span class="wk-label">Chosen approach</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Final complexity</span><span class="wk-label">Time</span><span class="wk-blank" style="flex: 0 0 80px;"></span><span class="wk-label">Space</span><span class="wk-blank" style="flex: 0 0 80px;"></span></div>
-
-      <div class="worksheet-divider">Phase 5 — Dry Run</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>n = 1 / minimum input</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>all elements identical</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>all negatives</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>sorted ascending and descending</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>duplicates present</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>overflow check (use long?)</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>answer at first/last index</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>no valid answer exists</div>
-
-      <div class="worksheet-divider">Outcome</div>
-      <div class="worksheet-row"><span class="wk-label">Time taken</span><span class="wk-blank" style="flex: 0 0 100px;"></span><span class="wk-label">Solved unaided? Y / N</span><span class="wk-blank" style="flex: 0 0 60px;"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Highest rung reached</span><span class="wk-blank"></span></div>
-
-      <div class="worksheet-divider">Trigger Log (fill even if solved)</div>
-      <div class="worksheet-row"><span class="wk-label">Trigger</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Missed</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Family</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Reuse in</span><span class="wk-blank"></span></div>
-      <div class="worksheet-row"><span class="wk-label">Redo</span><span class="wk-label">D+2</span><span class="wk-blank" style="flex: 0 0 100px;"></span><span class="wk-label">D+7</span><span class="wk-blank" style="flex: 0 0 100px;"></span></div>
-
-      <div class="worksheet-divider">If Solution Was Read</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>Closed all tabs</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>Waited 10 minutes</div>
-      <div class="worksheet-check"><mat-icon>check_box_outline_blank</mat-icon>Re-implemented from blank editor with no reference</div>
+      <ng-container *ngFor="let section of worksheetSections">
+        <div class="worksheet-divider">{{ section.heading }}</div>
+        <div class="worksheet-row" *ngFor="let f of section.fields">
+          <span class="wk-label">{{ f.label }}</span><span class="wk-blank"></span>
+        </div>
+        <div class="worksheet-check" *ngFor="let c of section.checklist">
+          <mat-icon>check_box_outline_blank</mat-icon>{{ c }}
+        </div>
+      </ng-container>
     </div>
   </section>
 
   <!-- ── One-Card Summary ─────────────────────────────────────────── -->
   <section id="card" class="guide-section">
     <h2 style="margin-bottom: 12px;"><mat-icon>crop_free</mat-icon>The Whole Thing on One Card</h2>
-    <div class="glass-card one-card">CONSTRAINTS  -&gt; target complexity, before reading the statement
-RESTATE      -&gt; one sentence, your own words
-BRUTE FORCE  -&gt; never be at zero
-HAND-SOLVE   -&gt; n=5, on paper, then ask what your brain did
-BOTTLENECK   -&gt; "what am I recomputing?" (be precise)
-FIVE MOVES   -&gt; store | monotonic pointer | sort | only max matters | binary search answer
-PLAN         -&gt; one sentence + complexity, BEFORE typing
-CODE         -&gt; meaningful names
-DRY RUN      -&gt; n=1, all same, all negative, sorted, duplicates, overflow
-STUCK        -&gt; constraints -&gt; weird example -&gt; name family -&gt; tags -&gt; hint -&gt; solution
-AFTER        -&gt; close tab, wait 10 min, reimplement blind, log the TRIGGER, redo D+2 and D+7</div>
+    <div class="glass-card one-card">{{ oneCardSummary }}</div>
   </section>
 
 </div>

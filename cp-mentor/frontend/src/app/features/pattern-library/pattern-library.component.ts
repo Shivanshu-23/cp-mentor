@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { PatternService, PatternSummary, PatternCategory } from '../../core/services/pattern.service';
+import { PatternCategory } from '../../core/services/pattern.service';
+import { Pattern, PATTERNS } from '@content';
 
+// Sourced from the frontend-static content layer (src/app/content/patterns),
+// not an HTTP call — the Pattern Library is reference data, so it should
+// render instantly, work offline, and prerender to real HTML without a
+// backend round-trip. See CLAUDE.md "Frontend-Static Content Layer".
 @Component({
   selector: 'app-pattern-library',
   templateUrl: './pattern-library.component.html',
@@ -9,7 +13,7 @@ import { PatternService, PatternSummary, PatternCategory } from '../../core/serv
 })
 export class PatternLibraryComponent implements OnInit {
 
-  patterns: PatternSummary[] = [];
+  patterns: Pattern[] = [];
   loading = true;
 
   searchTerm = '';
@@ -25,31 +29,20 @@ export class PatternLibraryComponent implements OnInit {
     GRAPH: 'Graph', DP: 'Dynamic Programming', GREEDY: 'Greedy', MATH: 'Math', DESIGN: 'Design'
   };
 
-  constructor(private patternService: PatternService, private snack: MatSnackBar) {}
-
   ngOnInit(): void {
     this.loadPatterns();
   }
 
   loadPatterns(): void {
-    this.loading = true;
-    this.patternService.getPatterns(undefined, 0, 100).subscribe({
-      next: res => {
-        this.patterns = res.content;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.snack.open('Failed to load pattern library', '', { duration: 3000 });
-      }
-    });
+    this.patterns = PATTERNS;
+    this.loading = false;
   }
 
   get categoryCount(): number {
     return new Set(this.patterns.map(p => p.category)).size;
   }
 
-  get filteredPatterns(): PatternSummary[] {
+  get filteredPatterns(): Pattern[] {
     const term = this.searchTerm.trim().toLowerCase();
     return this.patterns.filter(p => {
       const matchesCategory = this.selectedCategory === 'all' || p.category === this.selectedCategory;

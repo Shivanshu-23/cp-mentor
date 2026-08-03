@@ -1,4 +1,5 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Inject, Injectable, NgZone, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
 import { CommandPaletteService } from './command-palette.service';
@@ -34,19 +35,29 @@ export class KeyboardShortcutsService implements OnDestroy {
 
   private boundHandler = (event: KeyboardEvent) => this.handleKeydown(event);
 
+  private readonly isBrowser: boolean;
+
   constructor(
     private zone: NgZone,
     private router: Router,
-    private paletteService: CommandPaletteService
-  ) {}
+    private paletteService: CommandPaletteService,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
+  // document doesn't exist on the server; this service is instantiated on
+  // every route (AppComponent.ngOnInit calls init() unconditionally), so both
+  // document-touching methods below are guarded for SSR/prerendering.
   init(): void {
+    if (!this.isBrowser) return;
     this.zone.runOutsideAngular(() => {
       document.addEventListener('keydown', this.boundHandler);
     });
   }
 
   ngOnDestroy(): void {
+    if (!this.isBrowser) return;
     document.removeEventListener('keydown', this.boundHandler);
   }
 

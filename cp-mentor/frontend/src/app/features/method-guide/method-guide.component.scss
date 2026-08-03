@@ -79,7 +79,9 @@
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--text-muted);
+  // --text-muted fails 4.5:1 contrast at this weight/size (2.82:1, caught by
+  // Lighthouse) — --text-lo is the next step up and passes.
+  color: var(--text-lo);
   margin-bottom: 4px;
 }
 

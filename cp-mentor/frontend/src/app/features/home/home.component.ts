@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, NgZone, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProblemService, Problem } from '../../core/services/problem.service';
 import { LeetCodeStatsService, LeetCodeStats } from '../../core/services/leetcode-stats.service';
@@ -38,24 +39,32 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private mouseY = 0;
   private reducedMotion = false;
 
+  private readonly isBrowser: boolean;
+
   constructor(
     private problemService: ProblemService,
     private leetCodeStatsService: LeetCodeStatsService,
     private snackBar: MatSnackBar,
-    private zone: NgZone
-  ) {}
+    private zone: NgZone,
+    @Inject(PLATFORM_ID) platformId: object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
     this.loadDaily();
     this.loadLeetCodeStats();
   }
 
+  // The Three.js starfield touches window/document/canvas throughout — none
+  // of which exist during SSR. Skip setup/teardown entirely on the server
+  // rather than guarding every internal call site.
   ngAfterViewInit(): void {
-    this.initHeroScene();
+    if (this.isBrowser) this.initHeroScene();
   }
 
   ngOnDestroy(): void {
-    this.teardownHeroScene();
+    if (this.isBrowser) this.teardownHeroScene();
   }
 
   loadDaily(): void {

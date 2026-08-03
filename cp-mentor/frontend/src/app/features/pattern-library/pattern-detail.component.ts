@@ -2,25 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { forkJoin } from 'rxjs';
-import { PatternService, PatternDetail, PatternProblem } from '../../core/services/pattern.service';
+import { Pattern, PatternProblemRef, getPattern, PATTERN_PROBLEMS_BY_SLUG } from '@content';
 import { findVisualizerSlugForPattern } from '../visualizer/visualizer-registry';
 
+// Sourced from the frontend-static content layer, same reasoning as
+// PatternLibraryComponent — see CLAUDE.md "Frontend-Static Content Layer".
 @Component({
   selector: 'app-pattern-detail',
   templateUrl: './pattern-detail.component.html',
   styleUrls: ['./pattern-detail.component.scss']
 })
 export class PatternDetailComponent implements OnInit {
-  pattern: PatternDetail | null = null;
-  problems: PatternProblem[] = [];
+  pattern: Pattern | null = null;
+  problems: PatternProblemRef[] = [];
   loading = true;
   activeTab = 0;
   visualizerSlug: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
-    private patternService: PatternService,
     private snack: MatSnackBar,
     public location: Location
   ) {}
@@ -35,21 +35,16 @@ export class PatternDetailComponent implements OnInit {
   load(slug: string): void {
     this.loading = true;
     this.activeTab = 0;
-    forkJoin({
-      pattern: this.patternService.getPattern(slug),
-      problems: this.patternService.getPatternProblems(slug)
-    }).subscribe({
-      next: ({ pattern, problems }) => {
-        this.pattern = pattern;
-        this.problems = problems;
-        this.visualizerSlug = findVisualizerSlugForPattern(pattern.slug) ?? null;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.snack.open('Pattern not found', 'Close', { duration: 4000 });
-      }
-    });
+    const pattern = getPattern(slug);
+    if (!pattern) {
+      this.loading = false;
+      this.snack.open('Pattern not found', 'Close', { duration: 4000 });
+      return;
+    }
+    this.pattern = pattern;
+    this.problems = PATTERN_PROBLEMS_BY_SLUG[slug] ?? [];
+    this.visualizerSlug = findVisualizerSlugForPattern(pattern.slug) ?? null;
+    this.loading = false;
   }
 
   codeLines(code: string): string[] {
