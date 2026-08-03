@@ -17,6 +17,7 @@ CREATE TABLE patterns (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE pattern_recognition_triggers (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY, -- managed MySQL (e.g. Aiven) requires every table to have a PK
     pattern_id     BIGINT NOT NULL,
     trigger_phrase TEXT NOT NULL,
     CONSTRAINT fk_pattern_recognition_triggers_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)
@@ -25,6 +26,7 @@ CREATE TABLE pattern_recognition_triggers (
 CREATE INDEX idx_pattern_recognition_triggers_pattern_id ON pattern_recognition_triggers (pattern_id);
 
 CREATE TABLE pattern_anti_triggers (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
     pattern_id     BIGINT NOT NULL,
     trigger_phrase TEXT NOT NULL,
     CONSTRAINT fk_pattern_anti_triggers_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)
@@ -33,6 +35,7 @@ CREATE TABLE pattern_anti_triggers (
 CREATE INDEX idx_pattern_anti_triggers_pattern_id ON pattern_anti_triggers (pattern_id);
 
 CREATE TABLE pattern_common_mistakes (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     pattern_id BIGINT NOT NULL,
     mistake    TEXT NOT NULL,
     CONSTRAINT fk_pattern_common_mistakes_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)
@@ -41,6 +44,7 @@ CREATE TABLE pattern_common_mistakes (
 CREATE INDEX idx_pattern_common_mistakes_pattern_id ON pattern_common_mistakes (pattern_id);
 
 CREATE TABLE pattern_edge_case_checklist (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     pattern_id BIGINT NOT NULL,
     edge_case  TEXT NOT NULL,
     CONSTRAINT fk_pattern_edge_case_checklist_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)
@@ -49,6 +53,7 @@ CREATE TABLE pattern_edge_case_checklist (
 CREATE INDEX idx_pattern_edge_case_checklist_pattern_id ON pattern_edge_case_checklist (pattern_id);
 
 CREATE TABLE pattern_interview_follow_ups (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
     pattern_id BIGINT NOT NULL,
     question   TEXT NOT NULL,
     CONSTRAINT fk_pattern_interview_follow_ups_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)
@@ -57,6 +62,7 @@ CREATE TABLE pattern_interview_follow_ups (
 CREATE INDEX idx_pattern_interview_follow_ups_pattern_id ON pattern_interview_follow_ups (pattern_id);
 
 CREATE TABLE pattern_related_patterns (
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
     pattern_id   BIGINT NOT NULL,
     related_slug VARCHAR(64) NOT NULL,
     CONSTRAINT fk_pattern_related_patterns_pattern FOREIGN KEY (pattern_id) REFERENCES patterns (id)

@@ -28,6 +28,7 @@ CREATE TABLE problems (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE problem_topics (
+    id          BIGINT AUTO_INCREMENT PRIMARY KEY, -- managed MySQL (e.g. Aiven) requires every table to have a PK
     problem_id  BIGINT NOT NULL,
     topic       VARCHAR(255) NOT NULL,
     CONSTRAINT fk_problem_topics_problem FOREIGN KEY (problem_id) REFERENCES problems (id)
