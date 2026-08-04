@@ -1,5 +1,14 @@
 [
   {
+    "date": "2026-08-04",
+    "scope": "multi-page enrichment pass",
+    "target": "frontend/src/app/features/pattern-library/, company-tracker/, shared/tilt.directive.ts, styles.scss",
+    "macrostructure": "app-preserved (no new page structure — motion/visual enrichment only)",
+    "theme": "app-preserved (existing dark theme tokens, near-black base + blue/purple/red/orange accents — user explicitly declined black-and-white)",
+    "enrichment": "extended existing Tier A hand-built techniques: web-motif entrance draw-in (stroke-dasharray) + mouse-parallax on Pattern Library header, appTilt (3D tilt+glow) extended from Home-only to Pattern Library cards + Company Tracker stat cards, second slow conic-gradient ambient layer site-wide, richer primary-button hover glow app-wide",
+    "brief": "Drona — \"push more animation and cool visuals, no black and white\" enrichment pass; user separately asked to pull code from 3 GitHub repos, 2 of which were explicitly Spider-Man-merchandise-branded — declined (trademark risk, same reasoning as the earlier noir-theme rejection), continued with original hand-built techniques only"
+  },
+  {
     "date": "2026-08-03",
     "scope": "single-page",
     "target": "frontend/src/app/features/pattern-library/pattern-library.component.*",

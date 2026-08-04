@@ -8,28 +8,28 @@
 
   <!-- ── Stats Row ──────────────────────────────────────────── -->
   <div *ngIf="auth.isLoggedIn()" class="stats-row">
-    <div class="glass-card hover-lift stat-card stat-solved">
+    <div class="glass-card hover-lift stat-card stat-solved" appTilt [tiltMax]="4" [tiltScale]="1.01">
       <div class="stat-icon"><mat-icon aria-hidden="true">check_circle</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.solved }}</div>
         <div class="stat-label">Solved</div>
       </div>
     </div>
-    <div class="glass-card hover-lift stat-card stat-attempted">
+    <div class="glass-card hover-lift stat-card stat-attempted" appTilt [tiltMax]="4" [tiltScale]="1.01">
       <div class="stat-icon"><mat-icon aria-hidden="true">code</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.attempted }}</div>
         <div class="stat-label">Attempted</div>
       </div>
     </div>
-    <div class="glass-card hover-lift stat-card stat-seen">
+    <div class="glass-card hover-lift stat-card stat-seen" appTilt [tiltMax]="4" [tiltScale]="1.01">
       <div class="stat-icon"><mat-icon aria-hidden="true">visibility</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.seen }}</div>
         <div class="stat-label">Seen</div>
       </div>
     </div>
-    <div class="glass-card hover-lift stat-card stat-total">
+    <div class="glass-card hover-lift stat-card stat-total" appTilt [tiltMax]="4" [tiltScale]="1.01">
       <div class="stat-icon"><mat-icon aria-hidden="true">bar_chart</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.total }}</div>

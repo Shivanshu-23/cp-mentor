@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PatternCategory } from '../../core/services/pattern.service';
 import { Pattern, PATTERNS } from '@content';
+import { TiltDirective } from '../../shared/tilt.directive';
 
 // Sourced from the frontend-static content layer (src/app/content/patterns),
 // not an HTTP call — the Pattern Library is reference data, so it should
@@ -15,7 +16,7 @@ import { Pattern, PATTERNS } from '@content';
 @Component({
   selector: 'app-pattern-library',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [CommonModule, FormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, MatTooltipModule, TiltDirective],
   templateUrl: './pattern-library.component.html',
   styleUrls: ['./pattern-library.component.scss']
 })
@@ -36,6 +37,35 @@ export class PatternLibraryComponent implements OnInit {
     ARRAY: 'Array', STRING: 'String', LINKED_LIST: 'Linked List', TREE: 'Tree',
     GRAPH: 'Graph', DP: 'Dynamic Programming', GREEDY: 'Greedy', MATH: 'Math', DESIGN: 'Design'
   };
+
+  private reducedMotion = false;
+
+  constructor(@Inject(PLATFORM_ID) platformId: object) {
+    if (isPlatformBrowser(platformId)) {
+      this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+  }
+
+  // Subtle mouse-parallax on the header web motif — the whole group drifts a
+  // few px opposite the cursor via CSS custom properties consumed by
+  // .web-parallax's transform (see pattern-library.component.scss). Kept
+  // separate from .web-anchor's own sway rotation so the two transforms
+  // never fight over the same declaration.
+  onWebMotifMouseMove(event: MouseEvent): void {
+    if (this.reducedMotion) return;
+    const svg = event.currentTarget as SVGSVGElement;
+    const rect = svg.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    svg.style.setProperty('--parallax-x', String(-x * 12));
+    svg.style.setProperty('--parallax-y', String(-y * 8));
+  }
+
+  onWebMotifMouseLeave(event?: MouseEvent): void {
+    const svg = event?.currentTarget as SVGSVGElement | undefined;
+    svg?.style.setProperty('--parallax-x', '0');
+    svg?.style.setProperty('--parallax-y', '0');
+  }
 
   ngOnInit(): void {
     this.loadPatterns();

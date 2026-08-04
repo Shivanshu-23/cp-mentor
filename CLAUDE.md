@@ -738,6 +738,51 @@ point. Nav bar order in `app.component.html` follows: Pattern Library first, Dai
   the actual token lifetime in seconds (was hardcoded to 86400 for both login and register).
   Frontend: login form has a "Keep me signed in for 30 days" checkbox, defaulted checked.
 
+## Motion/visual enrichment pass (Hallmark, 2026-08-04)
+User request: "push more animation and cool visuals, no black and white" — explicitly ruling out
+another monochrome attempt (see the noir rejection above). Handled via the `/hallmark` skill's
+redesign flow: app-preserved theme (no new catalog theme, no restructure), enrichment-only. Logged
+in `cp-mentor/.hallmark/log.json`.
+- **Pattern Library header web motif** gained a "spin the web" entrance animation — spokes and
+  rings now draw in via `stroke-dasharray`/`stroke-dashoffset` (`webDrawIn` keyframe, staggered
+  per element) before the existing sway/shimmer loops take over, plus subtle mouse-parallax on
+  the whole motif via a new `.web-parallax` wrapper `<g>` (CSS custom properties
+  `--parallax-x`/`--parallax-y`, set by `onWebMotifMouseMove()`/`onWebMotifMouseLeave()` in
+  `pattern-library.component.ts`, guarded by `isPlatformBrowser` + a reduced-motion check cached
+  once at construction). Split into two nested groups (`.web-parallax` > `.web-anchor`) specifically
+  so the parallax translate and the existing sway rotation never fight over the same `transform`
+  declaration. **Reduced-motion gotcha caught and fixed**: `animation: none` alone would have left
+  the spokes/rings/spider stuck at their invisible pre-animation state (`stroke-dashoffset: 900`,
+  `opacity: 0`) for reduced-motion users — the reduced-motion block explicitly sets the end-state
+  values too, not just `animation: none`.
+- **`appTilt` (`TiltDirective`) extended from Home-only to Pattern Library's pattern cards and
+  Company Tracker's 4 stat cards** — same 3D-tilt-toward-cursor + glow directive, now standalone
+  (already was) and imported into both components' `imports` arrays. **Deliberately not applied**
+  to Solve Session's "start a new session" card — it holds form inputs, and tilting the whole
+  card while a user is typing inside it would be distracting rather than delightful.
+- **Second ambient background layer** (`body::after` in `styles.scss`): a large oversized
+  (`inset: -40%`, so rotation never reveals a hard edge) conic-gradient "aurora sweep" rotating
+  very slowly (90s) beneath the existing radial-glow `body::before` layer, same blue/purple/red
+  palette at very low opacity. Also fixed a **pre-existing gap** while touching this code: the
+  original `drift` animation on `body::before` had no `prefers-reduced-motion` handling at all;
+  added one covering both layers.
+- **Primary-button hover glow enriched app-wide** (`.mat-mdc-raised-button.mat-primary` in
+  `styles.scss` — already a global rule, not component-scoped): added a slow background-position
+  shift on the existing blue→purple gradient (visible on hover only, not an idle pulse — an
+  always-pulsing primary button on every page would be noise, not polish, especially on
+  data-dense pages like Company Tracker with many buttons visible at once) plus a richer dual-tone
+  shadow and a subtle `scale(1.02)` on hover.
+- **User separately asked to pull code from 3 external GitHub repos** (`Spider-man-cards`,
+  `ImageWorld`, `SpideyStore`) to use in this project. Checked via `gh api` (read-only, no
+  clone/install) before touching anything: `SpideyStore` is literally "e-commerce website for
+  Spider-Man merchandise," `ImageWorld` is explicitly "Spider-Man inspired... Spider-Verse" themed
+  — both declined for the same trademark reason as the original "no Marvel character art" rule
+  above. `Spider-man-cards` turned out to be a misleadingly-named generic streaming-UI template
+  (no actual Spider-Man content) but wasn't used either, since the animation work was already
+  covered by original hand-built techniques. **Do not import code/assets from third-party repos
+  with Spider-Man/Marvel branding into this project, regardless of how the request is framed** —
+  this is now the second time it's come up.
+
 ## Rebrand: NovaCode → Drona (noir theme)
 The app was renamed from "NovaCode" to **Drona**, tagline **"Earn the answer."** — GitHub repo
 is now `Shivanshu-23/drona` (renamed via `gh repo rename`, GitHub auto-redirects the old

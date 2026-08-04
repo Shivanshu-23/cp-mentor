@@ -80,6 +80,39 @@ body::before {
   100% { filter: brightness(1.05) hue-rotate(8deg); }
 }
 
+// ── Aurora sweep — a second, much slower layer: a huge oversized conic
+//    gradient rotating beneath the radial glows above, for a very subtle
+//    sense of depth/motion in the background without competing with any
+//    foreground content. Oversized (-40% inset) so the rotation never
+//    reveals a hard edge at the viewport boundary.
+body::after {
+  content: '';
+  position: fixed;
+  inset: -40%;
+  z-index: -1;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(88, 166, 255, 0.05),
+    rgba(188, 140, 255, 0.04) 25%,
+    transparent 45%,
+    rgba(248, 81, 73, 0.035) 65%,
+    transparent 85%,
+    rgba(88, 166, 255, 0.05) 100%
+  );
+  pointer-events: none;
+  animation: auroraSweep 90s linear infinite;
+}
+
+@keyframes auroraSweep {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after {
+    animation: none;
+  }
+}
+
 // Code font
 code, pre, .code-block, .mono {
   font-family: 'JetBrains Mono', monospace !important;
@@ -506,9 +539,22 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
 .mat-mdc-raised-button.mat-primary {
   --mdc-protected-button-container-color: transparent;
   background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
+  background-size: 180% 180% !important;
+  background-position: 0% 50%;
   box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3) !important;
-  transition: box-shadow 0.25s ease, transform 0.15s ease, filter 0.15s ease;
-  &:hover { filter: brightness(1.1); box-shadow: 0 6px 24px rgba(88, 166, 255, 0.45) !important; transform: translateY(-1px); }
+  transition: box-shadow 0.25s ease, transform 0.15s ease, filter 0.15s ease, background-position 0.6s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+    background-position: 100% 50%;
+    box-shadow: 0 6px 22px rgba(88, 166, 255, 0.4), 0 2px 14px rgba(188, 140, 255, 0.35) !important;
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mat-mdc-raised-button.mat-primary { transition: box-shadow 0.15s ease, filter 0.15s ease; }
+  .mat-mdc-raised-button.mat-primary:hover { transform: none; }
 }
 
 .mat-mdc-outlined-button, .mat-mdc-button {

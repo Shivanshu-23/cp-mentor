@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { PatternService, PatternSummary } from '../../core/services/pattern.service';
+import { TiltDirective } from '../../shared/tilt.directive';
 
 export interface CompanyProblem {
   id: number;
@@ -37,7 +38,7 @@ export interface PageResponse<T> {
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink, MatSnackBarModule, MatIconModule, MatButtonModule,
-    MatProgressSpinnerModule, MatTooltipModule
+    MatProgressSpinnerModule, MatTooltipModule, TiltDirective
   ],
   templateUrl: './company-tracker.component.html',
   styleUrls: ['./company-tracker.component.scss']
