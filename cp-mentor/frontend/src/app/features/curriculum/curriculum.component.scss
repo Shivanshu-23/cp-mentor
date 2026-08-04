@@ -1,0 +1,121 @@
+.cur-header {
+  text-align: center;
+  padding: 32px 0 24px;
+
+  .cur-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .cur-sub { color: var(--text-lo); font-size: 15px; max-width: 560px; margin: 0 auto; }
+}
+
+.loading-block { text-align: center; padding: 60px; }
+
+.cur-progress-card {
+  padding: 18px 24px;
+  margin-bottom: 24px;
+}
+
+.cur-progress-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 10px;
+}
+
+.cur-progress-track {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-hover);
+  overflow: hidden;
+}
+
+.cur-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.cur-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cur-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  transition: opacity 0.2s ease;
+
+  &.cur-item-done { opacity: 0.55; }
+}
+
+.cur-check {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  margin-top: 2px;
+
+  &:hover { color: var(--accent-blue); }
+
+  mat-icon { font-size: 24px; width: 24px; height: 24px; }
+}
+
+.cur-item-done .cur-check mat-icon { color: var(--accent-green); }
+
+.cur-rank {
+  color: var(--text-muted);
+  font-size: 13px;
+  flex-shrink: 0;
+  width: 32px;
+  padding-top: 3px;
+}
+
+.cur-main { flex: 1; min-width: 0; }
+
+.cur-name { font-size: 15px; font-weight: 600; color: var(--text-hi); margin-bottom: 6px; }
+
+.cur-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.cur-hours {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-lo);
+  font-size: 12.5px;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; }
+}
+
+.cur-freq {
+  display: flex;
+  align-items: center;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: var(--accent-orange); }
+}
+
+.cur-prereqs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.cur-prereq-label { color: var(--text-muted); }
+
+.cur-prereq-chip {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 2px 9px;
+  color: var(--text-lo);
+}

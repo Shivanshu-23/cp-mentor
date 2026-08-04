@@ -37,12 +37,17 @@ const routes: Routes = [
   // purely static reference page, standalone + lazy for the same reason.
   // Public, no AuthGuard.
   { path: 'method-guide', loadComponent: () => import('./features/method-guide/method-guide.component').then(m => m.MethodGuideComponent) },
+  // Surfaces Phase E's already-seeded TopicPriority data, which never had a
+  // consumer page before this (see CLAUDE.md). Public, no AuthGuard —
+  // completion is tracked client-side only.
+  { path: 'curriculum', loadComponent: () => import('./features/curriculum/curriculum.component').then(m => m.CurriculumComponent) },
   // Yodh — the method text plus the Constraint Analyzer and Recall Drill
   // embedded live on the same page, plus a fillable worksheet that commits
   // to GitHub. Public, no AuthGuard — the embedded Recall Drill handles its
   // own signed-out state instead of gating the whole page.
   { path: 'yodh', loadComponent: () => import('./features/yodh/yodh.component').then(m => m.YodhComponent) },
   { path: 'mock-interview', loadComponent: () => import('./features/mock-interview/mock-interview.component').then(m => m.MockInterviewComponent), canActivate: [AuthGuard] },
+  { path: 'bookmarks', loadComponent: () => import('./features/bookmarks/bookmarks.component').then(m => m.BookmarksComponent), canActivate: [AuthGuard] },
   { path: 'solve', loadComponent: () => import('./features/solve-session/solve-session-list.component').then(m => m.SolveSessionListComponent), canActivate: [AuthGuard] },
   { path: 'solve/:id', loadComponent: () => import('./features/solve-session/solve-session-worksheet.component').then(m => m.SolveSessionWorksheetComponent), canActivate: [AuthGuard] },
   { path: 'recall-drill', loadComponent: () => import('./features/recall-drill/recall-drill.component').then(m => m.RecallDrillComponent), canActivate: [AuthGuard] },

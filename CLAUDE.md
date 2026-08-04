@@ -1490,6 +1490,19 @@ GITHUB_WORKSHEET_BRANCH=main       # default in code is "master" — this repo n
 - **GitHub Actions CI** (2026-08-04, `.github/workflows/ci.yml`) — `mvn test` (backend, 8
   service-layer tests) + `ng build` (frontend) on push/PR to master. Build verification only;
   Render/Vercel still own the actual deploys via their own webhooks.
+- **Topic Curriculum page** (2026-08-04, `/curriculum`, public) — surfaces Phase E's already-seeded
+  35-topic `TopicPriority` data (rank, estimated hours, interview frequency, prerequisites), which
+  never had a consumer page before this. Completion is tracked client-side only (localStorage) —
+  deliberately not new backend schema, since these are broad study topics with no existing
+  per-user record to hang a "have I learned this" flag off of.
+- **Bookmarks + revision notes** (2026-08-04, `/bookmarks`, JWT) — new `com.cpmentor.bookmark`
+  package: bookmark a pattern (toggle on every Pattern Library card) or a problem, with an
+  editable free-text note. `POST /api/v1/bookmarks` is idempotent — bookmarking an
+  already-bookmarked item returns the existing row instead of erroring on the unique constraint.
+- **Pattern Library roadmap view** (2026-08-04) — a Grid/Roadmap toggle on `/patterns`. Roadmap
+  groups patterns by category (easiest-to-learn first within each group) with a per-pattern
+  progress bar built from the caller's own completed Solve Sessions, cross-referenced against
+  `PATTERN_PROBLEMS_BY_SLUG`. Original layout — not modeled on any specific external site.
 
 ## What's Pending ❌
 - [ ] Admin credential rotation — generated, not yet applied to production (BUG 4)

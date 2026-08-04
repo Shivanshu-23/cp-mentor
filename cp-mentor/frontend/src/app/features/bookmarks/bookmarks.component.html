@@ -1,0 +1,78 @@
+<div class="page-container page-fade-in">
+
+  <div class="bm-header">
+    <h1 class="gradient-text bm-title">Bookmarks</h1>
+    <p class="bm-sub">Patterns and problems you've flagged for revision, with your own notes.</p>
+  </div>
+
+  <div *ngIf="loading" class="loading-block"><mat-spinner diameter="40" style="margin:0 auto"></mat-spinner></div>
+
+  <ng-container *ngIf="!loading">
+
+    <div *ngIf="bookmarks.length === 0" class="empty-state glass-card">
+      <mat-icon aria-hidden="true">bookmark_border</mat-icon>
+      <p class="empty-title">Nothing bookmarked yet</p>
+      <p class="empty-sub">Use the bookmark icon on any <a routerLink="/patterns" class="cta-link">Pattern Library</a> card to save it here.</p>
+    </div>
+
+    <section *ngIf="patternBookmarks.length" class="bm-section">
+      <div class="bm-section-title"><mat-icon aria-hidden="true">lightbulb</mat-icon>Patterns</div>
+      <div class="glass-card bm-item" *ngFor="let b of patternBookmarks">
+        <div class="bm-item-main">
+          <a [routerLink]="['/patterns', b.itemKey]" class="bm-item-title">{{ b.title }}</a>
+          <span class="bm-item-date">{{ b.createdAt | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="bm-note" *ngIf="editingId !== b.id">
+          <p *ngIf="b.note" class="bm-note-text">{{ b.note }}</p>
+          <p *ngIf="!b.note" class="bm-note-empty">No note yet.</p>
+          <button mat-stroked-button (click)="startEditNote(b)" class="bm-note-btn">
+            <mat-icon aria-hidden="true">edit_note</mat-icon> {{ b.note ? 'Edit note' : 'Add note' }}
+          </button>
+          <button mat-stroked-button (click)="remove(b)" class="bm-remove-btn">
+            <mat-icon aria-hidden="true">bookmark_remove</mat-icon> Remove
+          </button>
+        </div>
+
+        <div class="bm-note-edit" *ngIf="editingId === b.id">
+          <textarea class="glass-textarea" rows="2" [(ngModel)]="editingNote" placeholder="Why does this need revision?"></textarea>
+          <div class="bm-note-edit-actions">
+            <button mat-raised-button color="primary" (click)="saveNote(b)">Save</button>
+            <button mat-stroked-button (click)="cancelEditNote()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="problemBookmarks.length" class="bm-section">
+      <div class="bm-section-title"><mat-icon aria-hidden="true">code</mat-icon>Problems</div>
+      <div class="glass-card bm-item" *ngFor="let b of problemBookmarks">
+        <div class="bm-item-main">
+          <span class="bm-item-title bm-item-title-plain">{{ b.title }}</span>
+          <span class="bm-item-date">{{ b.createdAt | date:'mediumDate' }}</span>
+        </div>
+
+        <div class="bm-note" *ngIf="editingId !== b.id">
+          <p *ngIf="b.note" class="bm-note-text">{{ b.note }}</p>
+          <p *ngIf="!b.note" class="bm-note-empty">No note yet.</p>
+          <button mat-stroked-button (click)="startEditNote(b)" class="bm-note-btn">
+            <mat-icon aria-hidden="true">edit_note</mat-icon> {{ b.note ? 'Edit note' : 'Add note' }}
+          </button>
+          <button mat-stroked-button (click)="remove(b)" class="bm-remove-btn">
+            <mat-icon aria-hidden="true">bookmark_remove</mat-icon> Remove
+          </button>
+        </div>
+
+        <div class="bm-note-edit" *ngIf="editingId === b.id">
+          <textarea class="glass-textarea" rows="2" [(ngModel)]="editingNote" placeholder="Why does this need revision?"></textarea>
+          <div class="bm-note-edit-actions">
+            <button mat-raised-button color="primary" (click)="saveNote(b)">Save</button>
+            <button mat-stroked-button (click)="cancelEditNote()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </ng-container>
+
+</div>

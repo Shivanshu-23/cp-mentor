@@ -1,0 +1,92 @@
+.bm-header {
+  text-align: center;
+  padding: 32px 0 24px;
+
+  .bm-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .bm-sub { color: var(--text-lo); font-size: 15px; max-width: 560px; margin: 0 auto; }
+}
+
+.loading-block { text-align: center; padding: 60px; }
+
+.cta-link { color: var(--accent-blue); font-weight: 600; text-decoration: none; &:hover { text-decoration: underline; } }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-lo);
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; color: var(--text-muted); margin-bottom: 10px; }
+  .empty-title { font-size: 16px; font-weight: 600; color: var(--text-hi); margin-bottom: 4px; }
+  .empty-sub { font-size: 13.5px; }
+}
+
+.bm-section { margin-bottom: 28px; }
+
+.bm-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-lo);
+  margin-bottom: 12px;
+
+  mat-icon { font-size: 17px; width: 17px; height: 17px; color: var(--accent-blue); }
+}
+
+.bm-item {
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+
+.bm-item-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.bm-item-title {
+  color: var(--text-hi);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { color: var(--accent-blue); }
+}
+
+.bm-item-title-plain { cursor: default; }
+
+.bm-item-date { color: var(--text-muted); font-size: 12px; flex-shrink: 0; }
+
+.bm-note-text { color: var(--text-lo); font-size: 13.5px; margin-bottom: 10px; white-space: pre-wrap; }
+.bm-note-empty { color: var(--text-muted); font-size: 13px; font-style: italic; margin-bottom: 10px; }
+
+.bm-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.bm-note-btn { color: var(--accent-blue); }
+.bm-remove-btn { color: var(--accent-red); }
+
+.glass-textarea {
+  width: 100%;
+  background: var(--bg-0);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text-hi);
+  font-size: 14px;
+  font-family: inherit;
+  margin-bottom: 10px;
+
+  &:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15); }
+}
+
+.bm-note-edit-actions { display: flex; gap: 8px; }

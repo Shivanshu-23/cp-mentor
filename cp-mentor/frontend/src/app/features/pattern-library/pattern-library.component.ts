@@ -8,6 +8,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { PatternCategory } from '../../core/services/pattern.service';
 import { Pattern, PATTERNS } from '@content';
 import { TiltDirective } from '../../shared/tilt.directive';
+import { BookmarkService, BookmarkResponse } from '../../core/services/bookmark.service';
+import { AuthService } from '../../core/services/auth.service';
+import { SolveSessionService } from '../../core/services/solve-session.service';
+import { PATTERN_PROBLEMS_BY_SLUG } from '@content';
 
 // Sourced from the frontend-static content layer (src/app/content/patterns),
 // not an HTTP call — the Pattern Library is reference data, so it should
@@ -40,7 +44,23 @@ export class PatternLibraryComponent implements OnInit {
 
   private reducedMotion = false;
 
-  constructor(@Inject(PLATFORM_ID) platformId: object) {
+  // slug -> bookmark id, only populated for logged-in users. A Set would be
+  // enough for "is this bookmarked" but keeping the id lets the toggle
+  // button call delete(id) directly without a lookup round-trip.
+  bookmarkedPatternIds: Record<string, number> = {};
+
+  // Grid (existing) vs Roadmap — patterns grouped by category with a
+  // per-pattern completion indicator. Original layout: grouped sections with
+  // a progress bar per node, not modeled on any specific external site.
+  viewMode: 'grid' | 'roadmap' = 'grid';
+  private completedLeetcodeIds = new Set<string>();
+
+  constructor(
+    @Inject(PLATFORM_ID) platformId: object,
+    private bookmarkService: BookmarkService,
+    private solveSessionService: SolveSessionService,
+    public auth: AuthService
+  ) {
     if (isPlatformBrowser(platformId)) {
       this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
@@ -69,6 +89,73 @@ export class PatternLibraryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadPatterns();
+    if (this.auth.isLoggedIn()) {
+      this.bookmarkService.listMine().subscribe({
+        next: bookmarks => {
+          for (const b of bookmarks) {
+            if (b.itemType === 'PATTERN') this.bookmarkedPatternIds[b.itemKey] = b.id;
+          }
+        },
+        error: () => {} // bookmark stars are a nice-to-have, don't block the page on it
+      });
+      // "Completed" mirrors PracticeQueueService's own definition on the
+      // backend (endedAt set), not TriggerEntry existence — kept consistent
+      // across every "have I solved this" signal in the app. size=200 is a
+      // pragmatic ceiling for a personal collection rather than paginating
+      // through every session just to build a progress ring.
+      this.solveSessionService.list(0, 200).subscribe({
+        next: page => {
+          for (const s of page.content) {
+            if (s.endedAt) this.completedLeetcodeIds.add(s.leetcodeId);
+          }
+        },
+        error: () => {} // roadmap progress is a nice-to-have too
+      });
+    }
+  }
+
+  setViewMode(mode: 'grid' | 'roadmap'): void {
+    this.viewMode = mode;
+  }
+
+  patternsByCategory(): { category: PatternCategory; patterns: Pattern[] }[] {
+    const groups = new Map<PatternCategory, Pattern[]>();
+    for (const p of this.filteredPatterns) {
+      if (!groups.has(p.category)) groups.set(p.category, []);
+      groups.get(p.category)!.push(p);
+    }
+    return Array.from(groups.entries())
+      .map(([category, patterns]) => ({
+        category,
+        patterns: patterns.sort((a, b) => a.difficultyToLearn - b.difficultyToLearn)
+      }));
+  }
+
+  patternProgress(slug: string): { solved: number; total: number; percent: number } {
+    const problems = PATTERN_PROBLEMS_BY_SLUG[slug] ?? [];
+    const total = problems.length;
+    const solved = problems.filter(p => this.completedLeetcodeIds.has(p.leetcodeId)).length;
+    return { solved, total, percent: total ? Math.round((solved / total) * 100) : 0 };
+  }
+
+  isBookmarked(slug: string): boolean {
+    return slug in this.bookmarkedPatternIds;
+  }
+
+  toggleBookmark(event: MouseEvent, pattern: Pattern): void {
+    event.stopPropagation();
+    event.preventDefault();
+    if (!this.auth.isLoggedIn()) return;
+
+    const existingId = this.bookmarkedPatternIds[pattern.slug];
+    if (existingId) {
+      delete this.bookmarkedPatternIds[pattern.slug];
+      this.bookmarkService.delete(existingId).subscribe({ error: () => { this.bookmarkedPatternIds[pattern.slug] = existingId; } });
+    } else {
+      this.bookmarkService.create({ itemType: 'PATTERN', itemKey: pattern.slug, title: pattern.name }).subscribe({
+        next: b => { this.bookmarkedPatternIds[pattern.slug] = b.id; },
+      });
+    }
   }
 
   loadPatterns(): void {

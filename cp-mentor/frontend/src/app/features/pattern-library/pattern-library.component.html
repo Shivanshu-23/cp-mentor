@@ -67,6 +67,15 @@
       <div class="count-pill">
         <span>{{ filteredPatterns.length }} of {{ patterns.length }} patterns</span>
       </div>
+
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button type="button" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" aria-label="Grid view">
+          <mat-icon aria-hidden="true">grid_view</mat-icon> Grid
+        </button>
+        <button type="button" [class.active]="viewMode === 'roadmap'" (click)="setViewMode('roadmap')" aria-label="Roadmap view">
+          <mat-icon aria-hidden="true">route</mat-icon> Roadmap
+        </button>
+      </div>
     </div>
   </div>
 
@@ -77,7 +86,7 @@
   </div>
 
   <!-- ── Pattern grid ───────────────────────────────────────── -->
-  <div *ngIf="!loading" class="pattern-grid">
+  <div *ngIf="!loading && viewMode === 'grid'" class="pattern-grid">
     <a *ngFor="let p of filteredPatterns; let i = index"
        class="glass-card hover-lift pattern-card"
        [style.--i]="i"
@@ -87,6 +96,15 @@
       <div class="pattern-card-top">
         <span class="category-chip"><mat-icon aria-hidden="true">{{ categoryIcon(p.category) }}</mat-icon>{{ categoryLabel(p.category) }}</span>
         <span class="frequency-stars" matTooltip="Interview frequency">{{ difficultyStars(p.frequencyScore) }}</span>
+        <button
+          *ngIf="auth.isLoggedIn()"
+          class="bookmark-toggle"
+          type="button"
+          (click)="toggleBookmark($event, p)"
+          [attr.aria-pressed]="isBookmarked(p.slug)"
+          [attr.aria-label]="(isBookmarked(p.slug) ? 'Remove bookmark for ' : 'Bookmark ') + p.name">
+          <mat-icon aria-hidden="true">{{ isBookmarked(p.slug) ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+        </button>
       </div>
 
       <h3 class="pattern-card-name">{{ p.name }}</h3>
@@ -105,6 +123,40 @@
         </span>
       </div>
     </a>
+
+    <div *ngIf="filteredPatterns.length === 0" class="empty-state">
+      <mat-icon aria-hidden="true">search_off</mat-icon>
+      <p class="empty-title">No patterns match "{{ searchTerm }}"</p>
+      <p class="empty-sub">Try a different search term or category, or clear the filters.</p>
+    </div>
+  </div>
+
+  <!-- ── Roadmap view — patterns grouped by category, easiest-to-learn
+       first within each group, with a per-pattern completion bar built
+       from the caller's own Solve Session history. Signed-out users still
+       see the groupings and orderings, just without progress bars. ──── -->
+  <div *ngIf="!loading && viewMode === 'roadmap'" class="roadmap">
+    <div class="roadmap-group" *ngFor="let group of patternsByCategory()">
+      <div class="roadmap-group-header">
+        <mat-icon aria-hidden="true">{{ categoryIcon(group.category) }}</mat-icon>
+        <span>{{ categoryLabel(group.category) }}</span>
+        <span class="roadmap-group-count">{{ group.patterns.length }}</span>
+      </div>
+
+      <div class="roadmap-row">
+        <a *ngFor="let p of group.patterns" [routerLink]="['/patterns', p.slug]" class="glass-card roadmap-node">
+          <div class="roadmap-node-name">{{ p.name }}</div>
+          <div class="roadmap-node-learn" [matTooltip]="'Difficulty to learn: ' + p.difficultyToLearn + '/5'">{{ difficultyStars(p.difficultyToLearn) }}</div>
+
+          <ng-container *ngIf="auth.isLoggedIn()">
+            <div class="roadmap-progress-track">
+              <div class="roadmap-progress-fill" [style.width.%]="patternProgress(p.slug).percent"></div>
+            </div>
+            <div class="roadmap-progress-label">{{ patternProgress(p.slug).solved }} / {{ patternProgress(p.slug).total }} solved</div>
+          </ng-container>
+        </a>
+      </div>
+    </div>
 
     <div *ngIf="filteredPatterns.length === 0" class="empty-state">
       <mat-icon aria-hidden="true">search_off</mat-icon>

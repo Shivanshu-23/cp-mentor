@@ -229,6 +229,105 @@
   p { color: var(--text-lo); margin-top: 16px; }
 }
 
+.view-toggle {
+  flex-shrink: 0;
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-1);
+    border: none;
+    padding: 9px 14px;
+    color: var(--text-lo);
+    font-size: 13px;
+    cursor: pointer;
+
+    &:not(:first-child) { border-left: 1px solid var(--border); }
+    &:hover { color: var(--text-hi); }
+    &.active { background: rgba(88, 166, 255, 0.12); color: var(--accent-blue); }
+
+    mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  }
+}
+
+.roadmap { display: flex; flex-direction: column; gap: 28px; }
+
+.roadmap-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--text-hi);
+  font-size: 15px;
+  font-weight: 700;
+
+  mat-icon { color: var(--accent-blue); font-size: 18px; width: 18px; height: 18px; }
+
+  .roadmap-group-count {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    background: var(--bg-1);
+    border-radius: 8px;
+    padding: 1px 8px;
+  }
+}
+
+.roadmap-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.roadmap-node {
+  flex: 0 0 200px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover { border-color: var(--accent-blue); }
+}
+
+.roadmap-node-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-hi);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.roadmap-node-learn {
+  font-size: 11px;
+  color: var(--accent-orange);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.roadmap-progress-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-hover);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.roadmap-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.roadmap-progress-label { font-size: 11px; color: var(--text-lo); }
+
 .pattern-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -277,6 +376,24 @@
     font-size: 11px;
     color: var(--accent-orange);
     letter-spacing: 1px;
+  }
+
+  .bookmark-toggle {
+    background: none;
+    border: none;
+    padding: 2px;
+    margin-left: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    flex-shrink: 0;
+
+    // --accent-gold is reserved app-wide for genuine achievement moments
+    // (mastery tier, recall streak, confetti) — not reused here, see CLAUDE.md.
+    &:hover { color: var(--accent-blue); }
+    &[aria-pressed="true"] { color: var(--accent-blue); }
+
+    mat-icon { font-size: 19px; width: 19px; height: 19px; }
   }
 
   .pattern-card-name {

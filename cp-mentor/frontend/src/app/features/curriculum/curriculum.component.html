@@ -1,0 +1,41 @@
+<div class="page-container page-fade-in">
+
+  <div class="cur-header">
+    <h1 class="gradient-text cur-title">Topic Curriculum</h1>
+    <p class="cur-sub">35 topics, ranked by interview priority. Check them off as you cover them — tracked in this browser only.</p>
+  </div>
+
+  <div class="glass-card cur-progress-card" *ngIf="!loading">
+    <div class="cur-progress-text">{{ doneCount }} / {{ topics.length }} covered</div>
+    <div class="cur-progress-track">
+      <div class="cur-progress-fill" [style.width.%]="progressPercent"></div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-block"><mat-spinner diameter="40" style="margin:0 auto"></mat-spinner></div>
+
+  <div class="cur-list" *ngIf="!loading">
+    <div class="glass-card cur-item" *ngFor="let t of topics" [class.cur-item-done]="done[t.rank]">
+      <button class="cur-check" (click)="toggleDone(t.rank)" [attr.aria-pressed]="!!done[t.rank]" [attr.aria-label]="'Mark ' + t.name + ' as ' + (done[t.rank] ? 'not covered' : 'covered')">
+        <mat-icon aria-hidden="true">{{ done[t.rank] ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+      </button>
+
+      <div class="cur-rank mono">#{{ t.rank }}</div>
+
+      <div class="cur-main">
+        <div class="cur-name">{{ t.name }}</div>
+        <div class="cur-meta">
+          <span class="cur-hours"><mat-icon aria-hidden="true">schedule</mat-icon>{{ t.estimatedHours }}h</span>
+          <span class="cur-freq" [attr.aria-label]="'Interview frequency ' + t.interviewFrequency + ' of 5'">
+            <mat-icon aria-hidden="true" *ngFor="let filled of frequencyStars(t.interviewFrequency)">{{ filled ? 'star' : 'star_border' }}</mat-icon>
+          </span>
+        </div>
+        <div class="cur-prereqs" *ngIf="t.prerequisiteTopics.length">
+          <span class="cur-prereq-label">After:</span>
+          <span class="cur-prereq-chip" *ngFor="let p of t.prerequisiteTopics">{{ p }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

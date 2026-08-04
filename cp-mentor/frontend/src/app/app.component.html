@@ -30,6 +30,9 @@
       <a mat-button routerLink="/method-guide" routerLinkActive="active-link" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">menu_book</mat-icon> How to Solve
       </a>
+      <a mat-button routerLink="/curriculum" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">school</mat-icon> Curriculum
+      </a>
       <a mat-button routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">home</mat-icon> Daily Problem
       </a>
@@ -50,6 +53,9 @@
       </a>
       <a mat-button routerLink="/progress" routerLinkActive="active-link" *ngIf="isLoggedIn" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">bar_chart</mat-icon> Progress
+      </a>
+      <a mat-button routerLink="/bookmarks" routerLinkActive="active-link" *ngIf="isLoggedIn" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">bookmark</mat-icon> Bookmarks
       </a>
     </nav>
 
