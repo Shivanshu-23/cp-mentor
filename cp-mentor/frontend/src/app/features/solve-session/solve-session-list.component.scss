@@ -72,7 +72,15 @@
 
 .sessions-row { cursor: pointer; &:hover { background: var(--bg-hover, rgba(255,255,255,0.03)); } }
 
-.row-title-cell { display: flex; flex-direction: column; gap: 2px; }
+// min-width: 0 is required here — as a grid item, this cell's default
+// min-width: auto lets its content's min-content size (which varies row to
+// row depending on whether the title wraps) inflate the shared `1fr` title
+// column beyond its fair share, misaligning the delete button between rows
+// and, on the first row observed, pushing it fully outside the table's
+// visible/scrollable width. Truncating the title with ellipsis instead of
+// wrapping removes the variable min-content contribution that caused it.
+.row-title-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.row-title-link { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
 .row-id { color: var(--text-lo); font-size: 12px; }
 
 .status-pill {
