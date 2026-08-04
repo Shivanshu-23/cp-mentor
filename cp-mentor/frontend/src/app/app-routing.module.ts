@@ -42,6 +42,7 @@ const routes: Routes = [
   // to GitHub. Public, no AuthGuard — the embedded Recall Drill handles its
   // own signed-out state instead of gating the whole page.
   { path: 'yodh', loadComponent: () => import('./features/yodh/yodh.component').then(m => m.YodhComponent) },
+  { path: 'mock-interview', loadComponent: () => import('./features/mock-interview/mock-interview.component').then(m => m.MockInterviewComponent), canActivate: [AuthGuard] },
   { path: 'solve', loadComponent: () => import('./features/solve-session/solve-session-list.component').then(m => m.SolveSessionListComponent), canActivate: [AuthGuard] },
   { path: 'solve/:id', loadComponent: () => import('./features/solve-session/solve-session-worksheet.component').then(m => m.SolveSessionWorksheetComponent), canActivate: [AuthGuard] },
   { path: 'recall-drill', loadComponent: () => import('./features/recall-drill/recall-drill.component').then(m => m.RecallDrillComponent), canActivate: [AuthGuard] },

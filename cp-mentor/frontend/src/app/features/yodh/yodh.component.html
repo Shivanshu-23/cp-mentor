@@ -426,6 +426,38 @@
       </div>
 
     </div>
+
+    <h3>My Worksheets</h3>
+
+    <div class="empty-state" *ngIf="myWorksheetsSignedOut">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      <p class="empty-title">Sign in to see your worksheet history</p>
+      <p class="empty-sub"><a routerLink="/login" class="cta-link">Sign in</a> or <a routerLink="/register" class="cta-link">create an account</a> — every worksheet you save here gets kept, even the ones GitHub sync fails on.</p>
+    </div>
+
+    <div *ngIf="!myWorksheetsSignedOut && !myWorksheetsLoading && myWorksheets.length === 0" class="empty-state">
+      <mat-icon aria-hidden="true">assignment</mat-icon>
+      <p class="empty-title">No worksheets saved yet</p>
+      <p class="empty-sub">Fill in the form above and hit Save to start your history.</p>
+    </div>
+
+    <div class="glass-card worksheet-history-item" *ngFor="let w of myWorksheets">
+      <div class="wh-row" (click)="toggleWorksheetExpand(w.id)">
+        <div class="wh-main">
+          <span class="wh-problem">{{ w.problem }}</span>
+          <span class="wh-meta" *ngIf="w.lcNumber">LC {{ w.lcNumber }}</span>
+          <span class="badge" [ngClass]="(w.difficulty || '').toLowerCase()" *ngIf="w.difficulty">{{ w.difficulty }}</span>
+        </div>
+        <div class="wh-side">
+          <span class="wh-date">{{ w.createdAt | date:'mediumDate' }}</span>
+          <a *ngIf="w.githubCommitUrl" [href]="w.githubCommitUrl" target="_blank" rel="noopener" class="cta-link" (click)="$event.stopPropagation()">GitHub</a>
+          <span *ngIf="!w.githubCommitUrl" class="wh-no-sync">not synced</span>
+          <mat-icon aria-hidden="true">{{ expandedWorksheetId === w.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </div>
+      </div>
+      <pre class="wh-markdown" *ngIf="expandedWorksheetId === w.id">{{ w.markdown }}</pre>
+    </div>
+
   </section>
 
 </div>

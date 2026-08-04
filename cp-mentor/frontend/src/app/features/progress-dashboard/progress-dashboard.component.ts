@@ -1,17 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TriggerService, StatsResponse, TriggerEntryResponse } from '../../core/services/trigger.service';
+import { TriggerService, StatsResponse, TriggerEntryResponse, PracticeQueueItem } from '../../core/services/trigger.service';
 import { MasteryService, MasteryResponse, MasteryTier } from '../../core/services/mastery.service';
+import { SolveSessionService } from '../../core/services/solve-session.service';
 
 @Component({
   selector: 'app-progress-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatSnackBarModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [CommonModule, RouterLink, MatSnackBarModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './progress-dashboard.component.html',
   styleUrls: ['./progress-dashboard.component.scss']
 })
@@ -27,9 +29,16 @@ export class ProgressDashboardComponent implements OnInit {
   loadingMastery = true;
   sharingCard = false;
 
+  practiceQueue: PracticeQueueItem[] = [];
+  loadingQueue = false;
+  showQueue = false;
+  startingPractice: string | null = null; // leetcodeId currently being started, for a per-row spinner
+
   constructor(
     private triggerService: TriggerService,
     private masteryService: MasteryService,
+    private solveSessionService: SolveSessionService,
+    private router: Router,
     private snack: MatSnackBar
   ) {}
 
@@ -92,6 +101,48 @@ export class ProgressDashboardComponent implements OnInit {
 
   printTriggerLog(): void {
     window.print();
+  }
+
+  togglePracticeQueue(): void {
+    this.showQueue = !this.showQueue;
+    if (this.showQueue && this.practiceQueue.length === 0 && !this.loadingQueue) {
+      this.loadingQueue = true;
+      this.triggerService.getPracticeQueue().subscribe({
+        next: queue => {
+          this.practiceQueue = queue;
+          this.loadingQueue = false;
+        },
+        error: () => {
+          this.loadingQueue = false;
+          this.snack.open('Failed to load the practice queue', '', { duration: 3000 });
+        }
+      });
+    }
+  }
+
+  // Creates a Solve Session pre-filled with the queue item's problem, tags it
+  // with the pattern we already know it belongs to (skipping Phase 3's
+  // identify-pattern step, since the whole point of this queue is "you
+  // already know the pattern — go practice it"), then drops the user
+  // straight into the worksheet.
+  startPractice(item: PracticeQueueItem): void {
+    this.startingPractice = item.leetcodeId;
+    this.solveSessionService.create({
+      leetcodeId: item.leetcodeId,
+      title: item.title,
+      difficulty: item.difficulty ?? undefined
+    }).subscribe({
+      next: session => {
+        this.solveSessionService.update(session.id, { patternSlug: item.patternSlug }).subscribe({
+          next: () => this.router.navigate(['/solve', session.id]),
+          error: () => this.router.navigate(['/solve', session.id]) // pattern tag is a nicety, not worth blocking navigation over
+        });
+      },
+      error: () => {
+        this.startingPractice = null;
+        this.snack.open('Failed to start a solve session', '', { duration: 3000 });
+      }
+    });
   }
 
   stageLabel(stage: number): string {

@@ -1,7 +1,7 @@
 import { VisualizerDef } from './model';
 import { generateLinearSearchTrace, LinearSearchInput } from './traces/linear-search.trace';
 import { generateArrayRotateTrace, ArrayRotateInput } from './traces/array.trace';
-import { generateTwoPointerTrace, generateSlidingWindowTrace, TwoSumSortedInput, SlidingWindowInput } from './traces/two-pointer-window.trace';
+import { generateTwoPointerTrace, generateSlidingWindowTrace, generateContainerWaterTrace, TwoSumSortedInput, SlidingWindowInput, ContainerWaterInput } from './traces/two-pointer-window.trace';
 import { generateDutchFlagTrace, DutchFlagInput } from './traces/dutch-flag.trace';
 import { generateAnagramTrace, AnagramInput } from './traces/string.trace';
 import { generateMonotonicStackTrace, NextGreaterInput } from './traces/monotonic-stack.trace';
@@ -11,7 +11,7 @@ import { generateTreeDfsTrace, TreeInput } from './traces/tree.trace';
 import { generateTrieTrace, TrieInput } from './traces/trie.trace';
 import { generateGraphBfsTrace, GraphInput } from './traces/graph.trace';
 import { generateDpTableTrace, ClimbStairsInput } from './traces/dp-table.trace';
-import { generateSelectionSortTrace, SortInput } from './traces/sorting.trace';
+import { generateSelectionSortTrace, generateMergeSortTrace, generateQuickSortTrace, SortInput } from './traces/sorting.trace';
 
 function parseNumberList(raw: string): number[] {
   return raw.split(',').map(s => Number(s.trim())).filter(n => !Number.isNaN(n));
@@ -66,6 +66,20 @@ export const VISUALIZER_CATALOG: VisualizerDef[] = [
       return { values: parseNumberList(v ?? '').sort((a, b) => a - b), target: Number((t ?? '').trim()) };
     },
     generate: generateTwoPointerTrace,
+  },
+  {
+    slug: 'container-with-most-water',
+    title: 'Container With Most Water',
+    patternSlug: 'two-pointer',
+    structure: 'array',
+    description: 'Converging two pointer, but the invariant is "the shorter wall is the bottleneck" — different reasoning from a sorted-pair-sum problem, same technique.',
+    presets: [
+      { label: 'Classic', input: { heights: [1, 8, 6, 2, 5, 4, 8, 3, 7] } as ContainerWaterInput },
+      { label: 'Increasing', input: { heights: [1, 2, 3, 4, 5, 6] } as ContainerWaterInput },
+    ],
+    customInputLabel: 'Comma-separated heights (e.g. "1,8,6,2,5,4,8,3,7")',
+    parseCustomInput: (raw: string): ContainerWaterInput => ({ heights: parseNumberList(raw) }),
+    generate: generateContainerWaterTrace,
   },
   {
     slug: 'sliding-window-unique',
@@ -243,6 +257,34 @@ export const VISUALIZER_CATALOG: VisualizerDef[] = [
     customInputLabel: 'Comma-separated values',
     parseCustomInput: (raw: string): SortInput => ({ values: parseNumberList(raw) }),
     generate: generateSelectionSortTrace,
+  },
+  {
+    slug: 'merge-sort',
+    title: 'Merge Sort',
+    patternSlug: 'sorting-greedy',
+    structure: 'array',
+    description: 'Split recursively down to single elements, then merge sorted halves back together — the recursion tree is visible in the split/merge frame pairs.',
+    presets: [
+      { label: 'Random order', input: { values: [38, 27, 43, 3, 9, 82, 10] } as SortInput },
+      { label: 'Reverse sorted', input: { values: [9, 7, 5, 3, 1] } as SortInput },
+    ],
+    customInputLabel: 'Comma-separated values',
+    parseCustomInput: (raw: string): SortInput => ({ values: parseNumberList(raw) }),
+    generate: generateMergeSortTrace,
+  },
+  {
+    slug: 'quick-sort',
+    title: 'Quick Sort (Lomuto partition)',
+    patternSlug: 'sorting-greedy',
+    structure: 'array',
+    description: 'Pick a pivot, partition everything smaller to its left and larger to its right, recurse — watch the pivot land in its final position each call.',
+    presets: [
+      { label: 'Random order', input: { values: [64, 25, 12, 22, 11, 90] } as SortInput },
+      { label: 'Already sorted (worst case)', input: { values: [1, 2, 3, 4, 5] } as SortInput },
+    ],
+    customInputLabel: 'Comma-separated values',
+    parseCustomInput: (raw: string): SortInput => ({ values: parseNumberList(raw) }),
+    generate: generateQuickSortTrace,
   },
 ];
 

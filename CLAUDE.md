@@ -127,9 +127,20 @@ com.cpmentor/
 │   ├── service/SolveSessionService.java          ← Phase 4: ownership-checked CRUD + duration calc
 │   ├── entity/SolveSession.java                  ← Phase 4: the solve worksheet, 5 phases worth of fields
 │   ├── repository/SolveSessionRepository.java
-│   ├── controller/TriggerEntryController.java    ← Phase 5: /api/v1/method/triggers + /stats, JWT-private
+│   ├── controller/TriggerEntryController.java    ← Phase 5: /api/v1/method/triggers + /stats +
+│   │                                                /practice-queue (2026-08-04), JWT-private
 │   ├── service/TriggerEntryService.java          ← Phase 5: spaced-repetition scheduling (see gotchas)
-│   ├── service/StatsService.java                 ← Phase 5: progress dashboard aggregation
+│   ├── service/StatsService.java                 ← Phase 5: progress dashboard aggregation. Gained
+│   │                                                a public weakPatternSlugs(userEmail) entry
+│   │                                                point (2026-08-04) so PracticeQueueService
+│   │                                                reuses the exact same "FAIL in last 14 days"
+│   │                                                rule instead of recomputing it
+│   ├── service/PracticeQueueService.java         ← 2026-08-04: turns weak patterns into action —
+│   │                                                for each one, the next PatternProblem (by
+│   │                                                orderIndex) the user hasn't completed a Solve
+│   │                                                Session for. "Completed" = SolveSession with
+│   │                                                endedAt set, same signal StatsService uses —
+│   │                                                deliberately NOT TriggerEntry existence
 │   ├── entity/TriggerEntry.java                  ← Phase 5: column is `trigger_text` not `trigger`
 │   │                                                (TRIGGER is a MySQL reserved word)
 │   ├── repository/TriggerEntryRepository.java
@@ -138,14 +149,37 @@ com.cpmentor/
 │             PatternIdentificationRequest/Response, PatternCandidateDTO, HintRequest/Response,
 │             SolveSessionCreateRequest, SolveSessionUpdateRequest, SolveSessionCompleteRequest,
 │             SolveSessionResponse, TriggerEntryCreateRequest, TriggerEntryResponse,
-│             TriggerReviewRequest, StatsResponse)
-├── worksheet/                        ← Yodh page's "Save to GitHub" — commits the rendered
-│   │                                    worksheet markdown to an external repo, JWT-private
-│   ├── controller/WorksheetController.java   ← POST /api/v1/worksheet/save
-│   ├── service/GitHubWorksheetService.java   ← GitHub Contents API via HttpURLConnection
-│   │                                            (GET for sha then PUT, same pattern as
-│   │                                            LeetCodeFetchService), PAT-based, see gotchas
-│   └── dto/ (WorksheetSaveRequest, WorksheetSaveResponse)
+│             TriggerReviewRequest, StatsResponse, PracticeQueueItemResponse)
+├── worksheet/                        ← Yodh page's worksheet: GitHub sync + SQL history, JWT-private
+│   │                                    (2026-08-04: SQL persistence added — see gotchas for why
+│   │                                    GitHubWorksheetService and WorksheetService are two
+│   │                                    separate classes, not one)
+│   ├── controller/WorksheetController.java   ← POST /save, GET (list mine), GET /{id}
+│   ├── service/GitHubWorksheetService.java   ← pure GitHub Contents API wrapper via
+│   │                                            HttpURLConnection (GET for sha then PUT, same
+│   │                                            pattern as LeetCodeFetchService), PAT-based
+│   ├── service/WorksheetService.java         ← orchestrator: calls GitHubWorksheetService, then
+│   │                                            ALWAYS writes a SQL row regardless of whether
+│   │                                            the GitHub commit succeeded (a filled-in
+│   │                                            worksheet shouldn't be lost to a missing
+│   │                                            GITHUB_PAT or a flaky GitHub API) — but still
+│   │                                            re-throws on GitHub failure so the frontend's
+│   │                                            Saving->Synced/Failed chip keeps working unchanged
+│   ├── entity/Worksheet.java                 ← userEmail plain string column, matching
+│   │                                            TriggerEntry's convention (not a @ManyToOne User)
+│   └── dto/ (WorksheetSaveRequest, WorksheetSaveResponse, WorksheetResponse)
+├── mockinterview/                    ← Random-problem picker for timed practice, JWT-private.
+│   │                                    New 2026-08-04, deliberately its own package rather than
+│   │                                    folded into company/ or method/ — it reads from BOTH
+│   │                                    (CompanyProblemRepository for the problem pool,
+│   │                                    SolveSessionRepository to exclude already-completed
+│   │                                    problems), read-only both ways, so this is a new
+│   │                                    one-directional arrow into two packages, not a cycle —
+│   │                                    same spirit as the pre-existing company->method
+│   │                                    dependency documented in the gotchas below.
+│   ├── controller/MockInterviewController.java  ← GET /api/v1/mock-interview/random-problem
+│   ├── service/MockInterviewService.java
+│   └── dto/RandomProblemResponse.java
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -225,9 +259,24 @@ GET  /api/v1/stats/mastery       (recall streak, pattern mastery tiers, submissi
 POST /api/v1/stats/share-card    (rate-limited 10/day — returns image/png bytes)
 
 # Yodh worksheet — JWT, not in any permitAll list (falls through to the default authenticated rule)
-POST /api/v1/worksheet/save      ({fileName, markdown} -> commits to GITHUB_WORKSHEET_REPO via a PAT,
-                                    returns {path, commitUrl}; 503 with a clear message if GITHUB_PAT/
-                                    GITHUB_WORKSHEET_REPO aren't set — see Environment Variables)
+POST /api/v1/worksheet/save      ({fileName, markdown, problem, lcNumber?, difficulty?} -> commits to
+                                    GITHUB_WORKSHEET_REPO via a PAT AND always writes a SQL row —
+                                    returns {id, path, commitUrl}; 502/503 if the GitHub half fails,
+                                    but the SQL row still exists either way — see gotchas)
+GET  /api/v1/worksheet           (list the caller's saved worksheets, newest first — 2026-08-04)
+GET  /api/v1/worksheet/{id}      (fetch one, owner-only — 2026-08-04)
+
+# Weak-patterns practice queue — JWT, 2026-08-04
+GET  /api/v1/method/practice-queue   (for each pattern StatsService flags as weak — FAIL in the last
+                                        14 days — the next unsolved PatternProblem in that pattern's
+                                        learning order; reuses StatsService's own weak-pattern rule)
+
+# Mock interview — JWT, 2026-08-04, separate top-level path (its own mockinterview package)
+GET  /api/v1/mock-interview/random-problem?difficulty=   (random problem from the company-tracker
+                                                             pool, timeframe=all, preferring ones the
+                                                             caller hasn't completed a Solve Session
+                                                             for; falls back to the full pool once
+                                                             everything at that difficulty is solved)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -466,7 +515,15 @@ src/app/
 │   │                                  localStorage autosave, a start/pause timer) that renders to
 │   │                                  markdown with real `- [x]` task lists and POSTs to
 │   │                                  /api/v1/worksheet/save; Download/Copy work with no GitHub
-│   │                                  setup. Not in routes.txt/prerendered — embeds live/JWT data.
+│   │                                  setup. Below the worksheet form: **My Worksheets**
+│   │                                  (2026-08-04) — a list of the caller's saved worksheets from
+│   │                                  GET /api/v1/worksheet, click a row to expand the raw
+│   │                                  markdown inline (no lossy form-reconstruction — reopening a
+│   │                                  past worksheet back into the editable form was deliberately
+│   │                                  not built, since round-tripping markdown back into 30+
+│   │                                  discrete form fields is real parsing work for unclear
+│   │                                  value). Signed-out state matches Recall Drill's pattern.
+│   │                                  Not in routes.txt/prerendered — embeds live/JWT data.
 │   └── visualizer/                ← v2 Phase B/C, ALL standalone components (see gotchas for why
 │       │                             this is the one feature that deviates from the AppModule
 │       │                             convention beyond styleguide)
@@ -1414,6 +1471,25 @@ GITHUB_WORKSHEET_BRANCH=main       # default in code is "master" — this repo n
   the hardcoded default. Problem bank was investigated per explicit instruction and NOT deleted —
   see gotchas for why the blast radius is bigger than "just a mirror" implied. Admin credential
   rotation prepared but blocked on missing prod DB access — see BUG 4.
+- **Worksheet SQL history** (2026-08-04) — every Yodh worksheet save now also writes a SQL row
+  (`Worksheet` entity) regardless of whether the GitHub commit succeeds, surfaced as "My
+  Worksheets" on `/yodh` (list + expand-to-view-markdown, no lossy round-trip back into the form).
+- **Weak-patterns practice queue** (2026-08-04) — `GET /api/v1/method/practice-queue` turns the
+  Progress Dashboard's existing "weak patterns" stat into action: the next unsolved problem per
+  weak pattern, one click starts a pre-tagged Solve Session. "Practice weak patterns" button next
+  to the weak-patterns chips.
+- **Mock Interview mode** (2026-08-04, `/mock-interview`, JWT) — pick a difficulty, get a random
+  problem from the company-tracker pool (preferring ones not already completed), land straight in
+  a Solve Session worksheet with the same 15/35/55 min caps Phase 4 already enforces. New
+  `com.cpmentor.mockinterview` package.
+- **3 new visualizers** (2026-08-04) — Merge Sort and Quick Sort (Lomuto partition) alongside the
+  existing Selection Sort, and Container With Most Water as a second two-pointer visualizer
+  (different invariant than the pair-sum one: "the shorter wall is the bottleneck," not
+  sum-vs-target). `visualizer-catalog.ts` and `visualizer-registry.ts` both updated, kept in sync
+  per the existing split.
+- **GitHub Actions CI** (2026-08-04, `.github/workflows/ci.yml`) — `mvn test` (backend, 8
+  service-layer tests) + `ng build` (frontend) on push/PR to master. Build verification only;
+  Render/Vercel still own the actual deploys via their own webhooks.
 
 ## What's Pending ❌
 - [ ] Admin credential rotation — generated, not yet applied to production (BUG 4)
@@ -1427,11 +1503,11 @@ GITHUB_WORKSHEET_BRANCH=main       # default in code is "master" — this repo n
 - [ ] Redis — caching layer (MySQL persistence is done; Redis not started)
 - [ ] Docker Compose for the full app (backend + frontend containers — currently MySQL only)
 - [ ] Bookmarks + Notes + History
-- [ ] GitHub Actions CI/CD
+- [ ] Reopening a saved worksheet back into the editable form (currently view-only — see the
+      Yodh "My Worksheets" gotcha above for why this was deliberately skipped)
 
 ## Next Steps Priority
 1. Apply the admin credential rotation (BUG 4) once production DB access is available
 2. Redis setup
 3. Docker Compose for backend + frontend
-4. GitHub Actions CI/CD
 

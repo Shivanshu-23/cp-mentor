@@ -28,6 +28,15 @@ export interface TriggerEntryResponse {
   lastReviewedAt: string | null;
 }
 
+export interface PracticeQueueItem {
+  patternSlug: string;
+  patternName: string;
+  leetcodeId: string;
+  title: string;
+  url: string;
+  difficulty: string | null;
+}
+
 export interface StatsResponse {
   problemsSolvedByDifficulty: Record<string, number>;
   averageSolveTimeSecondsOverall: number;
@@ -64,5 +73,9 @@ export class TriggerService {
 
   getStats(): Observable<StatsResponse> {
     return this.http.get<StatsResponse>(`${this.API}/stats`);
+  }
+
+  getPracticeQueue(): Observable<PracticeQueueItem[]> {
+    return this.http.get<PracticeQueueItem[]>(`${this.API}/practice-queue`);
   }
 }

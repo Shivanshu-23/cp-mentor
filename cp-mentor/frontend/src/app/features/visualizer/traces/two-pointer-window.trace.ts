@@ -141,3 +141,77 @@ export function generateSlidingWindowTrace(input: SlidingWindowInput): Trace {
 
   return { structure: 'array', frames, code: SLIDING_WINDOW_CODE };
 }
+
+// ── Container With Most Water — converging two pointer, but the invariant
+// that lets you discard a side is different from the pair-sum case above:
+// here it's "the shorter wall is always the bottleneck," not sum vs target.
+
+export interface ContainerWaterInput { heights: number[]; }
+
+export const CONTAINER_WATER_CODE =
+`int maxArea(int[] height) {
+  int left = 0, right = height.length - 1, best = 0;
+  while (left < right) {
+    int h = Math.min(height[left], height[right]);
+    best = Math.max(best, h * (right - left));
+    if (height[left] < height[right]) left++;
+    else right--;
+  }
+  return best;
+}`;
+
+export function generateContainerWaterTrace(input: ContainerWaterInput): Trace {
+  const heights = [...input.heights];
+  const frames: Trace['frames'] = [];
+  let step = 0;
+  let left = 0, right = heights.length - 1, best = 0, bestLeft = 0, bestRight = heights.length - 1;
+
+  frames.push({
+    step: step++, explanation: `Two walls converging from the outside in. Area is bounded by the SHORTER wall — that's the pointer that has to move.`,
+    state: { values: heights }, highlights: [], pointers: [{ name: 'left', index: left }, { name: 'right', index: right }],
+    vars: { best }, codeLine: 1,
+  });
+
+  while (left < right) {
+    const h = Math.min(heights[left], heights[right]);
+    const area = h * (right - left);
+    const improved = area > best;
+    if (improved) { best = area; bestLeft = left; bestRight = right; }
+
+    frames.push({
+      step: step++, explanation: `min(${heights[left]}, ${heights[right]}) × width ${right - left} = ${area}.${improved ? ` New best.` : ''}`,
+      state: { values: heights },
+      highlights: [
+        { kind: 'index', index: left, tone: 'compare' }, { kind: 'index', index: right, tone: 'compare' },
+        ...(improved ? [{ kind: 'range' as const, from: bestLeft, to: bestRight, tone: 'answer' as const }] : []),
+      ],
+      pointers: [{ name: 'left', index: left }, { name: 'right', index: right }],
+      vars: { area, best }, codeLine: 5,
+    });
+
+    if (heights[left] < heights[right]) {
+      left++;
+      frames.push({
+        step: step++, explanation: `Left wall (${heights[left - 1]}) is shorter than right (${heights[right]}) — it's the bottleneck, so it's the one that might find something taller.`,
+        state: { values: heights }, highlights: [], pointers: [{ name: 'left', index: left }, { name: 'right', index: right }],
+        vars: { best }, codeLine: 6,
+      });
+    } else {
+      right--;
+      frames.push({
+        step: step++, explanation: `Right wall (${heights[right + 1]}) is the bottleneck (or tied) — move it instead.`,
+        state: { values: heights }, highlights: [], pointers: [{ name: 'left', index: left }, { name: 'right', index: right }],
+        vars: { best }, codeLine: 7,
+      });
+    }
+  }
+
+  frames.push({
+    step: step++, explanation: `Pointers met. Best area found: ${best}, between indices ${bestLeft} and ${bestRight}.`,
+    state: { values: heights },
+    highlights: [{ kind: 'range', from: bestLeft, to: bestRight, tone: 'answer' }],
+    pointers: [], vars: { best }, codeLine: 9,
+  });
+
+  return { structure: 'array', frames, code: CONTAINER_WATER_CODE };
+}

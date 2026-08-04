@@ -1,6 +1,5 @@
 package com.cpmentor.worksheet.service;
 
-import com.cpmentor.worksheet.dto.WorksheetSaveResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +44,13 @@ public class GitHubWorksheetService {
     private static final DateTimeFormatter YEAR = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH = DateTimeFormatter.ofPattern("MM");
 
-    public WorksheetSaveResponse save(String fileName, String markdown) {
+    // Internal result — GitHubWorksheetService is a pure API wrapper with no
+    // knowledge of the SQL Worksheet row's id; WorksheetService (the
+    // orchestrator) combines this with the DB-generated id for the response
+    // the frontend actually sees.
+    public record GitHubCommitResult(String path, String commitUrl) {}
+
+    public GitHubCommitResult save(String fileName, String markdown) {
         if (pat.isBlank() || repo.isBlank()) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
                 "GitHub sync isn't configured on the backend yet — set GITHUB_PAT and GITHUB_WORKSHEET_REPO.");
@@ -87,7 +92,7 @@ public class GitHubWorksheetService {
         }
     }
 
-    private WorksheetSaveResponse putFile(String path, String markdown, String existingSha) throws IOException {
+    private GitHubCommitResult putFile(String path, String markdown, String existingSha) throws IOException {
         URL url = new URL("https://api.github.com/repos/" + repo + "/contents/" + path);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("PUT");
@@ -122,7 +127,7 @@ public class GitHubWorksheetService {
 
         JsonNode root = objectMapper.readTree(responseJson);
         String commitUrl = root.path("commit").path("html_url").asText("");
-        return new WorksheetSaveResponse(path, commitUrl);
+        return new GitHubCommitResult(path, commitUrl);
     }
 
     private void applyCommonHeaders(HttpURLConnection conn) {

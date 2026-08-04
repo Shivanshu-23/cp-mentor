@@ -107,9 +107,33 @@
 
     <!-- Weak patterns -->
     <div class="glass-card section-card" *ngIf="stats.weakPatterns.length">
-      <div class="section-title warning-title"><mat-icon aria-hidden="true">warning</mat-icon>Weak Patterns (failed in the last 14 days)</div>
+      <div class="section-title-row no-print">
+        <div class="section-title warning-title"><mat-icon aria-hidden="true">warning</mat-icon>Weak Patterns (failed in the last 14 days)</div>
+        <button mat-stroked-button (click)="togglePracticeQueue()">
+          <mat-icon aria-hidden="true">fitness_center</mat-icon> {{ showQueue ? 'Hide' : 'Practice weak patterns' }}
+        </button>
+      </div>
       <div class="weak-patterns">
         <a *ngFor="let slug of stats.weakPatterns" [routerLink]="['/patterns', slug]" class="weak-pattern-chip">{{ slug }}</a>
+      </div>
+
+      <div class="practice-queue no-print" *ngIf="showQueue">
+        <div *ngIf="loadingQueue" class="loading-block"><mat-spinner diameter="28" style="margin:0 auto"></mat-spinner></div>
+
+        <div *ngIf="!loadingQueue && practiceQueue.length === 0" class="empty-sub">
+          Nothing to practice yet — every weak pattern's problems are either already completed or the pattern data changed since the trigger was logged.
+        </div>
+
+        <div class="queue-item" *ngFor="let item of practiceQueue">
+          <div class="queue-item-main">
+            <span class="queue-pattern">{{ item.patternName }}</span>
+            <span class="queue-problem">{{ item.title }}</span>
+            <span class="badge" [ngClass]="(item.difficulty || '').toLowerCase()" *ngIf="item.difficulty">{{ item.difficulty }}</span>
+          </div>
+          <button mat-raised-button color="primary" (click)="startPractice(item)" [disabled]="startingPractice === item.leetcodeId">
+            <mat-icon aria-hidden="true">play_arrow</mat-icon> {{ startingPractice === item.leetcodeId ? 'Starting…' : 'Start' }}
+          </button>
+        </div>
       </div>
     </div>
    </div>

@@ -15,6 +15,7 @@ export interface VisualizerRegistryEntry {
 // update both files.
 export const VISUALIZER_REGISTRY: VisualizerRegistryEntry[] = [
   { slug: 'two-pointer-sum', title: 'Two Pointer — Pair Sum', patternSlug: 'two-pointer' },
+  { slug: 'container-with-most-water', title: 'Container With Most Water', patternSlug: 'two-pointer' },
   { slug: 'sliding-window-unique', title: 'Sliding Window — Longest Unique Substring', patternSlug: 'sliding-window-variable' },
   { slug: 'anagram-check', title: 'Anagram Check — Frequency Array', patternSlug: 'hashing-frequency' },
   { slug: 'monotonic-stack-next-greater', title: 'Monotonic Stack — Next Greater Element', patternSlug: 'monotonic-stack' },
@@ -25,6 +26,8 @@ export const VISUALIZER_REGISTRY: VisualizerRegistryEntry[] = [
   { slug: 'graph-bfs-wave', title: 'Graph — BFS Wave', patternSlug: 'graph-bfs-dfs' },
   { slug: 'dp-climbing-stairs', title: 'DP Table — Climbing Stairs (bottom-up)', patternSlug: 'dp-1d' },
   { slug: 'selection-sort', title: 'Selection Sort', patternSlug: 'sorting-greedy' },
+  { slug: 'merge-sort', title: 'Merge Sort', patternSlug: 'sorting-greedy' },
+  { slug: 'quick-sort', title: 'Quick Sort (Lomuto partition)', patternSlug: 'sorting-greedy' },
 ];
 
 export function findVisualizerSlugForPattern(patternSlug: string): string | undefined {

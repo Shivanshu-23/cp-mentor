@@ -53,7 +53,8 @@ import {
 } from '@content';
 import { ConstraintAnalyzerComponent } from '../constraint-analyzer/constraint-analyzer.component';
 import { RecallDrillComponent } from '../recall-drill/recall-drill.component';
-import { WorksheetService } from '../../core/services/worksheet.service';
+import { WorksheetService, WorksheetResponse } from '../../core/services/worksheet.service';
+import { AuthService } from '../../core/services/auth.service';
 
 // /yodh — "Approach a DSA Problem", built at the user's request as a single
 // page combining the full method text with the two existing tools embedded
@@ -171,6 +172,15 @@ export class YodhComponent implements OnInit, OnDestroy {
   lastCommitUrl: string | null = null;
   lastSaveError = '';
 
+  myWorksheets: WorksheetResponse[] = [];
+  myWorksheetsLoading = true;
+  myWorksheetsSignedOut = false;
+  expandedWorksheetId: number | null = null;
+
+  toggleWorksheetExpand(id: number): void {
+    this.expandedWorksheetId = this.expandedWorksheetId === id ? null : id;
+  }
+
   get bottleneckWordCount(): number {
     const text = this.wk['bottleneckStatement'] || '';
     return text.trim().length ? text.trim().split(/\s+/).length : 0;
@@ -179,6 +189,7 @@ export class YodhComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) platformId: object,
     private worksheetService: WorksheetService,
+    private auth: AuthService,
     private snack: MatSnackBar
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -187,6 +198,30 @@ export class YodhComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (!this.isBrowser) return;
     this.loadDraft();
+    this.loadMyWorksheets();
+  }
+
+  loadMyWorksheets(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.myWorksheetsSignedOut = true;
+      this.myWorksheetsLoading = false;
+      return;
+    }
+    this.myWorksheetsLoading = true;
+    this.worksheetService.listMine().subscribe({
+      next: list => {
+        this.myWorksheets = list;
+        this.myWorksheetsLoading = false;
+      },
+      error: err => {
+        this.myWorksheetsLoading = false;
+        if (err?.status === 401) {
+          this.myWorksheetsSignedOut = true;
+        } else {
+          this.snack.open('Failed to load your worksheets', '', { duration: 3000 });
+        }
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -368,14 +403,19 @@ export class YodhComponent implements OnInit, OnDestroy {
     const fileName = `${lc ? lc.padStart(4, '0') + '-' : ''}${this.slugify(this.wk['problem'])}`;
 
     this.saveStatus = 'saving';
-    this.worksheetService.save(fileName, markdown).subscribe({
+    this.worksheetService.save(fileName, markdown, this.wk['problem'], this.wk['lcNumber'] || '', this.wk['difficulty'] || '').subscribe({
       next: res => {
         this.saveStatus = 'synced';
         this.lastCommitUrl = res.commitUrl;
+        this.loadMyWorksheets();
       },
       error: err => {
         this.saveStatus = 'failed';
-        this.lastSaveError = err?.error?.message || 'GitHub sync failed — your draft is still saved locally.';
+        // A SQL row is written even when the GitHub commit fails (see
+        // WorksheetService.save on the backend) — the worksheet itself
+        // isn't lost, only the GitHub sync failed, so refresh the list too.
+        this.lastSaveError = err?.error?.message || 'GitHub sync failed — your draft is still saved.';
+        this.loadMyWorksheets();
       }
     });
   }

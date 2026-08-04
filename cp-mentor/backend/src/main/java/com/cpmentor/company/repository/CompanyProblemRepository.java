@@ -45,4 +45,22 @@ public interface CompanyProblemRepository extends JpaRepository<CompanyProblem, 
         String getCompany();
         long getCnt();
     }
+
+    // Mock interview mode's random-problem pool. Restricted to timeframe='all'
+    // for the same reason as the company-frequency join above — avoids
+    // returning the same problem once per overlapping timeframe bucket.
+    // DISTINCT is on the whole projection (not just leetcodeId) since a
+    // given problem's title/url/difficulty are stable across the company
+    // rows it appears in, so this still collapses to one row per problem.
+    @Query("SELECT DISTINCT c.leetcodeId AS leetcodeId, c.title AS title, c.url AS url, c.difficulty AS difficulty " +
+           "FROM CompanyProblem c WHERE c.timeframe = 'all' AND (:difficulty IS NULL OR c.difficulty = :difficulty)")
+    List<RandomProblemProjection> findDistinctForRandomPick(
+            @org.springframework.data.repository.query.Param("difficulty") String difficulty);
+
+    interface RandomProblemProjection {
+        String getLeetcodeId();
+        String getTitle();
+        String getUrl();
+        String getDifficulty();
+    }
 }

@@ -1,9 +1,11 @@
 package com.cpmentor.method.controller;
 
+import com.cpmentor.method.dto.PracticeQueueItemResponse;
 import com.cpmentor.method.dto.StatsResponse;
 import com.cpmentor.method.dto.TriggerEntryCreateRequest;
 import com.cpmentor.method.dto.TriggerEntryResponse;
 import com.cpmentor.method.dto.TriggerReviewRequest;
+import com.cpmentor.method.service.PracticeQueueService;
 import com.cpmentor.method.service.StatsService;
 import com.cpmentor.method.service.TriggerEntryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,7 @@ public class TriggerEntryController {
 
     private final TriggerEntryService triggerEntryService;
     private final StatsService statsService;
+    private final PracticeQueueService practiceQueueService;
 
     @PostMapping("/triggers")
     @Operation(summary = "Log a trigger entry after a solve session")
@@ -64,5 +67,12 @@ public class TriggerEntryController {
     public ResponseEntity<StatsResponse> stats(@AuthenticationPrincipal UserDetails user) {
         if (user == null) return ResponseEntity.status(401).build();
         return ResponseEntity.ok(statsService.getStats(user.getUsername()));
+    }
+
+    @GetMapping("/practice-queue")
+    @Operation(summary = "For each weak pattern (FAIL in the last 14 days), the next unsolved problem in that pattern's learning order")
+    public ResponseEntity<List<PracticeQueueItemResponse>> practiceQueue(@AuthenticationPrincipal UserDetails user) {
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(practiceQueueService.getQueue(user.getUsername()));
     }
 }

@@ -102,6 +102,18 @@ public class StatsService {
     }
 
     private List<String> weakPatterns(List<TriggerEntry> triggers) {
+        return weakPatternSlugs(triggers);
+    }
+
+    // Public entry point for PracticeQueueService — same "FAIL in the last 14
+    // days" computation the progress dashboard's weakPatterns stat already
+    // uses, exposed so the practice queue doesn't duplicate the rule.
+    @Transactional(readOnly = true)
+    public List<String> weakPatternSlugs(String userEmail) {
+        return weakPatternSlugs(triggerEntryRepository.findByUserEmail(userEmail));
+    }
+
+    private List<String> weakPatternSlugs(List<TriggerEntry> triggers) {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(WEAK_PATTERN_WINDOW_DAYS);
         return triggers.stream()
                 .filter(t -> t.getLastReviewResult() == TriggerEntry.ReviewResult.FAIL
