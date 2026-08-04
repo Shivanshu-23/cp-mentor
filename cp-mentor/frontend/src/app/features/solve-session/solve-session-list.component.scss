@@ -50,6 +50,26 @@
   mat-icon { font-size: 19px; width: 19px; height: 19px; }
 }
 
+// .glass-table is a shared global class (also used by Company Tracker) with
+// `overflow: hidden`, which combined with these fixed-pixel grid columns
+// clips content far past the visible width on narrow screens with NO way
+// to reach it — confirmed via DOM inspection: row scrollWidth 628px vs a
+// 342px viewport, delete button sitting entirely outside the visible area.
+// Scoped here (not edited globally) so Company Tracker's own table is
+// untouched. overflow-x: auto is a safety net; the real fix is dropping
+// Duration/Submissions below 640px so the remaining columns actually fit
+// without needing to scroll at all.
+.glass-table { overflow-x: auto; }
+
+@media (max-width: 640px) {
+  .sessions-header, .sessions-row { grid-template-columns: 1fr 90px 120px 44px; }
+
+  .sessions-header > div:nth-child(4), .sessions-row > div:nth-child(4),
+  .sessions-header > div:nth-child(5), .sessions-row > div:nth-child(5) {
+    display: none;
+  }
+}
+
 .sessions-row { cursor: pointer; &:hover { background: var(--bg-hover, rgba(255,255,255,0.03)); } }
 
 .row-title-cell { display: flex; flex-direction: column; gap: 2px; }
