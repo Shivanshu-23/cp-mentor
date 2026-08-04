@@ -15,13 +15,13 @@
           <span class="badge" [class]="(session.difficulty || 'medium').toLowerCase()">{{ session.difficulty }}</span>
         </div>
         <div class="timer-box" [class.over-cap]="overCap">
-          <mat-icon>timer</mat-icon>
+          <mat-icon aria-hidden="true">timer</mat-icon>
           <span class="timer-value">{{ formatTime(elapsedSeconds) }}</span>
           <span class="timer-cap">/ {{ formatTime(difficultyCapSeconds) }}</span>
         </div>
       </div>
       <div class="over-cap-warning" *ngIf="overCap">
-        <mat-icon>warning</mat-icon> Over the {{ session.difficulty }} time cap — consider wrapping up or requesting a hint.
+        <mat-icon aria-hidden="true">warning</mat-icon> Over the {{ session.difficulty }} time cap — consider wrapping up or requesting a hint.
       </div>
     </div>
 
@@ -42,7 +42,7 @@
         <div class="print-only-header">
           <h2>{{ session.title }} (#{{ session.leetcodeId }}) — {{ session.difficulty }}</h2>
         </div>
-        <div class="section-title no-print"><mat-icon>check_circle</mat-icon>Session Complete</div>
+        <div class="section-title no-print"><mat-icon aria-hidden="true">check_circle</mat-icon>Session Complete</div>
         <div class="summary-grid">
           <div class="summary-stat"><span class="value">{{ formatTime(session.durationSeconds || 0) }}</span><span class="label">Duration</span></div>
           <div class="summary-stat"><span class="value">{{ session.submissionCount }}</span><span class="label">Submissions</span></div>
@@ -53,44 +53,44 @@
           <button mat-raised-button color="primary"
                   [routerLink]="['/recall-drill']"
                   [queryParams]="{leetcodeId: session.leetcodeId, title: session.title, patternSlug: session.patternSlug}">
-            <mat-icon>psychology</mat-icon> Log a Trigger for Spaced Repetition
+            <mat-icon aria-hidden="true">psychology</mat-icon> Log a Trigger for Spaced Repetition
           </button>
           <button mat-stroked-button (click)="printWorksheet()">
-            <mat-icon>print</mat-icon> Print Worksheet
+            <mat-icon aria-hidden="true">print</mat-icon> Print Worksheet
           </button>
           <button mat-stroked-button routerLink="/solve" class="back-to-list-btn">
-            <mat-icon>list</mat-icon> Back to Sessions
+            <mat-icon aria-hidden="true">list</mat-icon> Back to Sessions
           </button>
         </div>
       </div>
 
       <!-- Full worksheet review (also what gets printed) -->
       <div class="glass-card completion-card worksheet-review">
-        <div class="section-title"><mat-icon>rule</mat-icon>Constraints</div>
+        <div class="section-title"><mat-icon aria-hidden="true">rule</mat-icon>Constraints</div>
         <p class="review-text">{{ constraintNotes || '—' }}</p>
         <p class="review-text" *ngIf="targetComplexity"><strong>Target:</strong> {{ targetComplexity }}</p>
 
-        <div class="section-title"><mat-icon>edit</mat-icon>Restate &amp; Brute Force</div>
+        <div class="section-title"><mat-icon aria-hidden="true">edit</mat-icon>Restate &amp; Brute Force</div>
         <p class="review-text">{{ restatement || '—' }}</p>
         <p class="review-text" *ngIf="bruteForceIdea">{{ bruteForceIdea }} <span *ngIf="bruteForceComplexity">({{ bruteForceComplexity }})</span></p>
 
-        <div class="section-title"><mat-icon>psychology</mat-icon>Hand-Solve &amp; Bottleneck</div>
+        <div class="section-title"><mat-icon aria-hidden="true">psychology</mat-icon>Hand-Solve &amp; Bottleneck</div>
         <p class="review-text">{{ handSolveNotes || '—' }}</p>
         <p class="review-text" *ngIf="bottleneckStatement">{{ bottleneckStatement }}</p>
 
-        <div class="section-title"><mat-icon>flag</mat-icon>Final Approach</div>
+        <div class="section-title"><mat-icon aria-hidden="true">flag</mat-icon>Final Approach</div>
         <p class="review-text" *ngIf="movesFired.length">
           <strong>Moves fired:</strong> {{ movesFired.map(moveLabel).join(', ') }}
         </p>
         <p class="review-text">{{ finalApproach || '—' }} <span *ngIf="finalComplexity">({{ finalComplexity }})</span></p>
 
-        <div class="section-title"><mat-icon>fact_check</mat-icon>Edge Cases Checked</div>
+        <div class="section-title"><mat-icon aria-hidden="true">fact_check</mat-icon>Edge Cases Checked</div>
         <ul class="review-list" *ngIf="edgeCasesChecked.length; else noEdgeCases">
           <li *ngFor="let e of edgeCasesChecked">{{ e }}</li>
         </ul>
         <ng-template #noEdgeCases><p class="review-text">—</p></ng-template>
 
-        <div class="section-title" *ngIf="followUps.length"><mat-icon>forum</mat-icon>Interview Follow-Ups to Expect</div>
+        <div class="section-title" *ngIf="followUps.length"><mat-icon aria-hidden="true">forum</mat-icon>Interview Follow-Ups to Expect</div>
         <ul class="review-list" *ngIf="followUps.length">
           <li *ngFor="let q of followUps">{{ q }}</li>
         </ul>
@@ -101,7 +101,7 @@
 
       <!-- ── STEP 0: Constraints (locked gate) ─────────────────────────── -->
       <div class="glass-card step-card" *ngIf="step === 0">
-        <div class="section-title"><mat-icon>rule</mat-icon>Step 1 — Constraints First</div>
+        <div class="section-title"><mat-icon aria-hidden="true">rule</mat-icon>Step 1 — Constraints First</div>
         <p class="section-hint">Paste the problem statement below, then write your constraint notes — WITHOUT re-reading the statement back. The statement stays hidden from here on until you lock this step in.</p>
 
         <label class="field-label">Paste problem statement (write-only until you continue)</label>
@@ -114,19 +114,19 @@
         <input type="text" class="glass-input" [(ngModel)]="targetComplexity" placeholder="e.g. O(n log n)">
 
         <button mat-raised-button color="primary" (click)="lockInConstraints()" class="step-action-btn">
-          <mat-icon>lock_open</mat-icon> Lock In &amp; Reveal Statement
+          <mat-icon aria-hidden="true">lock_open</mat-icon> Lock In &amp; Reveal Statement
         </button>
       </div>
 
       <!-- Problem statement panel (visible from step 1 onward) -->
       <div class="glass-card statement-panel" *ngIf="step > 0 && pastedStatement">
-        <div class="section-title"><mat-icon>description</mat-icon>Problem Statement</div>
+        <div class="section-title"><mat-icon aria-hidden="true">description</mat-icon>Problem Statement</div>
         <p class="statement-text">{{ pastedStatement }}</p>
       </div>
 
       <!-- ── STEP 1: Restate & Brute Force ──────────────────────────────── -->
       <div class="glass-card step-card" *ngIf="step === 1">
-        <div class="section-title"><mat-icon>edit</mat-icon>Step 2 — Restate &amp; Brute Force</div>
+        <div class="section-title"><mat-icon aria-hidden="true">edit</mat-icon>Step 2 — Restate &amp; Brute Force</div>
 
         <label class="field-label">Restate the problem in your own words</label>
         <textarea class="glass-textarea" rows="3" [(ngModel)]="restatement"></textarea>
@@ -140,7 +140,7 @@
 
       <!-- ── STEP 2: Hand-Solve & Bottleneck ────────────────────────────── -->
       <div class="glass-card step-card" *ngIf="step === 2">
-        <div class="section-title"><mat-icon>psychology</mat-icon>Step 3 — Hand-Solve &amp; Bottleneck</div>
+        <div class="section-title"><mat-icon aria-hidden="true">psychology</mat-icon>Step 3 — Hand-Solve &amp; Bottleneck</div>
 
         <label class="field-label">Hand-solve notes (walk a small example by hand)</label>
         <textarea class="glass-textarea" rows="3" [(ngModel)]="handSolveNotes"></textarea>
@@ -150,7 +150,7 @@
 
         <div class="identify-block">
           <button mat-stroked-button (click)="identifyPattern()" [disabled]="identifying">
-            <mat-icon>search</mat-icon> Identify Candidate Patterns
+            <mat-icon aria-hidden="true">search</mat-icon> Identify Candidate Patterns
           </button>
 
           <div class="candidates" *ngIf="candidates.length">
@@ -179,7 +179,7 @@
 
       <!-- ── STEP 3: Final Approach ──────────────────────────────────────── -->
       <div class="glass-card step-card" *ngIf="step === 3">
-        <div class="section-title"><mat-icon>flag</mat-icon>Step 4 — Final Approach</div>
+        <div class="section-title"><mat-icon aria-hidden="true">flag</mat-icon>Step 4 — Final Approach</div>
 
         <label class="field-label">Which moves fired?</label>
         <div class="moves-grid">
@@ -198,17 +198,17 @@
 
       <!-- ── STEP 4: Edge Cases & Code ───────────────────────────────────── -->
       <div class="glass-card step-card" *ngIf="step === 4">
-        <div class="section-title"><mat-icon>fact_check</mat-icon>Step 5 — Edge Cases &amp; Code</div>
+        <div class="section-title"><mat-icon aria-hidden="true">fact_check</mat-icon>Step 5 — Edge Cases &amp; Code</div>
 
         <label class="field-label">Edge cases checked</label>
         <div class="edge-case-input-row">
           <input type="text" class="glass-input" [(ngModel)]="newEdgeCase" placeholder="Add an edge case..." (keyup.enter)="addEdgeCase()">
-          <button mat-stroked-button (click)="addEdgeCase()"><mat-icon>add</mat-icon></button>
+          <button mat-stroked-button (click)="addEdgeCase()" aria-label="Add edge case"><mat-icon aria-hidden="true">add</mat-icon></button>
         </div>
         <ul class="edge-case-list">
           <li *ngFor="let e of edgeCasesChecked; let i = index">
             <span>{{ e }}</span>
-            <button mat-icon-button (click)="removeEdgeCase(i)"><mat-icon>close</mat-icon></button>
+            <button mat-icon-button (click)="removeEdgeCase(i)" aria-label="Remove edge case"><mat-icon aria-hidden="true">close</mat-icon></button>
           </li>
         </ul>
 
@@ -232,18 +232,18 @@
         </div>
 
         <button mat-raised-button color="primary" (click)="completeSession()" class="step-action-btn">
-          <mat-icon>check_circle</mat-icon> Complete Session
+          <mat-icon aria-hidden="true">check_circle</mat-icon> Complete Session
         </button>
       </div>
 
       <!-- Step navigation -->
       <div class="step-nav" *ngIf="step > 0">
         <button mat-stroked-button (click)="prevStep()" [disabled]="step <= 1">
-          <mat-icon>chevron_left</mat-icon> Back
+          <mat-icon aria-hidden="true">chevron_left</mat-icon> Back
         </button>
         <span class="saving-indicator" *ngIf="saving">Saving...</span>
         <button mat-raised-button color="primary" (click)="nextStep()" [disabled]="step >= 4">
-          Next <mat-icon>chevron_right</mat-icon>
+          Next <mat-icon aria-hidden="true">chevron_right</mat-icon>
         </button>
       </div>
 

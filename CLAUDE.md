@@ -558,6 +558,40 @@ files — not just an empty shell).
   same `files` array. Any future `ng add` schematic touching `tsconfig.json` should be checked
   against this same-file gotcha before trusting its output.
 
+### `/method-guide` bug fixes (visible-to-every-visitor issues, fixed in one pass)
+Four bugs found in the live rendered output, all verified fixed in the actual prerendered HTML
+(not just the source), not just described:
+- **Duplicated sentence in the interview script closing**: the template hardcoded
+  `<strong>Never go silent.</strong>` immediately before interpolating
+  `content/method/script.ts`'s `SCRIPT_CLOSING`, which itself already started with "Never go
+  silent." — rendering it twice. `SCRIPT_CLOSING` is now `{ lead, body }` (the bold lead sentence
+  separated from the rest) instead of one string with the lead duplicated by the template.
+- **Doubled quotes + wrong bolding in the Trigger Log section**: `WHY_TRIGGER_MATTERS.goodExample`/
+  `badExample` in `content/method/triggers.ts` had literal quote marks baked into the string
+  (`'"subarray + multiplication" is retrievable...'`), and the template ALSO wrapped the
+  interpolation in `"..."` and bolded the whole sentence — doubled quotes, wrong emphasis scope.
+  Restructured into `goodTrigger`/`uselessTrigger` (bare phrases) + `comparisonCaption`, rendered
+  as a two-column comparison table (`Good trigger` / `Useless trigger`) instead of two separate
+  quote-wrapped callouts.
+- **Icon ligature text announced by screen readers app-wide**: every `<mat-icon>` in the app (164
+  instances across 19 template files, not just method-guide) renders its ligature text
+  (`psychology_alt`, `check_box_outline_blank`, etc.) as real DOM text content, which screen
+  readers read aloud since Material Icons' "icon" appearance is purely a font-rendering trick, not
+  something ARIA-aware by default. Bulk-added `aria-hidden="true"` to every `<mat-icon>` opening
+  tag app-wide (`sed -E 's/<mat-icon(\s|>)/<mat-icon aria-hidden="true"\1/g'` across every
+  `*.html`, verified zero double-application). This alone made every heading containing an icon +
+  text expose only the text as its accessible name (nothing else needed there). Separately audited
+  every icon-only interactive element (`mat-icon-button`/icon-only `<button>` with no other text)
+  for a still-missing accessible NAME on the button itself now that its icon is hidden — found and
+  fixed 7 (login/register password-visibility toggles, Company Tracker's tick-cycle button, the
+  solve-session worksheet's add/remove-edge-case buttons, and two "copy code" buttons that only had
+  a `matTooltip`, which is a description, not an accessible name).
+- **Missing internal links**: Phase 0 now links to `/constraint-analyzer`; each of Phase 3's five
+  moves now links to its 2-3 most relevant `/patterns/{slug}` entries (`content/method/moves.ts`
+  gained a `relatedPatterns: {slug, name}[]` field per move, cross-referenced against the real slugs
+  in `content/patterns/`); the Trigger Dictionary section already linked to `/patterns` (Pattern
+  Library's search already matches on `recognitionTriggers`, i.e. is the "searchable version").
+
 ### Route-level lazy-loading (fixed the Lighthouse Performance gap noted above)
 The 73-score Lighthouse Performance result above was root-caused to the app's original design:
 every feature route (`Home`, `Analysis`, `Login`, `Register`, `CompanyTracker`, `PatternLibrary`,

@@ -7,7 +7,7 @@
 
   <!-- Start new session -->
   <div class="glass-card start-card">
-    <div class="section-title"><mat-icon>add_circle</mat-icon>Start a New Session</div>
+    <div class="section-title"><mat-icon aria-hidden="true">add_circle</mat-icon>Start a New Session</div>
     <div class="start-form">
       <input type="text" class="glass-input" placeholder="LeetCode ID (e.g. 42)" [(ngModel)]="leetcodeId">
       <input type="text" class="glass-input" placeholder="Problem title" [(ngModel)]="title">
@@ -15,7 +15,7 @@
         <option *ngFor="let d of difficulties" [value]="d">{{ d }}</option>
       </select>
       <button mat-raised-button color="primary" (click)="startSession()" [disabled]="creating">
-        <mat-icon>play_arrow</mat-icon> Start
+        <mat-icon aria-hidden="true">play_arrow</mat-icon> Start
       </button>
     </div>
   </div>
@@ -50,18 +50,18 @@
     </div>
 
     <div *ngIf="sessions.length === 0" class="empty-state">
-      <mat-icon>edit_note</mat-icon>
+      <mat-icon aria-hidden="true">edit_note</mat-icon>
       <p class="empty-title">No solve sessions yet</p>
       <p class="empty-sub">Start one above — you'll work through constraints, a brute force, and your final approach before writing any code.</p>
     </div>
 
     <div *ngIf="totalPages > 1" class="table-pagination">
       <button mat-stroked-button (click)="prevPage()" [disabled]="page === 0">
-        <mat-icon>chevron_left</mat-icon> Previous
+        <mat-icon aria-hidden="true">chevron_left</mat-icon> Previous
       </button>
       <span class="page-indicator">Page {{ page + 1 }} of {{ totalPages }}</span>
       <button mat-stroked-button (click)="nextPage()" [disabled]="page >= totalPages - 1">
-        Next <mat-icon>chevron_right</mat-icon>
+        Next <mat-icon aria-hidden="true">chevron_right</mat-icon>
       </button>
     </div>
   </div>

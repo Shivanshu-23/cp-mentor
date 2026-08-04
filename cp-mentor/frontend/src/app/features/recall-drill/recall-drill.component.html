@@ -7,13 +7,13 @@
 
   <div class="header-actions">
     <button mat-stroked-button (click)="showLogForm = !showLogForm">
-      <mat-icon>add</mat-icon> Log a Trigger
+      <mat-icon aria-hidden="true">add</mat-icon> Log a Trigger
     </button>
   </div>
 
   <!-- Manual trigger logging form -->
   <div class="glass-card log-form-card" *ngIf="showLogForm">
-    <div class="section-title"><mat-icon>edit_note</mat-icon>Log a New Trigger</div>
+    <div class="section-title"><mat-icon aria-hidden="true">edit_note</mat-icon>Log a New Trigger</div>
     <div class="log-form-grid">
       <input type="text" class="glass-input" placeholder="LeetCode ID" [(ngModel)]="leetcodeId">
       <input type="text" class="glass-input" placeholder="Problem title" [(ngModel)]="title">
@@ -22,7 +22,7 @@
     <textarea class="glass-textarea" rows="2" placeholder="The surface feature that should have fired this pattern..." [(ngModel)]="trigger"></textarea>
     <textarea class="glass-textarea" rows="2" placeholder="What you missed / would tell yourself next time (optional)" [(ngModel)]="missedObservation"></textarea>
     <button mat-raised-button color="primary" (click)="logTrigger()">
-      <mat-icon>save</mat-icon> Save Trigger
+      <mat-icon aria-hidden="true">save</mat-icon> Save Trigger
     </button>
   </div>
 
@@ -44,7 +44,7 @@
         <label class="field-label">Type the approach from memory</label>
         <textarea class="glass-textarea" rows="3" [(ngModel)]="recalledAnswer[entry.id]" placeholder="What pattern/approach would you use, and why?"></textarea>
         <button mat-raised-button color="primary" (click)="reveal(entry.id)" class="reveal-btn">
-          <mat-icon>visibility</mat-icon> Reveal &amp; Self-Grade
+          <mat-icon aria-hidden="true">visibility</mat-icon> Reveal &amp; Self-Grade
         </button>
       </ng-container>
 
@@ -69,20 +69,20 @@
 
         <div class="grade-buttons">
           <button mat-raised-button color="primary" (click)="grade(entry, 'PASS')" [disabled]="grading[entry.id]">
-            <mat-icon>check</mat-icon> Pass
+            <mat-icon aria-hidden="true">check</mat-icon> Pass
           </button>
           <button mat-stroked-button (click)="grade(entry, 'FAIL')" [disabled]="grading[entry.id]" class="fail-btn">
-            <mat-icon>close</mat-icon> Fail
+            <mat-icon aria-hidden="true">close</mat-icon> Fail
           </button>
           <button mat-stroked-button (click)="grade(entry, 'SKIPPED')" [disabled]="grading[entry.id]">
-            <mat-icon>schedule</mat-icon> Skip for now
+            <mat-icon aria-hidden="true">schedule</mat-icon> Skip for now
           </button>
         </div>
       </ng-container>
     </div>
 
     <div *ngIf="dueEntries.length === 0" class="empty-state">
-      <mat-icon>check_circle</mat-icon>
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
       <p class="empty-title">Nothing due today</p>
       <p class="empty-sub">Log a trigger after your next solve session, or come back tomorrow.</p>
     </div>

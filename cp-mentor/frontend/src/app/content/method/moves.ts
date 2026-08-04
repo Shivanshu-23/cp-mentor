@@ -13,6 +13,11 @@ export const BOTTLENECK_GUIDANCE = {
     'Then run this checklist explicitly. Around 90% of mediums fall to one of these five.'
 };
 
+export interface RelatedPattern {
+  slug: string;
+  name: string;
+}
+
 export interface OptimizationMove {
   id: 'STORE_INSTEAD_OF_RECOMPUTE' | 'MONOTONIC_POINTER' | 'SORT_FIRST' | 'ONLY_EXTREME_MATTERS' | 'BINARY_SEARCH_ANSWER';
   number: 1 | 2 | 3 | 4 | 5;
@@ -22,6 +27,7 @@ export interface OptimizationMove {
   exampleProblems: string[];
   triggerPhrase: string;
   warning?: string;
+  relatedPatterns: RelatedPattern[];
 }
 
 export const MOVES: OptimizationMove[] = [
@@ -39,7 +45,12 @@ export const MOVES: OptimizationMove[] = [
       'Longest Consecutive Sequence',
       'every top-down DP'
     ],
-    triggerPhrase: 'I keep re-scanning the same region.'
+    triggerPhrase: 'I keep re-scanning the same region.',
+    relatedPatterns: [
+      { slug: 'hashing-frequency', name: 'Hashing & Frequency Counting' },
+      { slug: 'prefix-sum', name: 'Prefix Sum' },
+      { slug: 'dp-1d', name: '1D Dynamic Programming' }
+    ]
   },
   {
     id: 'MONOTONIC_POINTER',
@@ -56,7 +67,12 @@ export const MOVES: OptimizationMove[] = [
       'Remove Duplicates',
       'Linked List Cycle'
     ],
-    triggerPhrase: '"contiguous subarray/substring" plus "longest / shortest / at most K."'
+    triggerPhrase: '"contiguous subarray/substring" plus "longest / shortest / at most K."',
+    relatedPatterns: [
+      { slug: 'two-pointer', name: 'Two Pointer' },
+      { slug: 'sliding-window-fixed', name: 'Sliding Window (Fixed Size)' },
+      { slug: 'sliding-window-variable', name: 'Sliding Window (Variable Size)' }
+    ]
   },
   {
     id: 'SORT_FIRST',
@@ -73,7 +89,11 @@ export const MOVES: OptimizationMove[] = [
       'Minimum Number of Arrows'
     ],
     triggerPhrase: '',
-    warning: 'sorting destroys original indices. If the answer requires indices, store pairs or use a different move.'
+    warning: 'sorting destroys original indices. If the answer requires indices, store pairs or use a different move.',
+    relatedPatterns: [
+      { slug: 'sorting-greedy', name: 'Sort Then Greedy' },
+      { slug: 'intervals', name: 'Interval Scheduling & Merging' }
+    ]
   },
   {
     id: 'ONLY_EXTREME_MATTERS',
@@ -89,7 +109,12 @@ export const MOVES: OptimizationMove[] = [
       'Sliding Window Maximum',
       'Task Scheduler'
     ],
-    triggerPhrase: '"next greater / previous smaller" → monotonic stack. "top K" or "K-th" → heap.'
+    triggerPhrase: '"next greater / previous smaller" → monotonic stack. "top K" or "K-th" → heap.',
+    relatedPatterns: [
+      { slug: 'heap-top-k', name: 'Heap for Top-K' },
+      { slug: 'monotonic-stack', name: 'Monotonic Stack' },
+      { slug: 'monotonic-deque', name: 'Monotonic Deque' }
+    ]
   },
   {
     id: 'BINARY_SEARCH_ANSWER',
@@ -106,7 +131,10 @@ export const MOVES: OptimizationMove[] = [
       'Minimise Max Distance to Gas Station',
       'Median of Two Sorted Arrays'
     ],
-    triggerPhrase: '"minimise the maximum" or "maximise the minimum." These two phrases are almost a guarantee.'
+    triggerPhrase: '"minimise the maximum" or "maximise the minimum." These two phrases are almost a guarantee.',
+    relatedPatterns: [
+      { slug: 'binary-search-answer', name: 'Binary Search on the Answer' }
+    ]
   }
 ];
 

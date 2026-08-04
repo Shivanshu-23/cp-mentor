@@ -51,7 +51,7 @@
     </div>
 
     <button mat-raised-button color="primary" (click)="analyze()" [disabled]="loading" class="analyze-btn">
-      <mat-icon>analytics</mat-icon> Analyze
+      <mat-icon aria-hidden="true">analytics</mat-icon> Analyze
     </button>
   </div>
 
@@ -68,26 +68,26 @@
         <h2>Constraint Analysis — n = {{ n }}</h2>
       </div>
 
-      <div class="section-title"><mat-icon>speed</mat-icon>Target Complexity</div>
+      <div class="section-title"><mat-icon aria-hidden="true">speed</mat-icon>Target Complexity</div>
       <div class="complexity-chip">{{ constraintResult?.targetComplexity }}</div>
 
-      <div class="section-title" style="margin-top:20px"><mat-icon>build</mat-icon>Candidate Techniques</div>
+      <div class="section-title" style="margin-top:20px"><mat-icon aria-hidden="true">build</mat-icon>Candidate Techniques</div>
       <div class="technique-chips">
         <span class="technique-chip" *ngFor="let t of constraintResult?.candidateTechniques; let i = index"
               [class.first-choice]="i === 0">{{ t }}</span>
       </div>
 
       <div class="overflow-warning" *ngIf="constraintResult?.overflowWarning">
-        <mat-icon>warning</mat-icon>
+        <mat-icon aria-hidden="true">warning</mat-icon>
         <span>{{ constraintResult?.overflowWarning }}</span>
       </div>
     </div>
 
     <div class="glass-card result-card">
       <div class="section-title-row no-print">
-        <div class="section-title"><mat-icon>fact_check</mat-icon>Edge-Case Checklist</div>
+        <div class="section-title"><mat-icon aria-hidden="true">fact_check</mat-icon>Edge-Case Checklist</div>
         <button mat-stroked-button (click)="printChecklist()" class="print-btn">
-          <mat-icon>print</mat-icon> Print
+          <mat-icon aria-hidden="true">print</mat-icon> Print
         </button>
       </div>
       <div class="print-only-header">
@@ -96,7 +96,7 @@
 
       <ul class="checklist">
         <li *ngFor="let item of edgeCaseResult?.checklist">
-          <mat-icon>check_box_outline_blank</mat-icon>
+          <mat-icon aria-hidden="true">check_box_outline_blank</mat-icon>
           <span>{{ item }}</span>
         </li>
       </ul>

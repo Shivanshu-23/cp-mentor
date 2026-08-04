@@ -25,12 +25,12 @@
   </div>
 
   <div class="vp-controls">
-    <button type="button" class="vp-btn" (click)="reset()" aria-label="Reset (r)"><mat-icon>restart_alt</mat-icon></button>
-    <button type="button" class="vp-btn" (click)="stepBack()" [disabled]="isFirst" aria-label="Step back (←)"><mat-icon>skip_previous</mat-icon></button>
+    <button type="button" class="vp-btn" (click)="reset()" aria-label="Reset (r)"><mat-icon aria-hidden="true">restart_alt</mat-icon></button>
+    <button type="button" class="vp-btn" (click)="stepBack()" [disabled]="isFirst" aria-label="Step back (←)"><mat-icon aria-hidden="true">skip_previous</mat-icon></button>
     <button type="button" class="vp-btn vp-btn-play" (click)="toggle()" [attr.aria-label]="playing ? 'Pause (space)' : 'Play (space)'">
-      <mat-icon>{{ playing ? 'pause' : 'play_arrow' }}</mat-icon>
+      <mat-icon aria-hidden="true">{{ playing ? 'pause' : 'play_arrow' }}</mat-icon>
     </button>
-    <button type="button" class="vp-btn" (click)="stepForward()" [disabled]="isLast" aria-label="Step forward (→)"><mat-icon>skip_next</mat-icon></button>
+    <button type="button" class="vp-btn" (click)="stepForward()" [disabled]="isLast" aria-label="Step forward (→)"><mat-icon aria-hidden="true">skip_next</mat-icon></button>
 
     <input type="range" class="vp-scrub" min="0" max="100" [value]="progressPct" (input)="scrub($event)" aria-label="Scrub timeline">
 

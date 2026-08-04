@@ -9,28 +9,28 @@
   <!-- ── Stats Row ──────────────────────────────────────────── -->
   <div *ngIf="auth.isLoggedIn()" class="stats-row">
     <div class="glass-card hover-lift stat-card stat-solved">
-      <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+      <div class="stat-icon"><mat-icon aria-hidden="true">check_circle</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.solved }}</div>
         <div class="stat-label">Solved</div>
       </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-attempted">
-      <div class="stat-icon"><mat-icon>code</mat-icon></div>
+      <div class="stat-icon"><mat-icon aria-hidden="true">code</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.attempted }}</div>
         <div class="stat-label">Attempted</div>
       </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-seen">
-      <div class="stat-icon"><mat-icon>visibility</mat-icon></div>
+      <div class="stat-icon"><mat-icon aria-hidden="true">visibility</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.seen }}</div>
         <div class="stat-label">Seen</div>
       </div>
     </div>
     <div class="glass-card hover-lift stat-card stat-total">
-      <div class="stat-icon"><mat-icon>bar_chart</mat-icon></div>
+      <div class="stat-icon"><mat-icon aria-hidden="true">bar_chart</mat-icon></div>
       <div class="stat-body">
         <div class="stat-value">{{ stats.total }}</div>
         <div class="stat-label">Total Tracked</div>
@@ -46,7 +46,7 @@
       <div class="filter-group filter-search">
         <div class="filter-label">Search</div>
         <div class="search-input-wrapper">
-          <mat-icon class="search-icon">search</mat-icon>
+          <mat-icon aria-hidden="true" class="search-icon">search</mat-icon>
           <input type="text" class="search-input" placeholder="Search problems by title..."
                  data-shortcut-search
                  [(ngModel)]="searchTerm">
@@ -149,7 +149,7 @@
             [style.border]="'2px solid ' + (p.tickCount >= level ? tickColors[level-1] : 'var(--border)')"
             [matTooltip]="tickLabels[level]">
 
-          <mat-icon [style.color]="p.tickCount >= level ? tickColors[level-1] : 'var(--text-muted)'">
+          <mat-icon aria-hidden="true" [style.color]="p.tickCount >= level ? tickColors[level-1] : 'var(--text-muted)'">
               {{ p.tickCount >= level ? 'check' : 'remove' }}
           </mat-icon>
 
@@ -159,8 +159,9 @@
         <button mat-icon-button (click)="tick(p)"
           [style.color]="tickColors[p.tickCount]"
           [matTooltip]="'Click to mark: ' + tickLabels[(p.tickCount + 1) % 4]"
+          [attr.aria-label]="'Click to mark: ' + tickLabels[(p.tickCount + 1) % 4]"
           class="tick-cycle-btn">
-          <mat-icon style="font-size:16px;width:16px;height:16px">{{ tickIcons[p.tickCount] }}</mat-icon>
+          <mat-icon aria-hidden="true" style="font-size:16px;width:16px;height:16px">{{ tickIcons[p.tickCount] }}</mat-icon>
         </button>
 
       </div>
@@ -168,12 +169,12 @@
 
     <!-- Empty state -->
     <div *ngIf="problems.length === 0 && !loading" class="empty-state">
-      <mat-icon>inventory_2</mat-icon>
+      <mat-icon aria-hidden="true">inventory_2</mat-icon>
       <p class="empty-title">No problems loaded yet</p>
       <p class="empty-sub">Data loads automatically from GitHub on startup. Try refreshing in a moment.</p>
     </div>
     <div *ngIf="problems.length > 0 && filteredProblems.length === 0 && !loading" class="empty-state">
-      <mat-icon>search_off</mat-icon>
+      <mat-icon aria-hidden="true">search_off</mat-icon>
       <p class="empty-title">No problems match "{{ searchTerm }}"</p>
       <p class="empty-sub">Try a different search term, or clear it to see all problems on this page.</p>
     </div>
@@ -181,13 +182,13 @@
     <!-- Pagination -->
     <div *ngIf="totalPages > 1" class="table-pagination">
       <button mat-stroked-button (click)="prevPage()" [disabled]="page === 0" style="color:var(--accent-blue);border-color:var(--border)">
-        <mat-icon>chevron_left</mat-icon> Previous
+        <mat-icon aria-hidden="true">chevron_left</mat-icon> Previous
       </button>
       <span class="page-indicator">
         Page <span class="page-num">{{ page + 1 }}</span> of {{ totalPages }} · {{ totalElements }} problems
       </span>
       <button mat-stroked-button (click)="nextPage()" [disabled]="page >= totalPages - 1" style="color:var(--accent-blue);border-color:var(--border)">
-        Next <mat-icon>chevron_right</mat-icon>
+        Next <mat-icon aria-hidden="true">chevron_right</mat-icon>
       </button>
     </div>
 
@@ -195,7 +196,7 @@
 
   <!-- Login prompt -->
   <div *ngIf="!auth.isLoggedIn()" class="login-prompt">
-    <mat-icon>login</mat-icon>
+    <mat-icon aria-hidden="true">login</mat-icon>
     <span>
       <a routerLink="/login">Login</a>
       to save your progress — tick marks persist per problem across sessions.

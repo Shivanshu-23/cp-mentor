@@ -1,7 +1,7 @@
 <div class="navbar-glow-line"></div>
 <mat-toolbar class="app-navbar">
   <a routerLink="/home" class="brand">
-    <span class="brand-icon"><mat-icon>code</mat-icon></span>
+    <span class="brand-icon"><mat-icon aria-hidden="true">code</mat-icon></span>
     <span class="brand-name">Drona</span>
     <span class="brand-tagline">Earn the answer.</span>
   </a>
@@ -10,35 +10,35 @@
 
   <nav class="nav-links">
     <a mat-button routerLink="/patterns" routerLinkActive="active-link">
-      <mat-icon>lightbulb</mat-icon> Pattern Library
+      <mat-icon aria-hidden="true">lightbulb</mat-icon> Pattern Library
     </a>
     <a mat-button routerLink="/method-guide" routerLinkActive="active-link">
-      <mat-icon>menu_book</mat-icon> How to Solve
+      <mat-icon aria-hidden="true">menu_book</mat-icon> How to Solve
     </a>
     <a mat-button routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
-      <mat-icon>home</mat-icon> Daily Problem
+      <mat-icon aria-hidden="true">home</mat-icon> Daily Problem
     </a>
     <a mat-button routerLink="/company-tracker" routerLinkActive="active-link">
-      <mat-icon>business</mat-icon> Company Tracker
+      <mat-icon aria-hidden="true">business</mat-icon> Company Tracker
     </a>
     <a mat-button routerLink="/constraint-analyzer" routerLinkActive="active-link">
-      <mat-icon>analytics</mat-icon> Constraint Analyzer
+      <mat-icon aria-hidden="true">analytics</mat-icon> Constraint Analyzer
     </a>
     <a mat-button routerLink="/solve" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon>edit_note</mat-icon> Solve Sessions
+      <mat-icon aria-hidden="true">edit_note</mat-icon> Solve Sessions
     </a>
     <a mat-button routerLink="/recall-drill" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon>psychology</mat-icon> Recall Drill
+      <mat-icon aria-hidden="true">psychology</mat-icon> Recall Drill
     </a>
     <a mat-button routerLink="/progress" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon>bar_chart</mat-icon> Progress
+      <mat-icon aria-hidden="true">bar_chart</mat-icon> Progress
     </a>
   </nav>
 
   <ng-container *ngIf="isLoggedIn; else guestNav">
     <span class="username-chip">{{ username }}</span>
     <button mat-button (click)="logout()" class="logout-btn">
-      <mat-icon>logout</mat-icon> Logout
+      <mat-icon aria-hidden="true">logout</mat-icon> Logout
     </button>
   </ng-container>
 

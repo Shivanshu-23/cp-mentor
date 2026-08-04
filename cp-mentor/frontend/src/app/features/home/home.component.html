@@ -28,13 +28,13 @@
         </div>
         <h2 class="daily-title">{{ daily.title }}</h2>
         <button type="button" (click)="openChatGptAnalysis(daily)" class="analysis-link">
-          <mat-icon>auto_awesome</mat-icon>
+          <mat-icon aria-hidden="true">auto_awesome</mat-icon>
           Do Analysis
         </button>
       </div>
 
       <a *ngIf="daily.leetcodeUrl" mat-raised-button [href]="daily.leetcodeUrl" target="_blank" rel="noopener" class="leetcode-cta-btn">
-        <mat-icon style="margin-right:6px">open_in_new</mat-icon>
+        <mat-icon aria-hidden="true" style="margin-right:6px">open_in_new</mat-icon>
         View on LeetCode
       </a>
     </div>
@@ -67,37 +67,37 @@
   <!-- ── LeetCode Activity Dashboard ───────────────────────────── -->
   <div class="leetcode-dashboard" *ngIf="!loadingStats && leetCodeStats as stats">
     <div class="section-title">
-      <mat-icon>insights</mat-icon>
+      <mat-icon aria-hidden="true">insights</mat-icon>
       LeetCode Activity
       <a [href]="stats.profileUrl" target="_blank" rel="noopener" class="section-sub profile-link">
-        &#64;{{ stats.username }} <mat-icon [inline]="true">open_in_new</mat-icon>
+        &#64;{{ stats.username }} <mat-icon aria-hidden="true" [inline]="true">open_in_new</mat-icon>
       </a>
     </div>
 
     <div class="lc-stats-row">
       <div class="lc-stat-card stat-solved" appTilt [tiltMax]="4">
-        <div class="stat-icon"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-icon"><mat-icon aria-hidden="true">check_circle</mat-icon></div>
         <div class="stat-body">
           <div class="stat-value">{{ stats.totalSolved }}</div>
           <div class="stat-label">Total Solved</div>
         </div>
       </div>
       <div class="lc-stat-card stat-today" appTilt [tiltMax]="4">
-        <div class="stat-icon"><mat-icon>today</mat-icon></div>
+        <div class="stat-icon"><mat-icon aria-hidden="true">today</mat-icon></div>
         <div class="stat-body">
           <div class="stat-value">{{ stats.solvedToday }}</div>
           <div class="stat-label">Solved Today</div>
         </div>
       </div>
       <div class="lc-stat-card stat-streak" appTilt [tiltMax]="4">
-        <div class="stat-icon"><mat-icon>local_fire_department</mat-icon></div>
+        <div class="stat-icon"><mat-icon aria-hidden="true">local_fire_department</mat-icon></div>
         <div class="stat-body">
           <div class="stat-value">{{ stats.streak }}</div>
           <div class="stat-label">Day Streak</div>
         </div>
       </div>
       <div class="lc-stat-card stat-active" appTilt [tiltMax]="4">
-        <div class="stat-icon"><mat-icon>calendar_month</mat-icon></div>
+        <div class="stat-icon"><mat-icon aria-hidden="true">calendar_month</mat-icon></div>
         <div class="stat-body">
           <div class="stat-value">{{ stats.totalActiveDays }}</div>
           <div class="stat-label">Active Days</div>
@@ -140,7 +140,7 @@
         <div class="lc-recent-block" *ngIf="stats.recentSubmissions.length">
           <div class="lc-block-label">Recent Submissions</div>
           <a *ngFor="let sub of stats.recentSubmissions.slice(0, 5)" [href]="sub.url" target="_blank" rel="noopener" class="recent-sub-row">
-            <mat-icon>task_alt</mat-icon>
+            <mat-icon aria-hidden="true">task_alt</mat-icon>
             <span class="recent-sub-title">{{ sub.title }}</span>
             <span class="recent-sub-time">{{ relativeTime(sub.timestamp) }}</span>
           </a>
@@ -153,7 +153,7 @@
   <!-- ── Free Learning Roadmap ─────────────────────────────────── -->
   <div class="resources-section">
     <div class="section-title">
-      <mat-icon>rocket_launch</mat-icon>
+      <mat-icon aria-hidden="true">rocket_launch</mat-icon>
       Free DSA + Java + Spring Boot Roadmap
       <span class="section-sub">A no-cost path to crack any company, anywhere.</span>
     </div>
@@ -162,7 +162,7 @@
       <mat-expansion-panel *ngFor="let section of resourceSections">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="panel-icon">{{ section.icon }}</mat-icon>
+            <mat-icon aria-hidden="true" class="panel-icon">{{ section.icon }}</mat-icon>
             {{ section.title }}
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -170,24 +170,24 @@
         <div class="resource-row" *ngFor="let row of section.rows">
           <div class="resource-row-main">
             <a *ngIf="row.url" [href]="row.url" target="_blank" rel="noopener" class="resource-label-link">
-              <mat-icon>open_in_new</mat-icon>{{ row.label }}
+              <mat-icon aria-hidden="true">open_in_new</mat-icon>{{ row.label }}
             </a>
             <span *ngIf="!row.url" class="resource-label-text">{{ row.label }}</span>
             <span class="necessity-badge" [class]="necessityClass(row.necessity)">{{ row.necessity }}</span>
           </div>
           <div class="resource-use-for">{{ row.useFor }}</div>
-          <div class="resource-approach"><mat-icon>arrow_forward</mat-icon>{{ row.approach }}</div>
+          <div class="resource-approach"><mat-icon aria-hidden="true">arrow_forward</mat-icon>{{ row.approach }}</div>
         </div>
 
         <p *ngIf="section.note" class="resource-note">
-          <mat-icon>info</mat-icon>{{ section.note }}
+          <mat-icon aria-hidden="true">info</mat-icon>{{ section.note }}
         </p>
       </mat-expansion-panel>
 
       <mat-expansion-panel>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <mat-icon class="panel-icon">flag</mat-icon>
+            <mat-icon aria-hidden="true" class="panel-icon">flag</mat-icon>
             The Actual Game Plan
           </mat-panel-title>
         </mat-expansion-panel-header>
@@ -200,7 +200,7 @@
         </ol>
 
         <p class="resource-note">
-          <mat-icon>verified</mat-icon>Everything above is 100% free and legally available.
+          <mat-icon aria-hidden="true">verified</mat-icon>Everything above is 100% free and legally available.
         </p>
       </mat-expansion-panel>
     </mat-accordion>

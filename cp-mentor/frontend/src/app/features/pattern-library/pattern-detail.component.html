@@ -1,6 +1,6 @@
 <div class="page-container page-fade-in">
   <button mat-button (click)="location.back()" class="back-btn">
-    <mat-icon>arrow_back</mat-icon> Back
+    <mat-icon aria-hidden="true">arrow_back</mat-icon> Back
   </button>
 
   <!-- Loading -->
@@ -34,15 +34,15 @@
       <mat-tab label="💡 Intuition">
         <div class="tab-content">
           <div class="glass-card">
-            <div class="section-title"><mat-icon>lightbulb</mat-icon>Why this works</div>
+            <div class="section-title"><mat-icon aria-hidden="true">lightbulb</mat-icon>Why this works</div>
             <p class="prose">{{ pattern.intuition }}</p>
           </div>
           <div class="glass-card">
-            <div class="section-title"><mat-icon>psychology</mat-icon>Why the complexity isn't obvious</div>
+            <div class="section-title"><mat-icon aria-hidden="true">psychology</mat-icon>Why the complexity isn't obvious</div>
             <p class="prose">{{ pattern.whyComplexityIsNotObvious }}</p>
           </div>
           <div class="glass-card" *ngIf="pattern.variants">
-            <div class="section-title"><mat-icon>alt_route</mat-icon>Variants</div>
+            <div class="section-title"><mat-icon aria-hidden="true">alt_route</mat-icon>Variants</div>
             <p class="prose">{{ pattern.variants }}</p>
           </div>
 
@@ -51,7 +51,7 @@
                the player inline, so this page's bundle stays free of the
                lazy-loaded visualizer engine. -->
           <a class="glass-card hover-lift viz-launcher" *ngIf="visualizerSlug" [routerLink]="['/visualize', visualizerSlug]">
-            <div class="viz-launcher-icon"><mat-icon>play_circle</mat-icon></div>
+            <div class="viz-launcher-icon"><mat-icon aria-hidden="true">play_circle</mat-icon></div>
             <div class="viz-launcher-text">
               <div class="viz-launcher-title">Watch this pattern, step by step</div>
               <div class="viz-launcher-sub">Interactive visualizer — keyboard-driven, opens in a new page</div>
@@ -66,8 +66,8 @@
           <div class="glass-card">
             <div class="code-section-label">Java Skeleton</div>
             <div class="code-block-numbered">
-              <button type="button" class="code-copy-btn" matTooltip="Copy" (click)="copyTemplate()">
-                <mat-icon>content_copy</mat-icon>
+              <button type="button" class="code-copy-btn" matTooltip="Copy" aria-label="Copy Java template" (click)="copyTemplate()">
+                <mat-icon aria-hidden="true">content_copy</mat-icon>
               </button>
               <div class="code-lines">
                 <div class="code-line" *ngFor="let line of codeLines(pattern.javaTemplate); let i = index">
@@ -84,17 +84,17 @@
       <mat-tab label="🔍 Recognition">
         <div class="tab-content">
           <div class="glass-card">
-            <div class="section-title"><mat-icon>check_circle</mat-icon>Recognition Triggers</div>
+            <div class="section-title"><mat-icon aria-hidden="true">check_circle</mat-icon>Recognition Triggers</div>
             <p class="section-hint">Surface phrases in a problem statement that should make you consider this pattern.</p>
             <span class="trigger-chip trigger-positive" *ngFor="let t of pattern.recognitionTriggers">{{ t }}</span>
           </div>
           <div class="glass-card">
-            <div class="section-title"><mat-icon>cancel</mat-icon>Anti-Triggers</div>
+            <div class="section-title"><mat-icon aria-hidden="true">cancel</mat-icon>Anti-Triggers</div>
             <p class="section-hint">Phrases that look similar but actually point to a different pattern.</p>
             <span class="trigger-chip trigger-negative" *ngFor="let t of pattern.antiTriggers">{{ t }}</span>
           </div>
           <div class="glass-card" *ngIf="pattern.relatedPatterns.length">
-            <div class="section-title"><mat-icon>hub</mat-icon>Related Patterns</div>
+            <div class="section-title"><mat-icon aria-hidden="true">hub</mat-icon>Related Patterns</div>
             <a class="related-chip" *ngFor="let slug of pattern.relatedPatterns" [routerLink]="['/patterns', slug]">
               {{ slug }}
             </a>
@@ -106,15 +106,15 @@
       <mat-tab label="⚠️ Mistakes">
         <div class="tab-content">
           <div class="glass-card">
-            <div class="section-title"><mat-icon>bug_report</mat-icon>Common Mistakes</div>
+            <div class="section-title"><mat-icon aria-hidden="true">bug_report</mat-icon>Common Mistakes</div>
             <ul class="prose-list">
               <li *ngFor="let m of pattern.commonMistakes">{{ m }}</li>
             </ul>
           </div>
           <div class="glass-card">
-            <div class="section-title"><mat-icon>fact_check</mat-icon>Edge Case Checklist</div>
+            <div class="section-title"><mat-icon aria-hidden="true">fact_check</mat-icon>Edge Case Checklist</div>
             <ul class="prose-list checklist">
-              <li *ngFor="let e of pattern.edgeCaseChecklist"><mat-icon>check_box_outline_blank</mat-icon>{{ e }}</li>
+              <li *ngFor="let e of pattern.edgeCaseChecklist"><mat-icon aria-hidden="true">check_box_outline_blank</mat-icon>{{ e }}</li>
             </ul>
           </div>
         </div>
@@ -153,7 +153,7 @@
       <mat-tab label="🎯 Follow-ups">
         <div class="tab-content">
           <div class="glass-card">
-            <div class="section-title"><mat-icon>forum</mat-icon>Interview Follow-Up Questions</div>
+            <div class="section-title"><mat-icon aria-hidden="true">forum</mat-icon>Interview Follow-Up Questions</div>
             <p class="section-hint">Questions an interviewer typically asks once you've solved the base problem.</p>
             <ul class="prose-list">
               <li *ngFor="let q of pattern.interviewFollowUps">{{ q }}</li>

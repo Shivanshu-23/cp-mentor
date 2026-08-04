@@ -1,6 +1,6 @@
 <div class="page-container page-fade-in">
   <button mat-button (click)="location.back()" class="back-btn">
-    <mat-icon>arrow_back</mat-icon> Back
+    <mat-icon aria-hidden="true">arrow_back</mat-icon> Back
   </button>
 
   <!-- Loading -->
@@ -23,7 +23,7 @@
           </div>
           <h1 class="header-title">{{ problem.title }}</h1>
           <a *ngIf="problem.leetcodeUrl" [href]="problem.leetcodeUrl" target="_blank" rel="noopener" class="header-lc-link">
-            <mat-icon>open_in_new</mat-icon>
+            <mat-icon aria-hidden="true">open_in_new</mat-icon>
             View on LeetCode
           </a>
         </div>
@@ -34,7 +34,7 @@
       </div>
       <!-- Pattern banner -->
       <div class="pattern-banner">
-        <mat-icon>lightbulb</mat-icon>
+        <mat-icon aria-hidden="true">lightbulb</mat-icon>
         <div>
           <div class="pattern-label">Recognized Pattern</div>
           <div class="pattern-value">{{ analysis.recognizedPattern }}</div>
@@ -47,7 +47,7 @@
          empty (no solutions, no tiered explanations) and look like a
          partial success rather than an outage. -->
     <div class="glass-card degraded-banner" *ngIf="analysis.degraded">
-      <mat-icon>cloud_off</mat-icon>
+      <mat-icon aria-hidden="true">cloud_off</mat-icon>
       <div>
         <div class="degraded-title">AI analysis is unavailable right now</div>
         <p class="degraded-text">{{ analysis.problemSummary }}</p>
@@ -59,11 +59,11 @@
     <!-- Data Structures + Algorithms row -->
     <div class="ds-algo-row">
       <div class="glass-card">
-        <div class="section-title"><mat-icon>storage</mat-icon>Data Structures</div>
+        <div class="section-title"><mat-icon aria-hidden="true">storage</mat-icon>Data Structures</div>
         <span *ngFor="let ds of analysis.requiredDataStructures" class="ds-chip">{{ ds }}</span>
       </div>
       <div class="glass-card">
-        <div class="section-title"><mat-icon>functions</mat-icon>Algorithms</div>
+        <div class="section-title"><mat-icon aria-hidden="true">functions</mat-icon>Algorithms</div>
         <span *ngFor="let a of analysis.requiredAlgorithms" class="algo-chip">{{ a }}</span>
       </div>
     </div>
@@ -93,11 +93,11 @@
             </mat-expansion-panel>
           </mat-accordion>
           <div *ngIf="analysis.dryRun" class="glass-card" style="margin-top:20px">
-            <div class="section-title"><mat-icon>play_arrow</mat-icon>Dry Run</div>
+            <div class="section-title"><mat-icon aria-hidden="true">play_arrow</mat-icon>Dry Run</div>
             <div class="code-block dry-run-block">{{ analysis.dryRun }}</div>
           </div>
           <div *ngIf="analysis.visualization" class="glass-card">
-            <div class="section-title"><mat-icon>bar_chart</mat-icon>Visualization</div>
+            <div class="section-title"><mat-icon aria-hidden="true">bar_chart</mat-icon>Visualization</div>
             <div class="code-block viz-block">{{ analysis.visualization }}</div>
           </div>
         </div>
@@ -119,7 +119,7 @@
             <div *ngIf="a.data.pseudoCode">
               <div class="code-section-label">Pseudocode</div>
               <div class="code-block-numbered">
-                <button type="button" class="code-copy-btn" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+                <button type="button" class="code-copy-btn" matTooltip="Copy" aria-label="Copy code"><mat-icon aria-hidden="true">content_copy</mat-icon></button>
                 <div class="code-lines">
                   <div class="code-line" *ngFor="let line of a.data.pseudoCode.split('\n'); let i = index">
                     <span class="line-no">{{ i + 1 }}</span>
@@ -132,7 +132,7 @@
             <div *ngIf="a.data.javaCode" class="java-block">
               <div class="code-section-label">Java</div>
               <div class="code-block-numbered">
-                <button type="button" class="code-copy-btn" matTooltip="Copy"><mat-icon>content_copy</mat-icon></button>
+                <button type="button" class="code-copy-btn" matTooltip="Copy" aria-label="Copy code"><mat-icon aria-hidden="true">content_copy</mat-icon></button>
                 <div class="code-lines">
                   <div class="code-line" *ngFor="let line of a.data.javaCode.split('\n'); let i = index">
                     <span class="line-no">{{ i + 1 }}</span>
@@ -149,26 +149,26 @@
       <mat-tab label="🎯 Discussion">
         <div class="tab-content">
           <div class="glass-card" style="border-left:3px solid var(--accent-yellow)">
-            <div class="section-title"><mat-icon>tips_and_updates</mat-icon>Interview Tips</div>
+            <div class="section-title"><mat-icon aria-hidden="true">tips_and_updates</mat-icon>Interview Tips</div>
             <p class="explanation-body">{{ analysis.interviewTips }}</p>
           </div>
           <div class="glass-card">
-            <div class="section-title"><mat-icon style="color:var(--accent-red)">error_outline</mat-icon>Common Mistakes</div>
+            <div class="section-title"><mat-icon aria-hidden="true" style="color:var(--accent-red)">error_outline</mat-icon>Common Mistakes</div>
             <div *ngFor="let m of analysis.commonMistakes; let i=index" class="mistake-item">
               <span class="mistake-num">{{ i + 1 }}</span>
               <span class="mistake-text">{{ m }}</span>
             </div>
           </div>
           <div class="glass-card" *ngIf="analysis.companiesAsking?.length">
-            <div class="section-title"><mat-icon>business</mat-icon>Companies Asking This</div>
+            <div class="section-title"><mat-icon aria-hidden="true">business</mat-icon>Companies Asking This</div>
             <div class="companies-wrap">
               <span *ngFor="let c of analysis.companiesAsking" class="company-pill">{{ c }}</span>
             </div>
           </div>
           <div class="glass-card" *ngIf="analysis.edgeCases?.length">
-            <div class="section-title"><mat-icon style="color:var(--accent-yellow)">warning</mat-icon>Edge Cases</div>
+            <div class="section-title"><mat-icon aria-hidden="true" style="color:var(--accent-yellow)">warning</mat-icon>Edge Cases</div>
             <div *ngFor="let e of analysis.edgeCases" class="edge-case-row">
-              <mat-icon>arrow_right</mat-icon>
+              <mat-icon aria-hidden="true">arrow_right</mat-icon>
               <div class="code-block">{{ e }}</div>
             </div>
           </div>
@@ -176,12 +176,12 @@
 
         <div class="tab-content">
           <div class="glass-card revision-card">
-            <div class="section-title"><mat-icon>sticky_note_2</mat-icon>Quick Revision Notes</div>
+            <div class="section-title"><mat-icon aria-hidden="true">sticky_note_2</mat-icon>Quick Revision Notes</div>
             <div class="code-block revision-block">{{ analysis.revisionNotes }}</div>
           </div>
 
           <div class="glass-card" *ngIf="analysis.flashCards?.length">
-            <div class="section-title"><mat-icon>flash_on</mat-icon>Flash Cards</div>
+            <div class="section-title"><mat-icon aria-hidden="true">flash_on</mat-icon>Flash Cards</div>
             <div *ngFor="let card of analysis.flashCards; let i = index" class="flip-card">
               <div class="flip-card-inner">
                 <div class="flip-card-front">Flash Card #{{ i + 1 }} — hover to reveal</div>
@@ -191,7 +191,7 @@
           </div>
 
           <div class="glass-card" *ngIf="analysis.practiceOrder?.length">
-            <div class="section-title"><mat-icon>trending_up</mat-icon>Practice Order</div>
+            <div class="section-title"><mat-icon aria-hidden="true">trending_up</mat-icon>Practice Order</div>
             <div class="progress-steps">
               <div *ngFor="let step of analysis.practiceOrder; let i=index" class="progress-step">
                 <span class="step-circle">{{ i + 1 }}</span>
@@ -202,11 +202,11 @@
 
           <div class="when-grid" *ngIf="analysis.whenToUseThisAlgorithm">
             <div class="glass-card when-yes">
-              <div class="section-title"><mat-icon>check_circle</mat-icon>When TO Use</div>
+              <div class="section-title"><mat-icon aria-hidden="true">check_circle</mat-icon>When TO Use</div>
               <p class="when-text">{{ analysis.whenToUseThisAlgorithm }}</p>
             </div>
             <div class="glass-card when-no">
-              <div class="section-title"><mat-icon>cancel</mat-icon>When NOT To Use</div>
+              <div class="section-title"><mat-icon aria-hidden="true">cancel</mat-icon>When NOT To Use</div>
               <p class="when-text">{{ analysis.whenNotToUseThisAlgorithm }}</p>
             </div>
           </div>

@@ -27,8 +27,8 @@
     <h1 class="gradient-text library-title">Pattern Library</h1>
     <p class="library-sub">Learn the structured way to recognize and approach DSA problems — not just a list to grind.</p>
     <div class="library-meta" *ngIf="!loading">
-      <span><mat-icon>lightbulb</mat-icon>{{ patterns.length }} patterns</span>
-      <span><mat-icon>category</mat-icon>{{ categoryCount }} categories</span>
+      <span><mat-icon aria-hidden="true">lightbulb</mat-icon>{{ patterns.length }} patterns</span>
+      <span><mat-icon aria-hidden="true">category</mat-icon>{{ categoryCount }} categories</span>
     </div>
   </div>
 
@@ -38,12 +38,12 @@
       <div class="filter-group filter-search">
         <div class="filter-label">Search</div>
         <div class="search-input-wrapper" [class.has-clear]="searchTerm">
-          <mat-icon class="search-icon">search</mat-icon>
+          <mat-icon aria-hidden="true" class="search-icon">search</mat-icon>
           <input type="text" class="search-input" placeholder="Search by name or trigger phrase..."
                  data-shortcut-search
                  [(ngModel)]="searchTerm">
           <button type="button" class="search-clear-btn" *ngIf="searchTerm" (click)="searchTerm=''" aria-label="Clear search">
-            <mat-icon>close</mat-icon>
+            <mat-icon aria-hidden="true">close</mat-icon>
           </button>
         </div>
       </div>
@@ -75,7 +75,7 @@
        [routerLink]="['/patterns', p.slug]">
 
       <div class="pattern-card-top">
-        <span class="category-chip"><mat-icon>{{ categoryIcon(p.category) }}</mat-icon>{{ categoryLabel(p.category) }}</span>
+        <span class="category-chip"><mat-icon aria-hidden="true">{{ categoryIcon(p.category) }}</mat-icon>{{ categoryLabel(p.category) }}</span>
         <span class="frequency-stars" matTooltip="Interview frequency">{{ difficultyStars(p.frequencyScore) }}</span>
       </div>
 
@@ -97,7 +97,7 @@
     </a>
 
     <div *ngIf="filteredPatterns.length === 0" class="empty-state">
-      <mat-icon>search_off</mat-icon>
+      <mat-icon aria-hidden="true">search_off</mat-icon>
       <p class="empty-title">No patterns match "{{ searchTerm }}"</p>
       <p class="empty-sub">Try a different search term or category, or clear the filters.</p>
     </div>

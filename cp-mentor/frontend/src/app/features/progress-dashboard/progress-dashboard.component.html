@@ -41,12 +41,12 @@
           <div class="streak-label">day recall streak</div>
         </div>
         <button mat-stroked-button color="primary" (click)="shareCard()" [disabled]="sharingCard">
-          <mat-icon>ios_share</mat-icon> {{ sharingCard ? 'Generating…' : 'Share stat card' }}
+          <mat-icon aria-hidden="true">ios_share</mat-icon> {{ sharingCard ? 'Generating…' : 'Share stat card' }}
         </button>
       </div>
 
       <div class="mastery-grid-section">
-        <div class="section-title"><mat-icon>grid_view</mat-icon>Pattern Mastery</div>
+        <div class="section-title"><mat-icon aria-hidden="true">grid_view</mat-icon>Pattern Mastery</div>
         <div class="mastery-grid" *ngIf="mastery.patternMastery.length; else noMastery">
           <a *ngFor="let p of mastery.patternMastery" [routerLink]="['/patterns', p.patternSlug]"
              class="mastery-tile" [style.background]="'var(' + tierColorVar(p.tier) + ')'"
@@ -56,7 +56,7 @@
       </div>
 
       <div class="submissions-trend-section">
-        <div class="section-title"><mat-icon>show_chart</mat-icon>Submissions per Accepted (target 1.00)</div>
+        <div class="section-title"><mat-icon aria-hidden="true">show_chart</mat-icon>Submissions per Accepted (target 1.00)</div>
         <div class="trend-bars">
           <div class="trend-bar-col" *ngFor="let t of mastery.submissionsPerAccepted.trend">
             <div class="trend-bar-track">
@@ -70,7 +70,7 @@
 
     <!-- Difficulty breakdown -->
     <div class="glass-card section-card">
-      <div class="section-title"><mat-icon>bar_chart</mat-icon>Problems Solved by Difficulty</div>
+      <div class="section-title"><mat-icon aria-hidden="true">bar_chart</mat-icon>Problems Solved by Difficulty</div>
       <div class="difficulty-row" *ngIf="difficultyEntries.length; else noDifficulty">
         <div class="difficulty-chip" *ngFor="let d of difficultyEntries">
           <span class="badge" [class]="d.key.toLowerCase()">{{ d.key }}</span>
@@ -85,19 +85,19 @@
     <!-- Solve time + submissions -->
     <div class="two-col">
       <div class="glass-card section-card">
-        <div class="section-title"><mat-icon>timer</mat-icon>Solve Time</div>
+        <div class="section-title"><mat-icon aria-hidden="true">timer</mat-icon>Solve Time</div>
         <div class="metric-row">
           <div><span class="metric-value">{{ formatDuration(stats.averageSolveTimeSecondsOverall) }}</span><span class="metric-label">Overall Average</span></div>
           <div><span class="metric-value">{{ formatDuration(stats.averageSolveTimeSecondsRecent) }}</span><span class="metric-label">Last 5 Sessions</span></div>
         </div>
         <div class="trend-row">
-          <mat-icon>{{ trendIcon(stats.solveTimeTrend) }}</mat-icon>
+          <mat-icon aria-hidden="true">{{ trendIcon(stats.solveTimeTrend) }}</mat-icon>
           <span>{{ trendLabel(stats.solveTimeTrend) }}</span>
         </div>
       </div>
 
       <div class="glass-card section-card">
-        <div class="section-title"><mat-icon>replay</mat-icon>Submissions &amp; Unaided Rate</div>
+        <div class="section-title"><mat-icon aria-hidden="true">replay</mat-icon>Submissions &amp; Unaided Rate</div>
         <div class="metric-row">
           <div><span class="metric-value">{{ stats.averageSubmissionsPerProblem }}</span><span class="metric-label">Avg Submissions (target 1)</span></div>
           <div><span class="metric-value">{{ stats.unaidedSolveRatePercent }}%</span><span class="metric-label">Solved Unaided</span></div>
@@ -107,7 +107,7 @@
 
     <!-- Weak patterns -->
     <div class="glass-card section-card" *ngIf="stats.weakPatterns.length">
-      <div class="section-title warning-title"><mat-icon>warning</mat-icon>Weak Patterns (failed in the last 14 days)</div>
+      <div class="section-title warning-title"><mat-icon aria-hidden="true">warning</mat-icon>Weak Patterns (failed in the last 14 days)</div>
       <div class="weak-patterns">
         <a *ngFor="let slug of stats.weakPatterns" [routerLink]="['/patterns', slug]" class="weak-pattern-chip">{{ slug }}</a>
       </div>
@@ -119,9 +119,9 @@
   <!-- Trigger log — full history, printable -->
   <div class="glass-card section-card trigger-log-card" *ngIf="!loadingLog">
     <div class="log-header-row no-print">
-      <div class="section-title"><mat-icon>list_alt</mat-icon>Trigger Log</div>
+      <div class="section-title"><mat-icon aria-hidden="true">list_alt</mat-icon>Trigger Log</div>
       <button mat-stroked-button (click)="printTriggerLog()" *ngIf="triggerLog.length">
-        <mat-icon>print</mat-icon> Print
+        <mat-icon aria-hidden="true">print</mat-icon> Print
       </button>
     </div>
     <div class="print-only-header"><h2>Trigger Log</h2></div>

@@ -20,6 +20,9 @@ export const INTERVIEW_SCRIPT: ScriptStep[] = [
   { step: 8, line: '"For the follow-up on space, I think we could ..."' }
 ];
 
-export const SCRIPT_CLOSING =
-  'Never go silent. Silence is the only unrecoverable interview failure. If you are stuck, say ' +
-  'what you have tried and what you have ruled out — that is still visible progress.';
+export const SCRIPT_CLOSING = {
+  lead: 'Never go silent.',
+  body:
+    'Silence is the only unrecoverable interview failure. If you are stuck, say what you have ' +
+    'tried and what you have ruled out — that is still visible progress.'
+};

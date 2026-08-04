@@ -17,8 +17,10 @@ export const WHY_TRIGGER_MATTERS = {
   body:
     'Trigger records the surface feature you will see in a future problem that should make you ' +
     'reach for this idea.',
-  goodExample: '"subarray + multiplication" is retrievable under interview pressure.',
-  badExample: '"the solution uses two variables" is not.',
+  goodTrigger: 'subarray + multiplication',
+  uselessTrigger: 'the solution uses two variables',
+  comparisonCaption:
+    'The first is retrievable under interview pressure, the second is not.',
   closing:
     'You are not memorising solutions. You are building a lookup table from problem symptoms to ' +
     'pattern names.'
