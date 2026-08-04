@@ -259,6 +259,26 @@ GET /api/v1/method/phases, /complexity-budget, /moves, /rungs, /recovery-steps, 
 - **H2 in-memory persistence** — replaced with MySQL 8 + Flyway for `dev`/`prod` (see
   *How to Run* above). Verified: register a user, tick a company problem, restart the
   backend — both survive.
+- **Prod backend down: `java.net.UnknownHostException` for the Aiven MySQL host (2026-08-04)**.
+  **Root cause: the Aiven free-tier MySQL database auto-powers-off during inactivity.** A
+  powered-off Aiven service has no live DNS entry at all — Render's Spring Boot process therefore
+  gets `UnknownHostException: mysql-db-cp-mentor-shivanshu-cp-mentor.k.aivencloud.com`
+  (a DNS resolution failure), not a timeout or connection-refused, which is the tell that
+  distinguishes this from a normal network blip. Confirmed via the Aiven console: service status
+  showed **"Powered off"**, trial credits still had 29 days left (not an expired-trial deletion),
+  backups intact (~563MB, most recent ~15h old) — **no data was lost**. **Fix**: Aiven
+  console → the MySQL service → power it back on (button near the service status/settings), wait
+  ~1-2 minutes for it to fully come up and DNS to resolve, then trigger a Render manual
+  deploy/restart for `cp-mentor-backend` (Render's own crash-loop auto-restart does eventually
+  retry on its own, but a deploy triggered too soon after power-on can still race the DNS
+  propagation and fail once more before succeeding — don't be alarmed by one more failed attempt
+  immediately after powering on). Verified fixed: clean startup, Flyway validated existing schema
+  (no migration needed, confirming data survived), `GET /api/v1/method/patterns` returned 200
+  with real data both directly against Render and through the Vercel `/api/*` proxy. **This will
+  recur** on the free tier during any sufficiently inactive stretch — Aiven's own dashboard
+  surfaces a $5/month plan specifically to prevent it ("prevent automatic power-offs during
+  inactivity"), which is worth it if this becomes a recurring annoyance. If this exact error
+  shows up again, check Aiven's power state before assuming a code or config regression.
 
 ## ⚠️ CURRENT BUGS TO FIX
 
