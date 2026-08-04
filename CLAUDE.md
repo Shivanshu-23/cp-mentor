@@ -716,8 +716,10 @@ before ever promoting to production.
   match `vercel.json`'s `npm run build` / `dist/cp-mentor-frontend/browser`) made this genuinely
   ambiguous without a real test.
 - **Real bug found on the first preview deploy**: Angular's SSR build always server-renders the
-  literal `/` route into `dist/browser/index.html` (in this app `/` redirects to `/patterns`, so
-  that file has real Pattern Library content baked in — confirmed this happens regardless of
+  literal `/` route into `dist/browser/index.html` (in this app `/` redirects to `/patterns` at the
+  time this was written — as of 2026-08-04 it redirects to `/yodh` instead, see the Yodh section
+  above, but the mechanism described here is unchanged: whatever `/` currently resolves to gets
+  baked into this file — confirmed this happens regardless of
   whether `/` is listed in `routes.txt`, it's the builder's own default-document behavior, not
   something the routes file controls). `vercel.json`'s catch-all SPA-fallback rewrite
   (`/(.*)  → /index.html`) was reusing that SAME file for every route that ISN'T one of the ~27
@@ -733,8 +735,9 @@ before ever promoting to production.
   `index.html` and writes the result to a new `app-shell.html` in the same output directory —
   genuinely neutral (empty `<app-root></app-root>`, same compiled script/style tags). `vercel.json`'s
   catch-all rewrite now targets `/app-shell.html` instead of `/index.html`. `index.html` itself is
-  untouched and still correctly serves real Patterns content for literal `/` requests, which is
-  correct — the bug was only in reusing it for *unrelated* routes.
+  untouched and still correctly serves whatever `/` currently resolves to (Yodh content as of
+  2026-08-04) for literal `/` requests, which is correct — the bug was only in reusing it for
+  *unrelated* routes.
 - **Verifying a Vercel deployment when Deployment Protection (SSO) is on** (this project has
   `ssoProtection: { deploymentType: "all_except_custom_domains" }` — the auto-generated
   `*.vercel.app` project/branch domains require auth, but the manually-pinned custom domain
@@ -774,9 +777,12 @@ fonts.scss            ← self-hosted Inter (300/400/500/600/700) + JetBrains Mo
 order, then continues unchanged below — the old `--bg-0`/`--accent-blue`/`.glass-card` token and
 utility layer that every existing page consumes is still there and still fully in effect.
 
-**Default route is `/patterns`** (`app-routing.module.ts`, both `''` and `'**'`), not `/home` — Pattern
-Library is the landing page; Home (Daily Problem) is still a full page, just no longer the entry
-point. Nav bar order in `app.component.html` follows: Pattern Library first, Daily Problem second.
+**Default route is `/yodh`** (`app-routing.module.ts`, both `''` and `'**'`) as of 2026-08-04,
+superseding `/patterns` — Yodh became the app's "main character" the same day it shipped (see the
+Yodh section above), so it's also the landing page. Nav bar order in `app.component.html` follows:
+Yodh first, Pattern Library second, How to Solve third, Daily Problem fourth. `/patterns` is still
+a real page, just no longer the entry point (same relationship `/home` already had to `/patterns`
+before this change).
 
 ## Key Design Decisions
 - **MySQL 8 + Flyway** (`dev`/`prod` profiles): schema is owned entirely by versioned

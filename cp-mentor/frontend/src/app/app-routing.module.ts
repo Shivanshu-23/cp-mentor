@@ -22,7 +22,7 @@ const devOnlyRoutes: Routes = isDevMode()
 // method-guide, and styleguide, is what actually shrinks the initial
 // payload — AppModule now only declares the app shell. See CLAUDE.md.
 const routes: Routes = [
-  { path: '', redirectTo: 'patterns', pathMatch: 'full' },
+  { path: '', redirectTo: 'yodh', pathMatch: 'full' },
   ...devOnlyRoutes,
   { path: 'home', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
   { path: 'analysis/:id', loadComponent: () => import('./features/analysis/analysis.component').then(m => m.AnalysisComponent) },
@@ -46,7 +46,7 @@ const routes: Routes = [
   { path: 'solve/:id', loadComponent: () => import('./features/solve-session/solve-session-worksheet.component').then(m => m.SolveSessionWorksheetComponent), canActivate: [AuthGuard] },
   { path: 'recall-drill', loadComponent: () => import('./features/recall-drill/recall-drill.component').then(m => m.RecallDrillComponent), canActivate: [AuthGuard] },
   { path: 'progress', loadComponent: () => import('./features/progress-dashboard/progress-dashboard.component').then(m => m.ProgressDashboardComponent), canActivate: [AuthGuard] },
-  { path: '**', redirectTo: 'patterns' }
+  { path: '**', redirectTo: 'yodh' }
 
 ];
 

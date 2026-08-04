@@ -21,14 +21,14 @@
 
   <div id="nav-collapse" class="nav-collapse" [class.open]="mobileMenuOpen">
     <nav class="nav-links">
+      <a mat-button routerLink="/yodh" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">track_changes</mat-icon> Yodh
+      </a>
       <a mat-button routerLink="/patterns" routerLinkActive="active-link" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">lightbulb</mat-icon> Pattern Library
       </a>
       <a mat-button routerLink="/method-guide" routerLinkActive="active-link" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">menu_book</mat-icon> How to Solve
-      </a>
-      <a mat-button routerLink="/yodh" routerLinkActive="active-link" (click)="closeMobileMenu()">
-        <mat-icon aria-hidden="true">track_changes</mat-icon> Yodh
       </a>
       <a mat-button routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
         <mat-icon aria-hidden="true">home</mat-icon> Daily Problem
