@@ -1,0 +1,431 @@
+<div class="page-container page-fade-in">
+
+  <div class="guide-header">
+    <h1 class="gradient-text guide-title">Yodh — Approach a DSA Problem</h1>
+    <p class="guide-sub">The full method, the tools that back it, and a worksheet that saves itself to GitHub — one page, top to bottom.</p>
+  </div>
+
+  <nav class="guide-toc glass-card" aria-label="Section navigation">
+    <a *ngFor="let s of sections" [href]="'#' + s.id">{{ s.label }}</a>
+  </nav>
+
+  <!-- ── Part 0 — Mindset ─────────────────────────────────────────── -->
+  <section id="mindset" class="guide-section glass-card">
+    <div class="section-kicker">Part 0</div>
+    <h2><mat-icon aria-hidden="true">psychology_alt</mat-icon>The Mindset Shift</h2>
+    <ng-container *ngFor="let r of mindsetReframes; let first = first">
+      <div class="callout" [class.callout-purple]="!first">
+        <strong>{{ r.statement }}</strong>
+      </div>
+      <p style="white-space: pre-line;">{{ r.body }}</p>
+    </ng-container>
+  </section>
+
+  <!-- ── Part 1 — Five Phases ─────────────────────────────────────── -->
+  <section id="phases" class="guide-section glass-card">
+    <div class="section-kicker">Part 1</div>
+    <h2><mat-icon aria-hidden="true">list_alt</mat-icon>The Five Phases</h2>
+    <p>{{ phaseBudgetNote }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Phase</th><th>What you do</th><th>Time</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of phases">
+            <td class="mono">{{ p.number }}</td><td>{{ p.whatYouDo }}</td><td>{{ p.timeBudget }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Phase 0 — Constraints + embedded Constraint Analyzer ─────── -->
+  <section id="constraints" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">rule</mat-icon>Phase 0 — Constraints First</h2>
+    <p>{{ constraintsIntro }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Constraint on n</th><th>Intended complexity</th><th>Typical technique</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of complexityBudget">
+            <td class="mono">{{ row.nConstraint }}</td>
+            <td class="mono">{{ row.intendedComplexity }}</td>
+            <td>{{ row.typicalTechnique }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Also extract from the constraints:</p>
+    <ul>
+      <li *ngFor="let q of alsoExtractQuestions">{{ q.question }} → {{ q.implication }}</li>
+    </ul>
+    <p>{{ constraintsAction }}</p>
+    <div class="code-block">{{ constraintsCommentTemplate }}</div>
+
+    <h3>Try it — Constraint Analyzer</h3>
+    <div class="embed-wrap glass-card">
+      <app-constraint-analyzer [compact]="true"></app-constraint-analyzer>
+    </div>
+
+    <h3>How to use the candidate techniques</h3>
+    <p>{{ candidateTechniquesIntro }}</p>
+
+    <p><strong>{{ forwardIntro }}</strong></p>
+    <ol>
+      <li *ngFor="let s of forwardSteps">{{ s.text }}</li>
+    </ol>
+    <p style="white-space: pre-line;">{{ forwardExample }}</p>
+
+    <p><strong>{{ backwardIntro }}</strong></p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Your idea vs budget</th><th>Do this</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of backwardComparison">
+            <td>{{ row.situation }}</td><td>{{ row.action }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>{{ backwardClosing }}</p>
+
+    <div class="callout callout-green"><strong>{{ candidateTechniquesLine }}</strong></div>
+    <p>{{ candidateTechniquesClosing }}</p>
+  </section>
+
+  <!-- ── Phase 1 — Restate ────────────────────────────────────────── -->
+  <section id="restate" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">chat_bubble_outline</mat-icon>Phase 1 — Restate and Brute Force</h2>
+    <p>{{ restateGuidance.instruction }}</p>
+    <p>{{ restateGuidance.whyItMatters }}</p>
+    <div class="callout callout-red"><strong>Bad restatement:</strong> "{{ restateGuidance.badExample }}"</div>
+    <div class="callout callout-green"><strong>Good restatement:</strong> "{{ restateGuidance.goodExample }}"</div>
+    <p>{{ restateGuidance.goodExampleNote }}</p>
+    <p>{{ restateGuidance.bruteForceInstruction }}</p>
+    <div class="callout callout-purple"><strong>Diagnostic:</strong> {{ restateGuidance.diagnostic }}</div>
+  </section>
+
+  <!-- ── Phase 2 — Hand-solve + Algorithm Identifier ──────────────── -->
+  <section id="hand-solve" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">edit</mat-icon>Phase 2 — Solve a Tiny Case By Hand</h2>
+    <p>{{ handSolveGuidance.instruction }}</p>
+    <p>{{ handSolveGuidance.whyPaper }}</p>
+    <p>Then ask the question that does the work:</p>
+    <div class="callout"><strong>{{ handSolveGuidance.theQuestion }}</strong></div>
+    <p>{{ handSolveGuidance.followUp }} Examples:</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Problem</th><th>What your hand does</th><th>The algorithm</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let ex of handSolveExamples">
+            <td>{{ ex.problem }}</td><td>{{ ex.whatYourHandDoes }}</td><td>{{ ex.theAlgorithm }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>{{ handSolveGuidance.diagnostic }}</p>
+
+    <h3>The Algorithm Identifier</h3>
+    <p>Three lenses, applied in order. Filter across all three at once:</p>
+    <input type="text" class="glass-input identifier-filter" placeholder="Filter, e.g. &quot;grid&quot; or &quot;sorted&quot;" [(ngModel)]="identifierFilter">
+
+    <p class="table-caption">{{ lens1Intro }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Input</th><th>Reach for</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of lens1" [style.display]="identifierMatches(row) ? '' : 'none'">
+            <td>{{ row.clue }}</td><td>{{ row.reachFor }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-caption">{{ lens2Intro }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>The question says</th><th>Family</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of lens2" [style.display]="identifierMatches(row) ? '' : 'none'">
+            <td>{{ row.clue }}</td><td>{{ row.reachFor }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="table-caption">{{ lens3Intro }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Looks like this</th><th>But is actually</th><th>The difference</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of lens3" [style.display]="identifierMatches(row) ? '' : 'none'">
+            <td>{{ row.looksLike }}</td><td>{{ row.isActually }}</td><td>{{ row.difference }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Phase 3 — Bottleneck + Five Moves ────────────────────────── -->
+  <section id="bottleneck" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">bolt</mat-icon>Phase 3 — Name the Bottleneck, Run the Five Moves</h2>
+    <p>Ask exactly one question:</p>
+    <div class="callout"><strong>{{ bottleneckQuestion }}</strong></div>
+    <p>{{ bottleneckGuidance.instruction }}</p>
+    <div class="callout callout-red"><strong>Vague and useless:</strong> "{{ bottleneckGuidance.vagueExample }}"</div>
+    <div class="callout callout-green"><strong>Precise and actionable:</strong> "{{ bottleneckGuidance.preciseExample }}"</div>
+    <p>{{ bottleneckGuidance.closing }}</p>
+    <p>{{ bottleneckGuidance.checklistIntro }}</p>
+
+    <div class="glass-card move-card" *ngFor="let m of moves">
+      <div class="move-title">Move {{ m.number }} — {{ m.title }}</div>
+      <p>{{ m.revealingQuestion }}</p>
+      <p *ngIf="m.techniques.length"><strong>Techniques:</strong> {{ m.techniques.join(', ') }}.</p>
+      <p *ngIf="m.exampleProblems.length"><strong>Examples:</strong> {{ m.exampleProblems.join(', ') }}.</p>
+      <div class="callout callout-red" *ngIf="m.warning" style="margin: 10px 0 0;"><strong>Warning:</strong> {{ m.warning }}</div>
+      <span class="move-trigger" *ngIf="m.triggerPhrase">Trigger: {{ m.triggerPhrase }}</span>
+      <div class="move-patterns" *ngIf="m.relatedPatterns.length">
+        Related patterns:
+        <a *ngFor="let rp of m.relatedPatterns" [routerLink]="['/patterns', rp.slug]" class="pattern-link-chip">{{ rp.name }}</a>
+      </div>
+    </div>
+
+    <h3>Beyond the five</h3>
+    <p>{{ beyondTheFiveIntro }}</p>
+    <ul>
+      <li *ngFor="let b of beyondTheFive">{{ b.question }} {{ b.answer }}</li>
+    </ul>
+  </section>
+
+  <!-- ── Phase 4 — Code ───────────────────────────────────────────── -->
+  <section id="code" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">code</mat-icon>Phase 4 — Code</h2>
+    <div class="callout callout-red">{{ codeGuidance.warning }}</div>
+    <p>Before the first line, write two comments:</p>
+    <div class="code-block">{{ codeGuidance.headerComment }}</div>
+    <p>Java-specific habits that show up in interview feedback:</p>
+    <ul>
+      <li *ngFor="let h of javaHabits">{{ h.habit }}</li>
+    </ul>
+  </section>
+
+  <!-- ── Phase 5 — Dry Run + embedded Recall Drill ────────────────── -->
+  <section id="dry-run" class="guide-section glass-card">
+    <h2><mat-icon aria-hidden="true">fact_check</mat-icon>Phase 5 — Dry Run Before Submitting</h2>
+    <p>Run this checklist mentally, every time:</p>
+    <ul class="checklist">
+      <li *ngFor="let item of dryRunChecklist"><mat-icon aria-hidden="true">check_box_outline_blank</mat-icon>{{ item }}</li>
+    </ul>
+    <p>{{ dryRunClosing }}</p>
+
+    <h3>Trigger Dictionary</h3>
+    <p>{{ triggerDictionaryNote }}</p>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>You see this in the problem</th><th>Reach for this</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let row of triggerDictionary">
+            <td>{{ row.surfaceFeature }}</td><td>{{ row.reachFor }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Recall Drill</h3>
+    <div class="embed-wrap glass-card">
+      <app-recall-drill [compact]="true"></app-recall-drill>
+    </div>
+  </section>
+
+  <!-- ── Part 2 — Time Caps ───────────────────────────────────────── -->
+  <section id="time-caps" class="guide-section glass-card">
+    <div class="section-kicker">Part 2</div>
+    <h2><mat-icon aria-hidden="true">timer</mat-icon>Time Caps</h2>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>Difficulty</th><th>Cap before escalating</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let t of timeCaps">
+            <td><span class="badge" [ngClass]="t.difficulty.toLowerCase()">{{ t.difficulty }}</span></td>
+            <td>{{ t.cap }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>{{ timeCapInstruction }}</p>
+    <div class="callout">{{ timeCapRationale }}</div>
+  </section>
+
+  <!-- ── Part 3 — Stuck Ladder ────────────────────────────────────── -->
+  <section id="stuck-ladder" class="guide-section glass-card">
+    <div class="section-kicker">Part 3</div>
+    <h2><mat-icon aria-hidden="true">stairs</mat-icon>The Stuck Ladder</h2>
+    <p>{{ stuckLadderIntro }}</p>
+    <ol class="rung-list">
+      <li class="rung-item" *ngFor="let r of stuckLadder">
+        <strong>{{ r.title }}</strong><span *ngIf="r.timeBudget"> ({{ r.timeBudget }})</span> {{ r.body }}
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Part 4 — Recovery Protocol ───────────────────────────────── -->
+  <section id="recovery" class="guide-section glass-card">
+    <div class="section-kicker">Part 4</div>
+    <h2><mat-icon aria-hidden="true">restore</mat-icon>The Recovery Protocol</h2>
+    <p>{{ recoveryIntro }}</p>
+    <ol class="recovery-list">
+      <li class="recovery-item" *ngFor="let s of recoverySteps">
+        <strong>{{ s.title }}</strong> {{ s.body }}
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Worksheet — fillable, autosaves locally, Save commits to GitHub ── -->
+  <section id="worksheet" class="guide-section glass-card no-print-bg">
+    <h2><mat-icon aria-hidden="true">assignment</mat-icon>Per-Problem Worksheet</h2>
+    <p>Fill this in as you work the problem. It autosaves in your browser as you type — nothing is lost on refresh. "Save" renders it to markdown with real checkboxes and commits it to GitHub.</p>
+
+    <div class="glass-card worksheet-form">
+
+      <div class="wk-timer-row">
+        <span class="wk-timer mono">{{ formattedTimer() }}</span>
+        <button mat-stroked-button (click)="toggleTimer()">
+          <mat-icon aria-hidden="true">{{ timerRunning ? 'pause' : 'play_arrow' }}</mat-icon>
+          {{ timerRunning ? 'Pause' : 'Start' }}
+        </button>
+      </div>
+
+      <div class="worksheet-divider">Header</div>
+      <div class="wk-grid">
+        <input class="glass-input" placeholder="Problem" [(ngModel)]="wk['problem']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="LC #" [(ngModel)]="wk['lcNumber']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Difficulty" [(ngModel)]="wk['difficulty']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Date" [(ngModel)]="wk['date']" (ngModelChange)="onFieldChange()">
+      </div>
+
+      <div class="worksheet-divider">Phase 0: Constraints (before reading the statement)</div>
+      <div class="wk-grid">
+        <input class="glass-input" placeholder="n up to" [(ngModel)]="wk['nUpTo']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Values range" [(ngModel)]="wk['valuesRange']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Sorted?" [(ngModel)]="wk['sorted']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Negatives?" [(ngModel)]="wk['negatives']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Zeros?" [(ngModel)]="wk['zeros']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Duplicates?" [(ngModel)]="wk['duplicates']" (ngModelChange)="onFieldChange()">
+      </div>
+      <input class="glass-input wk-full" placeholder="TARGET COMPLEXITY" [(ngModel)]="wk['targetComplexity']" (ngModelChange)="onFieldChange()">
+
+      <div class="worksheet-divider">Phase 1: Restate + Brute Force</div>
+      <textarea class="glass-textarea" rows="2" placeholder="One-sentence restatement" [(ngModel)]="wk['restatement']" (ngModelChange)="onFieldChange()"></textarea>
+      <textarea class="glass-textarea" rows="2" placeholder="Brute force idea" [(ngModel)]="wk['bruteForceIdea']" (ngModelChange)="onFieldChange()"></textarea>
+      <div class="wk-grid two">
+        <input class="glass-input" placeholder="Brute force time" [(ngModel)]="wk['bruteForceTime']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Brute force space" [(ngModel)]="wk['bruteForceSpace']" (ngModelChange)="onFieldChange()">
+      </div>
+
+      <div class="worksheet-divider">Phase 2: Hand-Solve</div>
+      <div class="wk-grid two">
+        <input class="glass-input" placeholder="Small input used" [(ngModel)]="wk['smallInput']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Answer by hand" [(ngModel)]="wk['answerByHand']" (ngModelChange)="onFieldChange()">
+      </div>
+      <textarea class="glass-textarea" rows="2" placeholder="What did my brain actually do?" [(ngModel)]="wk['brainDid']" (ngModelChange)="onFieldChange()"></textarea>
+
+      <div class="worksheet-divider">Phase 3: Bottleneck</div>
+      <textarea class="glass-textarea" rows="2" placeholder="What exactly am I recomputing? (be precise, not vague)" [(ngModel)]="wk['bottleneckStatement']" (ngModelChange)="onFieldChange()"></textarea>
+      <p class="wk-hint" *ngIf="wk['bottleneckStatement'] && bottleneckWordCount < 15">Be more precise: name what is recomputed and between which indices.</p>
+
+      <div class="wk-check-grid">
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['move1']" (ngModelChange)="onFieldChange()"> 1. Store instead of recompute (hash / prefix / memo)</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['move2']" (ngModelChange)="onFieldChange()"> 2. Pointer or window never moves backwards</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['move3']" (ngModelChange)="onFieldChange()"> 3. Sort first, then sweep</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['move4']" (ngModelChange)="onFieldChange()"> 4. Only max/min matters (heap / monotonic stack)</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['move5']" (ngModelChange)="onFieldChange()"> 5. Answer is monotonic (binary search the answer)</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['moveNone']" (ngModelChange)="onFieldChange()"> None fired -&gt; DP? graph? greedy? bitmask?</label>
+      </div>
+
+      <textarea class="glass-textarea" rows="2" placeholder="Chosen approach (one sentence)" [(ngModel)]="wk['chosenApproach']" (ngModelChange)="onFieldChange()"></textarea>
+      <div class="wk-grid two">
+        <input class="glass-input" placeholder="Final time" [(ngModel)]="wk['finalTime']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Final space" [(ngModel)]="wk['finalSpace']" (ngModelChange)="onFieldChange()">
+      </div>
+
+      <div class="worksheet-divider">Phase 5: Dry Run</div>
+      <div class="wk-check-grid">
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr1']" (ngModelChange)="onFieldChange()"> n = 1 / minimum input</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr2']" (ngModelChange)="onFieldChange()"> all elements identical</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr3']" (ngModelChange)="onFieldChange()"> all negatives</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr4']" (ngModelChange)="onFieldChange()"> sorted ascending and descending</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr5']" (ngModelChange)="onFieldChange()"> duplicates present</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr6']" (ngModelChange)="onFieldChange()"> overflow check (use long?)</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr7']" (ngModelChange)="onFieldChange()"> answer at first/last index</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['dr8']" (ngModelChange)="onFieldChange()"> no valid answer exists</label>
+      </div>
+
+      <div class="worksheet-divider">Outcome</div>
+      <div class="wk-grid two">
+        <select class="glass-select" [(ngModel)]="wk['solvedUnaided']" (ngModelChange)="onFieldChange()">
+          <option value="">Solved unaided?</option>
+          <option value="Y">Yes</option>
+          <option value="N">No</option>
+        </select>
+        <select class="glass-select" [(ngModel)]="wk['highestRung']" (ngModelChange)="onFieldChange()">
+          <option value="">Highest rung reached</option>
+          <option value="1 constraints">1 — constraints</option>
+          <option value="2 example">2 — example</option>
+          <option value="3 family">3 — family</option>
+          <option value="4 tags">4 — tags</option>
+          <option value="5 hint">5 — hint</option>
+          <option value="6 solution">6 — solution</option>
+        </select>
+      </div>
+
+      <div class="worksheet-divider">Trigger Log (fill this even if you solved it)</div>
+      <div class="wk-grid two">
+        <input class="glass-input" placeholder="Trigger" [(ngModel)]="wk['trigger']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Missed" [(ngModel)]="wk['missed']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Family" [(ngModel)]="wk['family']" (ngModelChange)="onFieldChange()">
+        <input class="glass-input" placeholder="Reuse in" [(ngModel)]="wk['reuseIn']" (ngModelChange)="onFieldChange()">
+      </div>
+      <div class="wk-check-grid">
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['redoD2']" (ngModelChange)="onFieldChange()"> Redo D+2</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['redoD7']" (ngModelChange)="onFieldChange()"> Redo D+7</label>
+      </div>
+
+      <div class="worksheet-divider">If Solution Was Read</div>
+      <div class="wk-check-grid">
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['closedTabs']" (ngModelChange)="onFieldChange()"> Closed all tabs</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['waited10']" (ngModelChange)="onFieldChange()"> Waited 10 minutes</label>
+        <label class="worksheet-check-input"><input type="checkbox" [(ngModel)]="wkChecks['reimplemented']" (ngModelChange)="onFieldChange()"> Re-implemented from blank editor with no reference</label>
+      </div>
+
+      <div class="wk-actions">
+        <button mat-raised-button color="primary" (click)="save()" [disabled]="saveStatus === 'saving'">
+          <mat-icon aria-hidden="true">cloud_upload</mat-icon> Save to GitHub
+        </button>
+        <button mat-stroked-button (click)="downloadMarkdown()">
+          <mat-icon aria-hidden="true">download</mat-icon> Download
+        </button>
+        <button mat-stroked-button (click)="copyMarkdown()">
+          <mat-icon aria-hidden="true">content_copy</mat-icon> Copy
+        </button>
+        <button mat-stroked-button (click)="clearForm()" class="wk-clear-btn">
+          <mat-icon aria-hidden="true">delete_outline</mat-icon> Clear
+        </button>
+
+        <span class="status-chip" [ngClass]="saveStatus" *ngIf="saveStatus !== 'idle'">
+          <ng-container [ngSwitch]="saveStatus">
+            <span *ngSwitchCase="'saving'"><mat-icon aria-hidden="true">sync</mat-icon> Saving…</span>
+            <span *ngSwitchCase="'synced'">
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              Synced — <a [href]="lastCommitUrl" target="_blank" rel="noopener" class="cta-link">view commit</a>
+            </span>
+            <span *ngSwitchCase="'failed'">
+              <mat-icon aria-hidden="true">error_outline</mat-icon> {{ lastSaveError }}
+              <button mat-stroked-button (click)="save()" class="retry-btn">Retry</button>
+            </span>
+          </ng-container>
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+</div>

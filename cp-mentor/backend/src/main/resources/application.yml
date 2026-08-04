@@ -64,3 +64,13 @@ gemini:
 # Claude AI (optional)
 claude:
   api-key: ${CLAUDE_API_KEY:}
+
+# GitHub sync for the Yodh worksheet (POST /api/v1/worksheet/save). A single
+# fine-grained personal access token, not an OAuth App — see CLAUDE.md.
+# Leave GITHUB_PAT/GITHUB_WORKSHEET_REPO unset to get a clear 503 instead of
+# a silent failure; nothing else in the app depends on these being set.
+github:
+  worksheet:
+    pat: ${GITHUB_PAT:}
+    repo: ${GITHUB_WORKSHEET_REPO:} # "owner/repo", contents:read+write scope on this repo only
+    branch: ${GITHUB_WORKSHEET_BRANCH:master}

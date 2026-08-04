@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TriggerService, TriggerEntryResponse, ReviewResult } from '../../core/services/trigger.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-recall-drill',
@@ -17,8 +18,17 @@ import { TriggerService, TriggerEntryResponse, ReviewResult } from '../../core/s
 })
 export class RecallDrillComponent implements OnInit {
 
+  // When true (embedded on /yodh), hides the page-level heading/subtitle —
+  // same component class/bundle either way, no iframe.
+  @Input() compact = false;
+
   dueEntries: TriggerEntryResponse[] = [];
   loading = true;
+  // /yodh is a public page but the drill's data is JWT-only. Rather than let
+  // the route's own AuthGuard redirect (which only applies to /recall-drill
+  // itself), the embedded instance checks auth up front and shows a sign-in
+  // prompt instead of firing a request that will 401.
+  signedOut = false;
   revealed: Record<number, boolean> = {};
   recalledAnswer: Record<number, string> = {};
   grading: Record<number, boolean> = {};
@@ -39,10 +49,16 @@ export class RecallDrillComponent implements OnInit {
   constructor(
     private triggerService: TriggerService,
     private snack: MatSnackBar,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private auth: AuthService
   ) {}
 
   ngOnInit(): void {
+    if (!this.auth.isLoggedIn()) {
+      this.signedOut = true;
+      this.loading = false;
+      return;
+    }
     this.loadDue();
 
     const params = this.route.snapshot.queryParamMap;
@@ -63,9 +79,13 @@ export class RecallDrillComponent implements OnInit {
         this.drillHadEntries = entries.length > 0;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.snack.open('Failed to load today\'s drill', '', { duration: 3000 });
+        if (err?.status === 401) {
+          this.signedOut = true;
+        } else {
+          this.snack.open('Failed to load today\'s drill', '', { duration: 3000 });
+        }
       }
     });
   }

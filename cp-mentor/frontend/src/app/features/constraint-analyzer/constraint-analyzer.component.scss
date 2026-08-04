@@ -6,6 +6,14 @@
   .analyzer-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
 }
 
+// Embedded on /yodh — sits inside another page's own section padding, so
+// drop this component's own page-level margin/max-width/padding.
+.compact-embed {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .form-card { padding: 24px; margin-bottom: 20px; }
 
 .form-grid {

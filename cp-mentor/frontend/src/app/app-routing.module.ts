@@ -37,6 +37,11 @@ const routes: Routes = [
   // purely static reference page, standalone + lazy for the same reason.
   // Public, no AuthGuard.
   { path: 'method-guide', loadComponent: () => import('./features/method-guide/method-guide.component').then(m => m.MethodGuideComponent) },
+  // Yodh — the method text plus the Constraint Analyzer and Recall Drill
+  // embedded live on the same page, plus a fillable worksheet that commits
+  // to GitHub. Public, no AuthGuard — the embedded Recall Drill handles its
+  // own signed-out state instead of gating the whole page.
+  { path: 'yodh', loadComponent: () => import('./features/yodh/yodh.component').then(m => m.YodhComponent) },
   { path: 'solve', loadComponent: () => import('./features/solve-session/solve-session-list.component').then(m => m.SolveSessionListComponent), canActivate: [AuthGuard] },
   { path: 'solve/:id', loadComponent: () => import('./features/solve-session/solve-session-worksheet.component').then(m => m.SolveSessionWorksheetComponent), canActivate: [AuthGuard] },
   { path: 'recall-drill', loadComponent: () => import('./features/recall-drill/recall-drill.component').then(m => m.RecallDrillComponent), canActivate: [AuthGuard] },

@@ -8,6 +8,13 @@
 
 .header-actions { display: flex; justify-content: center; margin-bottom: 16px; }
 
+// Embedded on /yodh — see constraint-analyzer.component.scss for the same rule.
+.compact-embed {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .log-form-card { padding: 20px; margin-bottom: 20px; }
 
 .log-form-grid {

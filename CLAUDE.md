@@ -139,6 +139,13 @@ com.cpmentor/
 │             SolveSessionCreateRequest, SolveSessionUpdateRequest, SolveSessionCompleteRequest,
 │             SolveSessionResponse, TriggerEntryCreateRequest, TriggerEntryResponse,
 │             TriggerReviewRequest, StatsResponse)
+├── worksheet/                        ← Yodh page's "Save to GitHub" — commits the rendered
+│   │                                    worksheet markdown to an external repo, JWT-private
+│   ├── controller/WorksheetController.java   ← POST /api/v1/worksheet/save
+│   ├── service/GitHubWorksheetService.java   ← GitHub Contents API via HttpURLConnection
+│   │                                            (GET for sha then PUT, same pattern as
+│   │                                            LeetCodeFetchService), PAT-based, see gotchas
+│   └── dto/ (WorksheetSaveRequest, WorksheetSaveResponse)
 └── exception/
     └── GlobalExceptionHandler.java  ← handles ResponseStatusException too (see gotchas)
 ```
@@ -216,6 +223,11 @@ GET  /api/v1/visualizers   ← NOT built. Trace generation is entirely client-si
 # Gamification — v2 Phase F, both JWT, distinct top-level path from /api/v1/method/stats
 GET  /api/v1/stats/mastery       (recall streak, pattern mastery tiers, submissions-per-accepted trend)
 POST /api/v1/stats/share-card    (rate-limited 10/day — returns image/png bytes)
+
+# Yodh worksheet — JWT, not in any permitAll list (falls through to the default authenticated rule)
+POST /api/v1/worksheet/save      ({fileName, markdown} -> commits to GITHUB_WORKSHEET_REPO via a PAT,
+                                    returns {path, commitUrl}; 503 with a clear message if GITHUB_PAT/
+                                    GITHUB_WORKSHEET_REPO aren't set — see Environment Variables)
 
 # Dev tools
 GET  /swagger-ui.html
@@ -424,6 +436,26 @@ src/app/
 │   │                                  Public route, no AuthGuard. Registered in the command
 │   │                                  palette's static items and the navbar (after Pattern
 │   │                                  Library).
+│   ├── yodh/                       ← /yodh (2026-08-04), standalone + lazy, public, no AuthGuard.
+│   │                                  Same full-prose method content as method-guide (reused, not
+│   │                                  duplicated — same content/method/*.ts imports) reordered
+│   │                                  around two LIVE embeds: ConstraintAnalyzerComponent and
+│   │                                  RecallDrillComponent, both reused directly (not iframes) via
+│   │                                  a new `@Input() compact` on each that hides their own page
+│   │                                  heading. RecallDrillComponent also gained a `signedOut`
+│   │                                  state (checks AuthService.isLoggedIn() / catches 401) since
+│   │                                  /yodh is public but the drill's data is JWT-only — shows a
+│   │                                  sign-in prompt instead of hiding the section or erroring.
+│   │                                  New content this page needed that method-guide didn't:
+│   │                                  content/method/candidate-techniques.ts (forward/backward
+│   │                                  use of the Constraint Analyzer's technique shortlist) and
+│   │                                  algorithm-identifier.ts (3 concise lenses: input shape,
+│   │                                  question verb, anti-triggers — filterable as one list).
+│   │                                  Ends with a fillable worksheet (real inputs/checkboxes,
+│   │                                  localStorage autosave, a start/pause timer) that renders to
+│   │                                  markdown with real `- [x]` task lists and POSTs to
+│   │                                  /api/v1/worksheet/save; Download/Copy work with no GitHub
+│   │                                  setup. Not in routes.txt/prerendered — embeds live/JWT data.
 │   └── visualizer/                ← v2 Phase B/C, ALL standalone components (see gotchas for why
 │       │                             this is the one feature that deviates from the AppModule
 │       │                             convention beyond styleguide)
@@ -1256,6 +1288,14 @@ DB_USERNAME=
 DB_PASSWORD=
 
 SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
+
+# GitHub sync for the Yodh worksheet (POST /api/v1/worksheet/save) — a single
+# fine-grained PAT, not an OAuth App (deliberate, see the Yodh section above).
+# Target repo is github.com/Shivanshu-23/daily-dsa — created empty, default
+# branch "main" (not "master", unlike the drona repo itself).
+GITHUB_PAT=                        # fine-grained PAT, contents:read+write scoped to ONLY this one repo
+GITHUB_WORKSHEET_REPO=Shivanshu-23/daily-dsa
+GITHUB_WORKSHEET_BRANCH=main       # default in code is "master" — this repo needs "main" set explicitly
 ```
 
 ## What's Working ✅
@@ -1303,6 +1343,12 @@ SPRING_PROFILES_ACTIVE=  # dev (default) | prod | test
   stack" — verified live, returns exactly the linked problems, empty page for unknown slugs,
   never an error). Company Tracker gained a Pattern filter dropdown. Progress Dashboard gained a
   full, printable Trigger Log. **All 6 Practice Method phases are now complete.**
+- **Yodh** (2026-08-04, `/yodh`, public) — the full method text end-to-end on one page, with the
+  Constraint Analyzer and Recall Drill embedded live (not linked out to), a new "how to use
+  candidate techniques" explainer and a filterable 3-lens Algorithm Identifier, ending in a
+  fillable worksheet that autosaves locally and commits to GitHub via `POST
+  /api/v1/worksheet/save` (PAT-based, target repo `Shivanshu-23/daily-dsa` — see Environment
+  Variables). Download/Copy work with no GitHub setup.
 - Angular Material dark theme UI — Home, Analysis (2 tabs), Login, Register, Company Tracker
   (+ pattern filter), Pattern Library (grid + detail), Constraint Analyzer, Solve Sessions
   (+ printable completion review), Recall Drill, Progress Dashboard (+ printable trigger log

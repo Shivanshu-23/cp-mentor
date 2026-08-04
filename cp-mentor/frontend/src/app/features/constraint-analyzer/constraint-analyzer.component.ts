@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -22,6 +22,11 @@ import { PatternService, PatternSummary } from '../../core/services/pattern.serv
   styleUrls: ['./constraint-analyzer.component.scss']
 })
 export class ConstraintAnalyzerComponent implements OnInit {
+
+  // When true (embedded on /yodh), hides the page-level heading/subtitle so
+  // the component reads as an inline tool rather than its own page. Same
+  // component class/bundle either way — no iframe, no duplicate logic.
+  @Input() compact = false;
 
   // Form state
   n: number | null = 100000;

@@ -12,5 +12,7 @@ export * from './method/triggers';
 export * from './method/edge-cases';
 export * from './method/script';
 export * from './method/worksheet';
+export * from './method/candidate-techniques';
+export * from './method/algorithm-identifier';
 export * from './examples';
 export * from './patterns';

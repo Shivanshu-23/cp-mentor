@@ -58,3 +58,8 @@ export const TRIGGER_DICTIONARY: TriggerDictionaryRow[] = [
 ];
 
 export const TRIGGER_DICTIONARY_NOTE = 'Build your own version of this as you go. Starter set:';
+
+// Compact copy deck (2026-08-04) — see phases.ts for the pattern this follows.
+export const TRIGGER_LOG_COMPACT = 'Trigger = the surface feature you\'ll see in a future problem.';
+export const COMPARISON_CAPTION_COMPACT = 'Retrievable under pressure vs. not.';
+export const DAILY_REVISION_COMPACT = 'Daily revision: read only the trigger lines. Five minutes.';

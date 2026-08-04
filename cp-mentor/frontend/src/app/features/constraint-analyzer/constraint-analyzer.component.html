@@ -1,6 +1,6 @@
-<div class="page-container page-fade-in">
+<div class="page-container page-fade-in" [class.compact-embed]="compact">
 
-  <div class="analyzer-header no-print">
+  <div class="analyzer-header no-print" *ngIf="!compact">
     <h1 class="gradient-text analyzer-title">Constraint Analyzer</h1>
     <p class="analyzer-sub">Turn a max input size into a target complexity, candidate techniques, and an edge-case checklist — before you write a line of code.</p>
   </div>

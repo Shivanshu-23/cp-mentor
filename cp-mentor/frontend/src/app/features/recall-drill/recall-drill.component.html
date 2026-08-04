@@ -1,10 +1,18 @@
-<div class="page-container page-fade-in">
+<div class="page-container page-fade-in" [class.compact-embed]="compact">
 
-  <div class="drill-header">
+  <div class="drill-header" *ngIf="!compact">
     <h1 class="gradient-text drill-title">Recall Drill</h1>
     <p class="drill-sub">Type the approach from memory before you reveal the trigger. Be honest with your self-grade — it's the only thing that keeps this useful.</p>
   </div>
 
+  <!-- Signed-out embed on /yodh: never hide the section, just explain what it is -->
+  <div class="empty-state" *ngIf="signedOut">
+    <mat-icon aria-hidden="true">lock</mat-icon>
+    <p class="empty-title">Sign in to use the Recall Drill</p>
+    <p class="empty-sub">This spaced-repetition log of your own trigger phrases is per-account. <a routerLink="/login" class="cta-link">Sign in</a> or <a routerLink="/register" class="cta-link">create an account</a> to log triggers and see today's due entries here.</p>
+  </div>
+
+  <ng-container *ngIf="!signedOut">
   <div class="header-actions">
     <button mat-stroked-button (click)="showLogForm = !showLogForm">
       <mat-icon aria-hidden="true">add</mat-icon> Log a Trigger
@@ -87,5 +95,6 @@
       <p class="empty-sub">Log a trigger after your next solve session, or come back tomorrow.</p>
     </div>
   </div>
+  </ng-container>
 
 </div>
