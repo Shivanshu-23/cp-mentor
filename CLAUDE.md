@@ -424,17 +424,28 @@ src/app/
 │   │                                  submissions-per-accepted trend, "Share stat card" button)
 │   ├── method-guide/               ← /method-guide, standalone + lazy (same reason as
 │   │                                  visualizer/styleguide — large static content, kept out of
-│   │                                  the eager bundle). The full "How to Analyse and Approach a
-│   │                                  DSA Problem" reference doc (mindset, 5 phases, constraints
-│   │                                  table, 5 optimisation moves, stuck ladder, recovery
-│   │                                  protocol, trigger dictionary, 3 worked examples, interview
-│   │                                  script, printable blank worksheet) as one hand-written
-│   │                                  static page — content is user-authored prose, not sourced
-│   │                                  from the Phase E method-content API (wording wouldn't
-│   │                                  match the seeded DB rows verbatim; see the Phase E gotcha
-│   │                                  above about that content still having no consumer page).
-│   │                                  Public route, no AuthGuard. Registered in the command
-│   │                                  palette's static items and the navbar (after Pattern
+│   │                                  the eager bundle). **Trimmed 2026-08-04** to only the content
+│   │                                  /yodh doesn't have — Worked Examples (3 problems), the
+│   │                                  Interview Script, and the One-Card printable summary — with a
+│   │                                  callout at the top pointing to /yodh for everything else
+│   │                                  (mindset, 5 phases, constraints table, 5 optimisation moves,
+│   │                                  stuck ladder, recovery protocol, trigger dictionary, blank
+│   │                                  worksheet), since /yodh now covers all of that, better in the
+│   │                                  worksheet's case (interactive + GitHub-syncing vs. this
+│   │                                  page's old print-only blank form). Dead CSS from the removed
+│   │                                  sections was cleaned up in the same pass. A separate,
+│   │                                  never-shipped plan to add a compact/expandable-full rendering
+│   │                                  mode to this same page (content/method/*.ts briefly grew
+│   │                                  matching `*_COMPACT` exports) was abandoned mid-way when this
+│   │                                  trim-and-point-to-/yodh decision superseded it; those unused
+│   │                                  exports were removed in this same pass — if you see a stray
+│   │                                  reference to a "compact copy deck" anywhere, it's this. Content
+│   │                                  is user-authored prose, not sourced from the Phase E
+│   │                                  method-content API
+│   │                                  (wording wouldn't match the seeded DB rows verbatim; see the
+│   │                                  Phase E gotcha above about that content still having no
+│   │                                  consumer page). Public route, no AuthGuard. Registered in the
+│   │                                  command palette's static items and the navbar (after Pattern
 │   │                                  Library).
 │   ├── yodh/                       ← /yodh (2026-08-04), standalone + lazy, public, no AuthGuard.
 │   │                                  Same full-prose method content as method-guide (reused, not

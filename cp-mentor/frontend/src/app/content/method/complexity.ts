@@ -40,7 +40,3 @@ export const CONSTRAINTS_COMMENT_TEMPLATE =
 
 export const CONSTRAINTS_ACTION =
   'Write the target down before continuing. Literally type it as a comment:';
-
-// Compact copy deck (2026-08-04) — see phases.ts for the pattern this follows.
-export const CONSTRAINTS_COMPACT =
-  'Read the constraints before the statement. Write the target down as a comment.';

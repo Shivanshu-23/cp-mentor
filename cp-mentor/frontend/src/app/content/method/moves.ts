@@ -168,7 +168,3 @@ export const BEYOND_THE_FIVE: BeyondTheFiveFallback[] = [
 ];
 
 export const BEYOND_THE_FIVE_INTRO = 'If none of the five fit, ask these in order:';
-
-// Compact copy deck (2026-08-04) — see phases.ts for the pattern this follows.
-export const BOTTLENECK_COMPACT =
-  'Ask: what am I recomputing? Name what, and between which indices — be precise.';

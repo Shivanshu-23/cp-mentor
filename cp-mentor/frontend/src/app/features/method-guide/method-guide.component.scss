@@ -13,9 +13,8 @@
   &:hover { text-decoration: underline; }
 }
 
-// Sticky in-page jump nav — the doc is long, so this replaces a persistent
-// sidebar with a simpler horizontal chip strip that scrolls with the page
-// until it hits the top, same technique as a table of contents.
+// Sticky in-page jump nav — replaces a persistent sidebar with a simpler
+// horizontal chip strip that scrolls with the page until it hits the top.
 .guide-toc {
   position: sticky;
   top: 0;
@@ -102,151 +101,6 @@
   &.callout-purple{ border-left-color: var(--accent-purple); background: rgba(188, 140, 255, 0.06); strong { color: var(--accent-purple); } }
 }
 
-.guide-table-wrap { overflow-x: auto; margin-bottom: 16px; }
-
-.table-caption {
-  color: var(--text-lo);
-  font-size: 13px;
-  font-style: italic;
-  margin: -8px 0 16px;
-}
-
-.guide-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-  min-width: 480px;
-
-  th, td {
-    padding: 8px 12px;
-    border: 1px solid var(--border);
-    text-align: left;
-    color: #c9d1d9;
-  }
-
-  th {
-    background: var(--bg-1);
-    color: var(--text-hi);
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  tr:hover td { background: var(--bg-hover); }
-
-  td.mono, th.mono { font-family: 'JetBrains Mono', monospace; }
-}
-
-.move-card {
-  padding: 16px 20px;
-  margin-bottom: 14px;
-
-  .move-title { font-size: 15px; font-weight: 700; color: var(--text-hi); margin-bottom: 6px; }
-  .move-trigger {
-    display: inline-block;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--accent-orange);
-    background: rgba(255, 166, 87, 0.1);
-    border: 1px solid rgba(255, 166, 87, 0.35);
-    border-radius: 12px;
-    padding: 3px 10px;
-  }
-
-  .move-patterns {
-    margin-top: 10px;
-    font-size: 12.5px;
-    color: var(--text-lo);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .pattern-link-chip {
-    color: var(--accent-blue);
-    text-decoration: none;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 2px 10px;
-    font-size: 12px;
-
-    &:hover { text-decoration: underline; border-color: var(--accent-blue); }
-  }
-}
-
-.checklist {
-  list-style: none;
-  margin: 0 0 14px 0;
-
-  li {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 4px 0;
-
-    mat-icon { font-size: 18px; width: 18px; height: 18px; color: var(--text-muted); flex-shrink: 0; margin-top: 1px; }
-  }
-}
-
-.rung-list { counter-reset: rung; list-style: none; margin: 0 0 14px 0; }
-.rung-item {
-  counter-increment: rung;
-  position: relative;
-  padding: 10px 0 10px 40px;
-  border-bottom: 1px solid var(--bg-hover);
-  color: #c9d1d9;
-  font-size: 14.5px;
-  line-height: 1.7;
-
-  &::before {
-    content: counter(rung);
-    position: absolute;
-    left: 0;
-    top: 10px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: rgba(88, 166, 255, 0.12);
-    color: var(--accent-blue);
-    font-weight: 700;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  strong { color: var(--text-hi); }
-}
-
-.recovery-list { counter-reset: step; list-style: none; margin: 0 0 14px 0; }
-.recovery-item {
-  counter-increment: step;
-  position: relative;
-  padding: 8px 0 8px 40px;
-  color: #c9d1d9;
-  font-size: 14.5px;
-  line-height: 1.7;
-
-  &::before {
-    content: counter(step);
-    position: absolute;
-    left: 0;
-    top: 8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: rgba(63, 185, 80, 0.12);
-    color: var(--accent-green);
-    font-weight: 700;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  strong { color: var(--text-hi); }
-}
-
 .worked-example {
   padding: 22px 24px;
   margin-bottom: 20px;
@@ -272,41 +126,6 @@
   font-size: 14.5px;
   line-height: 2;
   font-style: italic;
-}
-
-// Blank fill-in-the-form worksheet — rendered as labelled underlines rather
-// than real <input>s, since this is a printable reference, not a live form
-// (Solve Session's actual worksheet already exists as an interactive page).
-.worksheet-card { padding: 22px 24px; }
-.worksheet-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 24px;
-  margin-bottom: 10px;
-  align-items: baseline;
-
-  .wk-label { color: var(--text-lo); font-size: 13px; white-space: nowrap; }
-  .wk-blank { flex: 1; min-width: 120px; border-bottom: 1px dashed var(--border); height: 18px; }
-}
-.worksheet-divider {
-  margin: 18px 0 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--accent-blue);
-}
-.worksheet-check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #c9d1d9;
-  font-size: 13.5px;
-  padding: 3px 0;
-
-  mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--text-muted); }
 }
 
 .one-card {

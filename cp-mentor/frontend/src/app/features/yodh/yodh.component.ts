@@ -49,8 +49,7 @@ import {
   STUCK_LADDER_INTRO,
   STUCK_LADDER,
   RECOVERY_INTRO,
-  RECOVERY_STEPS,
-  WORKSHEET_SECTIONS
+  RECOVERY_STEPS
 } from '@content';
 import { ConstraintAnalyzerComponent } from '../constraint-analyzer/constraint-analyzer.component';
 import { RecallDrillComponent } from '../recall-drill/recall-drill.component';
@@ -155,8 +154,6 @@ export class YodhComponent implements OnInit, OnDestroy {
 
   recoveryIntro = RECOVERY_INTRO;
   recoverySteps = RECOVERY_STEPS;
-
-  worksheetSections = WORKSHEET_SECTIONS;
 
   // ── Worksheet form state ──────────────────────────────────────────────
   private readonly STORAGE_KEY = 'yodh_worksheet_draft_v1';

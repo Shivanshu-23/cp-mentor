@@ -20,9 +20,6 @@ export const INTERVIEW_SCRIPT: ScriptStep[] = [
   { step: 8, line: '"For the follow-up on space, I think we could ..."' }
 ];
 
-// Compact copy deck (2026-08-04) — see phases.ts for the pattern this follows.
-export const SCRIPT_INTRO_COMPACT = 'Narrate out loud. The narration is what\'s graded.';
-
 export const SCRIPT_CLOSING = {
   lead: 'Never go silent.',
   body:
