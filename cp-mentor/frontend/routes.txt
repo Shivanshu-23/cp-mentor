@@ -1,4 +1,3 @@
-/
 /method-guide
 /patterns
 /patterns/two-pointer

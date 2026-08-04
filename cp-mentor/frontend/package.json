@@ -5,7 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build",
+    "build": "ng build && node scripts/create-app-shell.js",
     "watch": "ng build --watch --configuration development",
     "serve:ssr:cp-mentor-frontend": "node dist/cp-mentor-frontend/server/server.mjs"
   },
