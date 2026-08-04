@@ -85,7 +85,13 @@ export class SolveSessionListComponent implements OnInit {
   }
 
   isComplete(session: SolveSessionResponse): boolean {
-    return session.endedAt !== null;
+    // Loose inequality deliberately — the backend's Jackson config omits
+    // null fields from the JSON response entirely (default-property-
+    // inclusion: non_null, see CLAUDE.md), so an incomplete session's
+    // endedAt arrives as `undefined`, not `null`. A strict `!== null`
+    // check treats undefined as "not null" and wrongly reports the
+    // session as complete; `!= null` catches both.
+    return session.endedAt != null;
   }
 
   deleteSession(event: MouseEvent, session: SolveSessionResponse): void {
@@ -103,7 +109,9 @@ export class SolveSessionListComponent implements OnInit {
   }
 
   formatDuration(seconds: number | null): string {
-    if (seconds === null) return '—';
+    // Same null-vs-undefined gotcha as isComplete() above — loose equality
+    // is deliberate here too.
+    if (seconds == null) return '—';
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}m ${s}s`;
