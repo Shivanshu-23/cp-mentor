@@ -1,6 +1,12 @@
 import { AfterViewInit, Component, ElementRef, Inject, NgZone, OnDestroy, OnInit, PLATFORM_ID, ViewChild } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TiltDirective } from '../../shared/tilt.directive';
 import { ProblemService, Problem } from '../../core/services/problem.service';
 import { LeetCodeStatsService, LeetCodeStats } from '../../core/services/leetcode-stats.service';
 import { RESOURCE_SECTIONS, GAME_PLAN } from './resources.data';
@@ -8,6 +14,11 @@ import * as THREE from 'three';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
+  imports: [
+    CommonModule, MatSnackBarModule, MatExpansionModule, MatIconModule, MatButtonModule,
+    MatProgressSpinnerModule, MatTooltipModule, TiltDirective
+  ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

@@ -1,6 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SolveSessionService, SolveSessionResponse, Move } from '../../core/services/solve-session.service';
 import { PatternService, PatternCandidate, HintResult } from '../../core/services/pattern.service';
 
@@ -12,6 +17,8 @@ const DIFFICULTY_CAP_SECONDS: Record<string, number> = {
 
 @Component({
   selector: 'app-solve-session-worksheet',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, MatSnackBarModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './solve-session-worksheet.component.html',
   styleUrls: ['./solve-session-worksheet.component.scss']
 })

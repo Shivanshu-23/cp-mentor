@@ -1,9 +1,14 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { CommandPaletteService, PaletteItem } from '../../core/services/command-palette.service';
 
 @Component({
   selector: 'app-command-palette',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatIconModule],
   templateUrl: './command-palette.component.html',
   styleUrls: ['./command-palette.component.scss']
 })

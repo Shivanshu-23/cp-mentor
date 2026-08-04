@@ -1,15 +1,23 @@
-import { Directive, ElementRef, HostListener, Input, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, HostListener, Inject, Input, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Directive({
-  selector: '[appTilt]'
+  selector: '[appTilt]',
+  standalone: true
 })
 export class TiltDirective {
   @Input() tiltMax = 10;
   @Input() tiltScale = 1.03;
 
-  private reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // window doesn't exist during SSR; this directive is instantiated for every
+  // matching element in the template regardless of the host component's own
+  // lifecycle guards, so it needs its own guard.
+  private readonly isBrowser: boolean;
+  private reducedMotion = false;
 
-  constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2) {
+  constructor(private el: ElementRef<HTMLElement>, private renderer: Renderer2, @Inject(PLATFORM_ID) platformId: object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+    if (this.isBrowser) this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.renderer.addClass(this.el.nativeElement, 'tilt-el');
   }
 

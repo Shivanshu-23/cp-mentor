@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { KeyboardShortcutsService, ShortcutEntry } from '../../core/services/keyboard-shortcuts.service';
 
 @Component({
   selector: 'app-help-overlay',
+  standalone: true,
+  imports: [CommonModule, MatIconModule],
   templateUrl: './help-overlay.component.html',
   styleUrls: ['./help-overlay.component.scss']
 })

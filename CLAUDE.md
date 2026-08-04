@@ -435,12 +435,11 @@ src/app/
 ├── dev/
 │   └── styleguide/                ← v2 Phase A, dev-only (see gotchas — isDevMode() gated)
 │       └── styleguide.component.ts/html/scss  ← standalone, lazy-loaded, /styleguide
-└── app.module.ts                  ← all declarations + Material imports (NOT lazy-loaded —
-                                       every feature here is declared directly in AppModule;
-                                       this codebase doesn't use per-feature NgModules — styleguide
-                                       and the entire visualizer/ feature are the deliberate
-                                       exceptions, both standalone + lazy so their code isn't in
-                                       the initial bundle, per the v2 spec's performance budget)
+└── app.module.ts                  ← declares ONLY AppComponent now. Every feature route is a
+                                       standalone component, lazy-loaded via loadComponent in
+                                       app-routing.module.ts — see the "Route-level lazy-loading"
+                                       entry below for why this changed from the original
+                                       "everything eager in AppModule" design.
 ```
 
 Pattern Library's detail page (`pattern-detail.component`) shows a "Watch this pattern, step by
@@ -558,6 +557,51 @@ files — not just an empty shell).
   TypeScript program and broke the plain browser build. Fixed by adding `src/main.ts` to that
   same `files` array. Any future `ng add` schematic touching `tsconfig.json` should be checked
   against this same-file gotcha before trusting its output.
+
+### Route-level lazy-loading (fixed the Lighthouse Performance gap noted above)
+The 73-score Lighthouse Performance result above was root-caused to the app's original design:
+every feature route (`Home`, `Analysis`, `Login`, `Register`, `CompanyTracker`, `PatternLibrary`,
+`PatternDetail`, `ConstraintAnalyzer`, `SolveSessionList`, `SolveSessionWorksheet`, `RecallDrill`,
+`ProgressDashboard` — 12 components) was declared directly in `AppModule` and referenced via
+plain `{ path: 'x', component: X }` routes, forcing all 12 into the single eager initial bundle
+regardless of which page a visitor actually opened. Fixed by converting all 12 to
+`standalone: true` components with an explicit `imports: [...]` array (each pulling in only the
+Angular/Material modules its own template actually uses — audited via grep against every
+`.component.html` for `mat-*` tags, `ngModel`/`formGroup`, and `routerLink` before converting, not
+guessed), and switching every route to `loadComponent: () => import(...)`, matching the pattern
+already used for `/method-guide`, `/visualize/:slug`, and `/styleguide`. `AppModule` now declares
+only `AppComponent` and imports just what its own navbar shell needs
+(`MatToolbarModule`/`MatButtonModule`/`MatIconModule`) plus the two standalone components it
+renders directly (`CommandPaletteComponent`, `HelpOverlayComponent` — always-visible on every
+page, so kept eager rather than lazy).
+- **Result, measured, not estimated**: initial bundle dropped from ~1.75MB raw / ~372KB gzipped
+  to **~672KB raw / ~152KB gzipped** (`ng build` output, compare initial-chunk totals before/after).
+  Lighthouse Performance on `/method-guide` (same desktop-preset methodology as above) went
+  **73 → 86** (FCP 2.2s → 1.2s, LCP 2.5s → 1.8s). The remaining ~4-point gap to the ≥90 target has
+  no further flagged render-blocking resources or unused-code audits — it's the residual cost of
+  Lighthouse's simulated-throttling methodology plus genuine hydration JS execution, not a fixable
+  bug at this point. `three.js` (previously bundled into the eager `main.js` because `HomeComponent`
+  was eager) is now isolated entirely inside `home-component`'s own lazy chunk (~554KB raw / ~117KB
+  gzipped) — only downloaded by visitors who actually open `/home`.
+- **Two real bugs found and fixed while doing this audit, not cosmetic side effects**:
+  `CommandPaletteComponent` used `[(ngModel)]` but I'd only given it `CommonModule`/`MatIconModule`
+  on the first pass — caught immediately by `strictTemplates: true` (already enabled in
+  `tsconfig.json`) as a hard `NG8002` compile error, not a silent runtime failure; this is exactly
+  why the conversion was done via `ng build` iteration rather than a blind find-and-replace.
+  Separately, `TiltDirective` (`shared/tilt.directive.ts`, used 5× in `home.component.html`) read
+  `window.matchMedia(...)` in a field initializer with no `isPlatformBrowser` guard — a latent
+  SSR-crash bug that predates this session's SSR work entirely and had gone undetected because
+  `/home` was never actually exercised under SSR with its data-dependent template branches
+  resolved. Fixed with the same `@Inject(PLATFORM_ID)` + `isPlatformBrowser()` pattern used
+  elsewhere (`AuthService`, `KeyboardShortcutsService`, `HomeComponent` itself — see above).
+- **Verified functionally, not just by bundle size**: rebuilt, confirmed all 28 prerendered routes
+  still emit correct static HTML (unaffected by lazy-loading — prerendering already resolves
+  dynamic `import()`s fine in Node), then ran the SSR Node server (`server.mjs`) directly against
+  every one of the 9 non-prerendered public routes (`/`, `/home`, `/login`, `/register`,
+  `/company-tracker`, `/patterns`, `/patterns/:slug`, `/constraint-analyzer`, `/method-guide`) and
+  confirmed each returns 200 with genuinely its own content (e.g. `/login` contains "Sign In",
+  `/company-tracker` contains "Company") — not empty shells, not another route's content, and the
+  server process stayed alive across all of them.
 
 ### Deploying the SSR/prerender build to Vercel — investigation and the fallback-content fix
 Two things needed checking before this was safe to push live, both resolved and verified via

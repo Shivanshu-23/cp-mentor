@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { PatternCategory } from '../../core/services/pattern.service';
 import { Pattern, PATTERNS } from '@content';
 
@@ -8,6 +14,8 @@ import { Pattern, PATTERNS } from '@content';
 // backend round-trip. See CLAUDE.md "Frontend-Static Content Layer".
 @Component({
   selector: 'app-pattern-library',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './pattern-library.component.html',
   styleUrls: ['./pattern-library.component.scss']
 })

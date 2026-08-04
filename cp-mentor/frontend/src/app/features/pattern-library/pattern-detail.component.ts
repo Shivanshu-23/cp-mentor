@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CommonModule, Location } from '@angular/common';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Pattern, PatternProblemRef, getPattern, PATTERN_PROBLEMS_BY_SLUG } from '@content';
 import { findVisualizerSlugForPattern } from '../visualizer/visualizer-registry';
 
@@ -9,6 +14,11 @@ import { findVisualizerSlugForPattern } from '../visualizer/visualizer-registry'
 // PatternLibraryComponent — see CLAUDE.md "Frontend-Static Content Layer".
 @Component({
   selector: 'app-pattern-detail',
+  standalone: true,
+  imports: [
+    CommonModule, RouterLink, MatSnackBarModule, MatButtonModule, MatIconModule,
+    MatProgressSpinnerModule, MatTabsModule, MatTooltipModule
+  ],
   templateUrl: './pattern-detail.component.html',
   styleUrls: ['./pattern-detail.component.scss']
 })

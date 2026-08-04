@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TriggerService, TriggerEntryResponse, ReviewResult } from '../../core/services/trigger.service';
 
 @Component({
   selector: 'app-recall-drill',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, MatSnackBarModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './recall-drill.component.html',
   styleUrls: ['./recall-drill.component.scss']
 })

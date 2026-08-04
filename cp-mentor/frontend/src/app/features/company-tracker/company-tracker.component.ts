@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { PatternService, PatternSummary } from '../../core/services/pattern.service';
 
@@ -28,6 +34,11 @@ export interface PageResponse<T> {
 
 @Component({
   selector: 'app-company-tracker',
+  standalone: true,
+  imports: [
+    CommonModule, FormsModule, RouterLink, MatSnackBarModule, MatIconModule, MatButtonModule,
+    MatProgressSpinnerModule, MatTooltipModule
+  ],
   templateUrl: './company-tracker.component.html',
   styleUrls: ['./company-tracker.component.scss']
 })

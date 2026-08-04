@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TriggerService, StatsResponse, TriggerEntryResponse } from '../../core/services/trigger.service';
 import { MasteryService, MasteryResponse, MasteryTier } from '../../core/services/mastery.service';
 
 @Component({
   selector: 'app-progress-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterLink, MatSnackBarModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
   templateUrl: './progress-dashboard.component.html',
   styleUrls: ['./progress-dashboard.component.scss']
 })

@@ -1,18 +1,6 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { LoginComponent } from './features/login/login.component';
-import { RegisterComponent } from './features/register/register.component';
-import { HomeComponent } from './features/home/home.component';
-import { AnalysisComponent } from './features/analysis/analysis.component';
 import { AuthGuard } from './core/guards/auth.guard';
-import { CompanyTrackerComponent } from './features/company-tracker/company-tracker.component';
-import { PatternLibraryComponent } from './features/pattern-library/pattern-library.component';
-import { PatternDetailComponent } from './features/pattern-library/pattern-detail.component';
-import { ConstraintAnalyzerComponent } from './features/constraint-analyzer/constraint-analyzer.component';
-import { SolveSessionListComponent } from './features/solve-session/solve-session-list.component';
-import { SolveSessionWorksheetComponent } from './features/solve-session/solve-session-worksheet.component';
-import { RecallDrillComponent } from './features/recall-drill/recall-drill.component';
-import { ProgressDashboardComponent } from './features/progress-dashboard/progress-dashboard.component';
 
 // /styleguide is a dev-only design-token reference (Phase A). It's lazy-loaded
 // (loadComponent, standalone) so it ships as its own chunk, and the route is
@@ -26,29 +14,33 @@ const devOnlyRoutes: Routes = isDevMode()
   ? [{ path: 'styleguide', loadComponent: () => import('./dev/styleguide/styleguide.component').then(m => m.StyleguideComponent) }]
   : [];
 
+// Every feature route below is standalone + loadComponent — the whole app
+// used to be declared eagerly in AppModule (~980KB raw / ~372KB gzipped
+// initial bundle, the root cause of a 73 Lighthouse Performance score on
+// /method-guide). Converting every route to lazy-loaded standalone
+// components, matching the pattern already used for visualize/:slug,
+// method-guide, and styleguide, is what actually shrinks the initial
+// payload — AppModule now only declares the app shell. See CLAUDE.md.
 const routes: Routes = [
   { path: '', redirectTo: 'patterns', pathMatch: 'full' },
   ...devOnlyRoutes,
-  { path: 'home', component: HomeComponent },
-  { path: 'analysis/:id', component: AnalysisComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'company-tracker', component: CompanyTrackerComponent },
-  { path: 'patterns', component: PatternLibraryComponent },
-  { path: 'patterns/:slug', component: PatternDetailComponent },
-  { path: 'constraint-analyzer', component: ConstraintAnalyzerComponent },
-  // v2 Phase B/C — lazy per the spec's performance budget ("every visualizer
-  // lazy-loaded on route"). Standalone, so it isn't pulled into AppModule's
-  // eager bundle at all; only fetched when a user actually opens one.
+  { path: 'home', loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent) },
+  { path: 'analysis/:id', loadComponent: () => import('./features/analysis/analysis.component').then(m => m.AnalysisComponent) },
+  { path: 'login', loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent) },
+  { path: 'register', loadComponent: () => import('./features/register/register.component').then(m => m.RegisterComponent) },
+  { path: 'company-tracker', loadComponent: () => import('./features/company-tracker/company-tracker.component').then(m => m.CompanyTrackerComponent) },
+  { path: 'patterns', loadComponent: () => import('./features/pattern-library/pattern-library.component').then(m => m.PatternLibraryComponent) },
+  { path: 'patterns/:slug', loadComponent: () => import('./features/pattern-library/pattern-detail.component').then(m => m.PatternDetailComponent) },
+  { path: 'constraint-analyzer', loadComponent: () => import('./features/constraint-analyzer/constraint-analyzer.component').then(m => m.ConstraintAnalyzerComponent) },
   { path: 'visualize/:slug', loadComponent: () => import('./features/visualizer/visualizer-page.component').then(m => m.VisualizerPageComponent) },
   // The "How to Analyse and Approach a DSA Problem" method guide — a long,
-  // purely static reference page, so it's standalone + lazy for the same
-  // bundle-size reason as the visualizer route above. Public, no AuthGuard.
+  // purely static reference page, standalone + lazy for the same reason.
+  // Public, no AuthGuard.
   { path: 'method-guide', loadComponent: () => import('./features/method-guide/method-guide.component').then(m => m.MethodGuideComponent) },
-  { path: 'solve', component: SolveSessionListComponent, canActivate: [AuthGuard] },
-  { path: 'solve/:id', component: SolveSessionWorksheetComponent, canActivate: [AuthGuard] },
-  { path: 'recall-drill', component: RecallDrillComponent, canActivate: [AuthGuard] },
-  { path: 'progress', component: ProgressDashboardComponent, canActivate: [AuthGuard] },
+  { path: 'solve', loadComponent: () => import('./features/solve-session/solve-session-list.component').then(m => m.SolveSessionListComponent), canActivate: [AuthGuard] },
+  { path: 'solve/:id', loadComponent: () => import('./features/solve-session/solve-session-worksheet.component').then(m => m.SolveSessionWorksheetComponent), canActivate: [AuthGuard] },
+  { path: 'recall-drill', loadComponent: () => import('./features/recall-drill/recall-drill.component').then(m => m.RecallDrillComponent), canActivate: [AuthGuard] },
+  { path: 'progress', loadComponent: () => import('./features/progress-dashboard/progress-dashboard.component').then(m => m.ProgressDashboardComponent), canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'patterns' }
 
 ];

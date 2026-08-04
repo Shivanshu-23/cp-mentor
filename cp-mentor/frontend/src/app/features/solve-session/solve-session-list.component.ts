@@ -1,10 +1,17 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SolveSessionService, SolveSessionResponse } from '../../core/services/solve-session.service';
 
 @Component({
   selector: 'app-solve-session-list',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './solve-session-list.component.html',
   styleUrls: ['./solve-session-list.component.scss']
 })

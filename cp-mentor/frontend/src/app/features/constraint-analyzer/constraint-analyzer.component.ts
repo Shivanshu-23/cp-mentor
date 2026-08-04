@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { forkJoin } from 'rxjs';
 import {
   ConstraintAnalyzerService,
@@ -11,6 +16,8 @@ import { PatternService, PatternSummary } from '../../core/services/pattern.serv
 
 @Component({
   selector: 'app-constraint-analyzer',
+  standalone: true,
+  imports: [CommonModule, FormsModule, MatSnackBarModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './constraint-analyzer.component.html',
   styleUrls: ['./constraint-analyzer.component.scss']
 })
