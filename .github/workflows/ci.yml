@@ -1,0 +1,47 @@
+name: CI
+
+# Build verification only — not deploy automation. Render and Vercel already
+# auto-deploy on push to master via their own webhooks (see CLAUDE.md); this
+# workflow exists to catch a broken build BEFORE it reaches either of them,
+# since neither Render nor Vercel run `mvn test` or Angular's strict template
+# type-checking as a gate.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cp-mentor/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Compile
+        run: mvn -B -q compile
+      - name: Test
+        run: mvn -B test
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cp-mentor/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: cp-mentor/frontend/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npx ng build --configuration development
