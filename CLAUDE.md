@@ -559,6 +559,58 @@ files — not just an empty shell).
   same `files` array. Any future `ng add` schematic touching `tsconfig.json` should be checked
   against this same-file gotcha before trusting its output.
 
+### Deploying the SSR/prerender build to Vercel — investigation and the fallback-content fix
+Two things needed checking before this was safe to push live, both resolved and verified via
+**Vercel preview deployments** (`vercel deploy`, no `--prod` — doesn't touch the production alias)
+before ever promoting to production.
+- **Does Vercel auto-wire `server.mjs` as a serverless function because the project has
+  `framework: "angular"` set (checked via `GET /v9/projects/{id}` on the Vercel API), or does the
+  repo's own `vercel.json` (`buildCommand`/`outputDirectory`/`rewrites`) win?** Confirmed by
+  inspecting real preview-deployment responses: **`vercel.json` wins** — this is a pure static
+  deployment of `dist/cp-mentor-frontend/browser`, and `server/server.mjs` is never invoked on
+  Vercel at all (it's only used if something explicitly runs
+  `npm run serve:ssr:cp-mentor-frontend`, e.g. for local testing or a future non-Vercel Node
+  host). Good to know definitively rather than assume, since the two config layers disagreeing
+  (project API showed a stale `buildCommand: "ng build"` / `outputDirectory: "dist"` that doesn't
+  match `vercel.json`'s `npm run build` / `dist/cp-mentor-frontend/browser`) made this genuinely
+  ambiguous without a real test.
+- **Real bug found on the first preview deploy**: Angular's SSR build always server-renders the
+  literal `/` route into `dist/browser/index.html` (in this app `/` redirects to `/patterns`, so
+  that file has real Pattern Library content baked in — confirmed this happens regardless of
+  whether `/` is listed in `routes.txt`, it's the builder's own default-document behavior, not
+  something the routes file controls). `vercel.json`'s catch-all SPA-fallback rewrite
+  (`/(.*)  → /index.html`) was reusing that SAME file for every route that ISN'T one of the ~27
+  explicitly prerendered ones — so a fresh visit to `/login`, `/home`, or `/company-tracker`
+  served the wrong page's content (confirmed by curling a preview deployment and finding
+  "Monotonic Stack"/"Pattern Library" text inside the `/login` response) until Angular's
+  hydration-mismatch recovery client-side re-rendered the correct page. Not a crash, but a real,
+  visible regression that didn't exist before SSR was added (the old fallback file was a neutral,
+  route-agnostic empty shell).
+- **Fix**: `frontend/scripts/create-app-shell.js`, run as a postbuild step
+  (`package.json`'s `build` script is now `"ng build && node scripts/create-app-shell.js"`),
+  regex-strips the server-rendered `<app-root>...</app-root>` inner content out of the built
+  `index.html` and writes the result to a new `app-shell.html` in the same output directory —
+  genuinely neutral (empty `<app-root></app-root>`, same compiled script/style tags). `vercel.json`'s
+  catch-all rewrite now targets `/app-shell.html` instead of `/index.html`. `index.html` itself is
+  untouched and still correctly serves real Patterns content for literal `/` requests, which is
+  correct — the bug was only in reusing it for *unrelated* routes.
+- **Verifying a Vercel deployment when Deployment Protection (SSO) is on** (this project has
+  `ssoProtection: { deploymentType: "all_except_custom_domains" }` — the auto-generated
+  `*.vercel.app` project/branch domains require auth, but the manually-pinned custom domain
+  `cp-mentor-delta.vercel.app` is exempt and always public): generate a bypass token via
+  `vercel curl <url>` (it auto-generates and prints one), or fetch it from
+  `GET /v9/projects/{id}` → `protectionBypass` (an object keyed by the live secret value — do
+  **not** commit this value anywhere, treat it like any other credential) and send it as the
+  `x-vercel-protection-bypass` request header on plain `curl` calls. This is how both preview
+  deployments were verified end-to-end (checked real HTML content per route, not just HTTP status
+  codes) before promoting.
+- **Verified and now live**: pushed to `master`, the (already-fixed, see below) auto-deploy
+  webhook picked it up and it landed with `target: "production"` automatically, then
+  `vercel alias set <deployment> cp-mentor-delta.vercel.app` pointed the real public URL at it.
+  Confirmed post-promotion on the actual live domain: `/method-guide` and `/patterns/:slug` serve
+  real prerendered content, `/login`/`/home`/`/company-tracker` serve the neutral shell (no more
+  wrong-content flash), and the `/api/*` → Render backend rewrite still works.
+
 ## Design System (v2 Phase A) — `frontend/src/styles/`
 ```
 tokens.scss          ← the ONLY place raw colour/spacing/radius/type/motion values may live.
