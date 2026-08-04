@@ -33,6 +33,7 @@
       <div>Status</div>
       <div>Duration</div>
       <div>Submissions</div>
+      <div></div>
     </div>
     <div class="table-row sessions-row" *ngFor="let s of sessions" (click)="resume(s)">
       <div class="row-title-cell">
@@ -47,6 +48,11 @@
       </div>
       <div class="mono">{{ formatDuration(s.durationSeconds) }}</div>
       <div class="mono">{{ s.submissionCount }}</div>
+      <div>
+        <button class="row-delete-btn" type="button" (click)="deleteSession($event, s)" [attr.aria-label]="'Delete session ' + s.title">
+          <mat-icon aria-hidden="true">delete_outline</mat-icon>
+        </button>
+      </div>
     </div>
 
     <div *ngIf="sessions.length === 0" class="empty-state">

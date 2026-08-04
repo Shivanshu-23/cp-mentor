@@ -35,6 +35,16 @@
   gap: 8px;
   color: var(--accent-red);
   font-size: 13px;
+  line-height: 1.6;
+
+  mat-icon { flex-shrink: 0; }
+}
+
+.cta-link {
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
 }
 
 .step-indicator {

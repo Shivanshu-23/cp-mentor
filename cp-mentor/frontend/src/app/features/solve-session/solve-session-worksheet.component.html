@@ -16,11 +16,16 @@
         </div>
         <div class="timer-box" [class.over-cap]="overCap">
           <mat-icon aria-hidden="true">timer</mat-icon>
-          <span class="timer-value">{{ formatTime(elapsedSeconds) }}</span>
+          <span class="timer-value">{{ formatElapsed(elapsedSeconds) }}</span>
           <span class="timer-cap">/ {{ formatTime(difficultyCapSeconds) }}</span>
         </div>
       </div>
-      <div class="over-cap-warning" *ngIf="overCap">
+      <div class="over-cap-warning" *ngIf="sessionLooksAbandoned">
+        <mat-icon aria-hidden="true">history</mat-icon> This session was started {{ formatElapsed(elapsedSeconds) }} ago and hasn't been completed —
+        the timer counts real time since it began, not active time. If you're resuming old work, that's expected; otherwise
+        <a routerLink="/solve" class="cta-link">start a fresh session</a> instead.
+      </div>
+      <div class="over-cap-warning" *ngIf="overCap && !sessionLooksAbandoned">
         <mat-icon aria-hidden="true">warning</mat-icon> Over the {{ session.difficulty }} time cap — consider wrapping up or requesting a hint.
       </div>
     </div>

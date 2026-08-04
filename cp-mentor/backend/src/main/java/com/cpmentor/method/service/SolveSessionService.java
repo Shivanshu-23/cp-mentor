@@ -81,6 +81,11 @@ public class SolveSessionService {
         return toDTO(findOwned(userEmail, id));
     }
 
+    @Transactional
+    public void delete(String userEmail, Long id) {
+        repository.delete(findOwned(userEmail, id));
+    }
+
     @Transactional(readOnly = true)
     public Page<SolveSessionResponse> list(String userEmail, String difficulty, Boolean solvedUnaided, Pageable pageable) {
         Page<SolveSession> page;

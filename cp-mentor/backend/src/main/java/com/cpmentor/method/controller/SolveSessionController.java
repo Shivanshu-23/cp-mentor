@@ -63,6 +63,14 @@ public class SolveSessionController {
         return ResponseEntity.ok(solveSessionService.getById(user.getUsername(), id));
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a solve session — owner-only")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @AuthenticationPrincipal UserDetails user) {
+        if (user == null) return ResponseEntity.status(401).build();
+        solveSessionService.delete(user.getUsername(), id);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     @Operation(summary = "List the current user's solve sessions (paginated, filterable by difficulty or solvedUnaided)")
     public ResponseEntity<Page<SolveSessionResponse>> list(

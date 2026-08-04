@@ -148,6 +148,27 @@ export class SolveSessionWorksheetComponent implements OnInit, OnDestroy {
     return `${m}:${s.toString().padStart(2, '0')}`;
   }
 
+  // The header timer is elapsed = now - startedAt with no pause/resume
+  // tracking (matches the backend's own duration calc on complete —
+  // Duration.between(startedAt, now) — so the two numbers always agree).
+  // That's correct for an actively-worked session, but reopening an old,
+  // never-completed one shows real wall-clock time since creation, which
+  // can run into hours. "331:45" in MM:SS reads like a broken/garbled
+  // number; past 60 minutes this switches to "5h 31m" so a stale session
+  // reads as stale, not as a bug.
+  formatElapsed(seconds: number): string {
+    if (seconds < 3600) return this.formatTime(seconds);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${h}h ${m}m`;
+  }
+
+  get sessionLooksAbandoned(): boolean {
+    // "Abandoned" here just means the elapsed time is wildly past a normal
+    // solve — 3x the cap is well past "ran long," not a tight threshold.
+    return this.elapsedSeconds > this.difficultyCapSeconds * 3;
+  }
+
   // ── Step 0: constraints gate ──────────────────────────────────────────────
 
   lockInConstraints(): void {

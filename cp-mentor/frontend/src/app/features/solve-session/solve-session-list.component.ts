@@ -88,6 +88,20 @@ export class SolveSessionListComponent implements OnInit {
     return session.endedAt !== null;
   }
 
+  deleteSession(event: MouseEvent, session: SolveSessionResponse): void {
+    event.stopPropagation();
+    if (!confirm(`Delete "${session.title}"? This can't be undone.`)) return;
+
+    this.solveSessionService.delete(session.id).subscribe({
+      next: () => {
+        this.sessions = this.sessions.filter(s => s.id !== session.id);
+        this.totalElements--;
+        this.snack.open('Session deleted', '', { duration: 2000 });
+      },
+      error: () => this.snack.open('Failed to delete session', '', { duration: 3000 })
+    });
+  }
+
   formatDuration(seconds: number | null): string {
     if (seconds === null) return '—';
     const m = Math.floor(seconds / 60);

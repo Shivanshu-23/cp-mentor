@@ -87,6 +87,10 @@ export class SolveSessionService {
     return this.http.get<SolveSessionResponse>(`${this.API}/${id}`);
   }
 
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API}/${id}`);
+  }
+
   list(page = 0, size = 20, difficulty?: string, solvedUnaided?: boolean): Observable<PageResponse<SolveSessionResponse>> {
     const params = new URLSearchParams({ page: String(page), size: String(size) });
     if (difficulty) params.set('difficulty', difficulty);
