@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from './core/services/auth.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { KeyboardShortcutsService } from './core/services/keyboard-shortcuts.ser
 export class AppComponent implements OnInit {
   isLoggedIn = false;
   username = '';
+  mobileMenuOpen = false;
   private hasNavigated = false;
 
   constructor(
@@ -33,11 +34,38 @@ export class AppComponent implements OnInit {
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
       if (this.hasNavigated) this.fireArrowShot();
       this.hasNavigated = true;
+      this.mobileMenuOpen = false;
     });
   }
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+  }
+
+  // Angular's @HostListener('document:...') goes through the platform's
+  // event-binding abstraction rather than calling document.addEventListener
+  // directly, so — unlike the KeyboardShortcutsService bug documented in
+  // CLAUDE.md — this is safe under SSR with no isPlatformBrowser guard needed.
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (!this.mobileMenuOpen) return;
+    this.mobileMenuOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.mobileMenuOpen) return;
+    const target = event.target as HTMLElement;
+    if (target.closest('.nav-collapse') || target.closest('.mobile-menu-toggle')) return;
+    this.mobileMenuOpen = false;
   }
 
   private fireArrowShot(): void {

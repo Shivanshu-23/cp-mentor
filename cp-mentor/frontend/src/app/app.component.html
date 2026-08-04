@@ -8,47 +8,62 @@
 
   <span class="spacer"></span>
 
-  <nav class="nav-links">
-    <a mat-button routerLink="/patterns" routerLinkActive="active-link">
-      <mat-icon aria-hidden="true">lightbulb</mat-icon> Pattern Library
-    </a>
-    <a mat-button routerLink="/method-guide" routerLinkActive="active-link">
-      <mat-icon aria-hidden="true">menu_book</mat-icon> How to Solve
-    </a>
-    <a mat-button routerLink="/yodh" routerLinkActive="active-link">
-      <mat-icon aria-hidden="true">track_changes</mat-icon> Yodh
-    </a>
-    <a mat-button routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}">
-      <mat-icon aria-hidden="true">home</mat-icon> Daily Problem
-    </a>
-    <a mat-button routerLink="/company-tracker" routerLinkActive="active-link">
-      <mat-icon aria-hidden="true">business</mat-icon> Company Tracker
-    </a>
-    <a mat-button routerLink="/constraint-analyzer" routerLinkActive="active-link">
-      <mat-icon aria-hidden="true">analytics</mat-icon> Constraint Analyzer
-    </a>
-    <a mat-button routerLink="/solve" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon aria-hidden="true">edit_note</mat-icon> Solve Sessions
-    </a>
-    <a mat-button routerLink="/recall-drill" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon aria-hidden="true">psychology</mat-icon> Recall Drill
-    </a>
-    <a mat-button routerLink="/progress" routerLinkActive="active-link" *ngIf="isLoggedIn">
-      <mat-icon aria-hidden="true">bar_chart</mat-icon> Progress
-    </a>
-  </nav>
+  <button
+    mat-icon-button
+    class="mobile-menu-toggle"
+    type="button"
+    (click)="toggleMobileMenu()"
+    [attr.aria-expanded]="mobileMenuOpen"
+    aria-controls="nav-collapse"
+    aria-label="Toggle navigation menu">
+    <mat-icon aria-hidden="true">{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+  </button>
 
-  <ng-container *ngIf="isLoggedIn; else guestNav">
-    <span class="username-chip">{{ username }}</span>
-    <button mat-button (click)="logout()" class="logout-btn">
-      <mat-icon aria-hidden="true">logout</mat-icon> Logout
-    </button>
-  </ng-container>
+  <div id="nav-collapse" class="nav-collapse" [class.open]="mobileMenuOpen">
+    <nav class="nav-links">
+      <a mat-button routerLink="/patterns" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">lightbulb</mat-icon> Pattern Library
+      </a>
+      <a mat-button routerLink="/method-guide" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">menu_book</mat-icon> How to Solve
+      </a>
+      <a mat-button routerLink="/yodh" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">track_changes</mat-icon> Yodh
+      </a>
+      <a mat-button routerLink="/home" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">home</mat-icon> Daily Problem
+      </a>
+      <a mat-button routerLink="/company-tracker" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">business</mat-icon> Company Tracker
+      </a>
+      <a mat-button routerLink="/constraint-analyzer" routerLinkActive="active-link" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">analytics</mat-icon> Constraint Analyzer
+      </a>
+      <a mat-button routerLink="/solve" routerLinkActive="active-link" *ngIf="isLoggedIn" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">edit_note</mat-icon> Solve Sessions
+      </a>
+      <a mat-button routerLink="/recall-drill" routerLinkActive="active-link" *ngIf="isLoggedIn" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">psychology</mat-icon> Recall Drill
+      </a>
+      <a mat-button routerLink="/progress" routerLinkActive="active-link" *ngIf="isLoggedIn" (click)="closeMobileMenu()">
+        <mat-icon aria-hidden="true">bar_chart</mat-icon> Progress
+      </a>
+    </nav>
 
-  <ng-template #guestNav>
-    <a mat-button routerLink="/login">Login</a>
-    <a mat-raised-button color="primary" routerLink="/register" class="signup-btn">Sign Up</a>
-  </ng-template>
+    <div class="nav-auth">
+      <ng-container *ngIf="isLoggedIn; else guestNav">
+        <span class="username-chip">{{ username }}</span>
+        <button mat-button (click)="logout(); closeMobileMenu()" class="logout-btn">
+          <mat-icon aria-hidden="true">logout</mat-icon> Logout
+        </button>
+      </ng-container>
+
+      <ng-template #guestNav>
+        <a mat-button routerLink="/login" (click)="closeMobileMenu()">Login</a>
+        <a mat-raised-button color="primary" routerLink="/register" class="signup-btn" (click)="closeMobileMenu()">Sign Up</a>
+      </ng-template>
+    </div>
+  </div>
 </mat-toolbar>
 
 <main>

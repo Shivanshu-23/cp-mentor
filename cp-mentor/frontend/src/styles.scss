@@ -494,6 +494,71 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
     }
   }
 
+  // Hamburger toggle — hidden on desktop, only appears once .nav-links +
+  // the auth controls no longer fit inline. Same 900px breakpoint the
+  // brand-tagline already uses, so the whole toolbar has one consistent
+  // "getting tight" threshold rather than several arbitrary ones.
+  .mobile-menu-toggle {
+    display: none;
+    color: var(--text-lo);
+
+    @media (max-width: 900px) { display: inline-flex; }
+  }
+
+  // Wraps .nav-links + .nav-auth. `display: contents` on desktop makes this
+  // wrapper invisible to the flex layout — its children sit as direct
+  // toolbar flex items exactly as they did before this element existed, so
+  // desktop visuals are unchanged. Below the breakpoint it becomes an
+  // actual dropdown panel, closed by default, opened via .open (toggled by
+  // AppComponent, which also closes it on navigation, Escape, or an
+  // outside click — see app.component.ts).
+  .nav-collapse {
+    display: contents;
+
+    @media (max-width: 900px) {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding: 12px;
+      background: var(--bg-1);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+      max-height: calc(100vh - 62px);
+      overflow-y: auto;
+      z-index: 99;
+
+      &.open {
+        display: flex;
+        animation: navCollapseIn 160ms ease both;
+      }
+
+      .nav-links, .nav-auth {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 4px;
+        width: 100%;
+        height: auto;
+        margin-right: 0;
+      }
+
+      .nav-auth {
+        padding-top: 8px;
+        margin-top: 4px;
+        border-top: 1px solid var(--border);
+      }
+
+      a, button { width: 100%; justify-content: flex-start; }
+      .username-chip { margin: 0 0 8px; text-align: center; }
+      .signup-btn { margin-left: 0; margin-top: 4px; }
+    }
+  }
+
   .active-link {
     color: var(--accent-blue) !important;
     background: rgba(88, 166, 255, 0.1) !important;
@@ -514,6 +579,16 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   .logout-btn { color: var(--accent-red); }
   .signup-btn { margin-left: 8px; }
 }
+
+@keyframes navCollapseIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-collapse.open { animation: none !important; }
+}
+
 .mat-drawer-container { background: transparent !important; }
 .mat-tab-label, .mat-mdc-tab { color: var(--text-lo) !important; }
 .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
