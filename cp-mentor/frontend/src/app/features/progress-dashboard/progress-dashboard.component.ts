@@ -59,8 +59,10 @@ export class ProgressDashboardComponent implements OnInit {
     });
   }
 
+  // MASTERED uses --accent-gold specifically (not the general accent) —
+  // gold is reserved app-wide for genuine achievement moments only.
   tierColorVar(tier: MasteryTier): string {
-    return { LEARNING: '--text-muted', FAMILIAR: '--state-warning', SOLID: '--state-success', MASTERED: '--accent' }[tier] ?? '--text-muted';
+    return { LEARNING: '--text-muted', FAMILIAR: '--state-warning', SOLID: '--state-success', MASTERED: '--accent-gold' }[tier] ?? '--text-muted';
   }
 
   maxTrendValue(): number {

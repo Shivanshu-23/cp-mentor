@@ -27,11 +27,11 @@ export class AppComponent implements OnInit {
     });
     this.keyboardShortcuts.init();
 
-    // "Thwip" — a quick web-strand shoots across the screen on every page
-    // transition, like swinging to the next page. Skip the very first
-    // NavigationEnd (initial load) so it only fires on real navigation.
+    // An arrow flies in and lands on every page transition, like Drona's own
+    // discipline: aim, release, land. Skip the very first NavigationEnd
+    // (initial load) so it only fires on real navigation.
     this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(() => {
-      if (this.hasNavigated) this.fireThwip();
+      if (this.hasNavigated) this.fireArrowShot();
       this.hasNavigated = true;
     });
   }
@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
     this.authService.logout();
   }
 
-  private fireThwip(): void {
+  private fireArrowShot(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const fromRight = Math.random() < 0.5;
@@ -48,29 +48,36 @@ export class AppComponent implements OnInit {
     const y1 = -20;
     const x2 = window.innerWidth * (0.35 + Math.random() * 0.3);
     const y2 = window.innerHeight * (0.25 + Math.random() * 0.3);
+    const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
 
     const svgNS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(svgNS, 'svg');
-    svg.classList.add('thwip-overlay');
+    svg.classList.add('arrow-shot-overlay');
     svg.setAttribute('aria-hidden', 'true');
 
-    const line = document.createElementNS(svgNS, 'line');
-    line.classList.add('thwip-strand');
-    line.setAttribute('x1', String(x1));
-    line.setAttribute('y1', String(y1));
-    line.setAttribute('x2', String(x2));
-    line.setAttribute('y2', String(y2));
+    const shaft = document.createElementNS(svgNS, 'line');
+    shaft.classList.add('arrow-shot-shaft');
+    shaft.setAttribute('x1', String(x1));
+    shaft.setAttribute('y1', String(y1));
+    shaft.setAttribute('x2', String(x2));
+    shaft.setAttribute('y2', String(y2));
     const len = Math.hypot(x2 - x1, y2 - y1);
-    line.style.strokeDasharray = `${len}`;
-    line.style.strokeDashoffset = `${len}`;
+    shaft.style.strokeDasharray = `${len}`;
+    shaft.style.strokeDashoffset = `${len}`;
+
+    const head = document.createElementNS(svgNS, 'polygon');
+    head.classList.add('arrow-shot-head');
+    head.setAttribute('points', '0,-4 10,0 0,4');
+    head.setAttribute('transform', `translate(${x2}, ${y2}) rotate(${angle})`);
 
     const impact = document.createElementNS(svgNS, 'circle');
-    impact.classList.add('thwip-impact');
+    impact.classList.add('arrow-shot-impact');
     impact.setAttribute('cx', String(x2));
     impact.setAttribute('cy', String(y2));
     impact.setAttribute('r', '3');
 
-    svg.appendChild(line);
+    svg.appendChild(shaft);
+    svg.appendChild(head);
     svg.appendChild(impact);
     document.body.appendChild(svg);
 

@@ -1,6 +1,15 @@
 [
   {
     "date": "2026-08-04",
+    "scope": "mascot/theme swap",
+    "target": "frontend/src/app/features/pattern-library/ (header motif), app.component.ts (nav effect), progress-dashboard/ (mastery gold), recall-drill/ (confetti), styles.scss (--accent-gold token)",
+    "macrostructure": "app-preserved (no new page structure)",
+    "theme": "app-preserved base (near-black + blue/purple/red/orange), new --accent-gold reserved strictly for achievement moments (mastery tier, streak, confetti)",
+    "enrichment": "spider-web header motif replaced with an original bow/arrow/target-rings motif themed on Drona (Dronacharya, the archer-guru of the Mahabharata) — public-domain mythology, zero IP risk, and thematically exact (\"Earn the answer\" is literally his teaching philosophy). Nav-trigger effect (was web-strand \"thwip\") replaced with an arrow draw-and-release. Same animation *structure* reused throughout (draw-in via stroke-dasharray, sway, parallax, shimmer/pulse, drop-in) — only the imagery and naming changed, not the technique.",
+    "brief": "User asked to 'create a new superhero of Drona of historical fighter and use that theme' after three consecutive requests trended toward actual Spider-Man material (an image, GitHub repos, then design references that resolved to Spider-Man-titled Behance/YouTube content) were declined for trademark reasons. This is the resolution: an original mascot tied to the app's own name, not a reskin of someone else's IP-adjacent concept."
+  },
+  {
+    "date": "2026-08-04",
     "scope": "multi-page enrichment pass",
     "target": "frontend/src/app/features/pattern-library/, company-tracker/, shared/tilt.directive.ts, styles.scss",
     "macrostructure": "app-preserved (no new page structure — motion/visual enrichment only)",

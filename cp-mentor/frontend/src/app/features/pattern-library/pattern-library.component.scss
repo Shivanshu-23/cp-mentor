@@ -1,11 +1,11 @@
 /* Hallmark · redesign: single-page craft pass (Bento-Grid-adjacent — this is a
  * reference-content card grid, now the app's landing route, not a marketing
  * page) · preserved: app-wide dark theme tokens + Angular/Material structure
- * · added: hand-built SVG corner-web motif (Tier A, ties the header to both
- * the literal Graph pattern and the noir/spider-web brand identity — see
- * CLAUDE.md), real-count stat strip, category icons, focus-visible on
- * cards, staggered entrance (single orchestrated reveal, not scroll-repeat),
- * search-clear affordance
+ * · added: hand-built SVG corner bow/arrow/target motif (Tier A, ties the
+ * header to both the literal Graph pattern and the Drona/archer brand
+ * identity — see CLAUDE.md), real-count stat strip, category icons,
+ * focus-visible on cards, staggered entrance (single orchestrated reveal,
+ * not scroll-repeat), search-clear affordance
  */
 .library-header {
   position: relative;
@@ -18,10 +18,14 @@
   .library-sub { color: var(--text-lo); font-size: 15px; max-width: 640px; margin: 0 auto; }
 }
 
-// A spider web is, mathematically, exactly the "Graph" pattern this page
-// teaches — spoke junctions are nodes, rings are edges. Hand-built SVG
-// (Tier A), not a stock illustration or Lottie pull. Anchored to the
-// header's top-right corner, like a real web spun between two surfaces.
+// Drona (Dronacharya) — the archer-guru of the Mahabharata, legendary for
+// producing masters through discipline, never a shortcut. A bow, a nocked
+// arrow, and a target ahead of it: the exact shape of this app's whole
+// premise. The concentric target rings are still, not coincidentally, a
+// "distance from a point" shape — the same graph metaphor the old motif
+// used, just framed as a target instead of a web. Hand-built SVG (Tier A),
+// not a stock illustration or Lottie pull. Anchored to the header's
+// top-right corner.
 .library-web-motif {
   position: absolute;
   inset: -20px 0 auto 0;
@@ -39,27 +43,43 @@
     transition: transform 0.3s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
   }
 
-  // The whole web (spokes + rings + spider) sways together as one rigid
-  // body from its anchor point, like a real web catching a breeze — a
-  // slow rotational pendulum, not a wobble/stretch of the strands.
+  // The whole composition (bow + arrow + target) sways together as one
+  // rigid body from the bow's anchor point — a slow, deliberate re-aim,
+  // not a wobble.
   .web-anchor {
     transform-origin: 800px -20px;
-    animation: webSway 6s ease-in-out infinite;
+    animation: archerSway 6s ease-in-out infinite;
   }
 
-  .web-spokes line {
+  .web-bow path, .web-bow line {
+    fill: none;
     stroke: var(--text-lo);
     stroke-width: 1;
-    opacity: 0.25;
+    opacity: 0.3;
     stroke-dasharray: 900;
     stroke-dashoffset: 900;
-    animation: webDrawIn 1.2s ease-out forwards;
+    animation: archerDrawIn 1.1s ease-out forwards;
   }
 
-  .web-spokes line:nth-child(2) { animation-delay: 0.08s; }
-  .web-spokes line:nth-child(3) { animation-delay: 0.16s; }
-  .web-spokes line:nth-child(4) { animation-delay: 0.24s; }
-  .web-spokes line:nth-child(5) { animation-delay: 0.32s; }
+  .web-bow line { animation-delay: 0.1s; }
+
+  .web-arrow line, .web-arrow polygon {
+    stroke: var(--accent-orange);
+    opacity: 0;
+    animation: arrowRelease 0.5s ease-out 1s forwards;
+  }
+
+  .web-arrow line {
+    stroke-width: 1.2;
+    fill: none;
+  }
+
+  .web-arrow polygon {
+    fill: var(--accent-orange);
+    stroke: none;
+  }
+
+  .web-arrow line:nth-child(3), .web-arrow line:nth-child(4) { animation-delay: 1.15s; }
 
   .web-rings polyline {
     fill: none;
@@ -68,7 +88,7 @@
     opacity: 0.2;
     stroke-dasharray: 900;
     stroke-dashoffset: 900;
-    animation: webDrawIn 1.4s ease-out forwards, webShimmer 4s ease-in-out 1.6s infinite;
+    animation: archerDrawIn 1.4s ease-out forwards, targetPulse 4s ease-in-out 1.6s infinite;
   }
 
   .web-rings polyline:nth-child(1) { animation-delay: 0.3s, 1.6s; }
@@ -76,40 +96,48 @@
   .web-rings polyline:nth-child(3) { animation-delay: 0.7s, 2.8s; }
 
   .web-spider {
-    fill: var(--accent-red);
+    fill: var(--accent-gold);
     opacity: 0;
-    animation: spiderDropIn 0.5s ease-out 1.1s forwards, spiderBreathe 3.2s ease-in-out 1.6s infinite;
+    animation: bullseyeDropIn 0.5s ease-out 1.4s forwards, bullseyeBeat 3.2s ease-in-out 1.9s infinite;
   }
 }
 
-@keyframes webDrawIn {
+@keyframes archerDrawIn {
   to { stroke-dashoffset: 0; }
 }
 
-@keyframes spiderDropIn {
-  from { opacity: 0; transform: translateY(-8px) scale(0.5); }
-  to   { opacity: 0.7; transform: translateY(0) scale(1); }
+@keyframes arrowRelease {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 0.85; transform: translateX(0); }
 }
 
-@keyframes webSway {
-  0%, 100% { transform: rotate(-2.5deg); }
-  50%      { transform: rotate(2.5deg); }
+@keyframes bullseyeDropIn {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 0.85; transform: scale(1); }
 }
 
-@keyframes webShimmer {
+@keyframes archerSway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg); }
+}
+
+@keyframes targetPulse {
   0%, 100% { opacity: 0.14; }
   50%      { opacity: 0.32; }
 }
 
-@keyframes spiderBreathe {
-  0%, 100% { opacity: 0.55; r: 4; }
-  50%      { opacity: 0.85; r: 5; }
+@keyframes bullseyeBeat {
+  0%, 100% { opacity: 0.65; r: 4; }
+  50%      { opacity: 0.95; r: 5; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .library-web-motif .web-parallax,
   .library-web-motif .web-anchor,
-  .library-web-motif .web-spokes line,
+  .library-web-motif .web-bow path,
+  .library-web-motif .web-bow line,
+  .library-web-motif .web-arrow line,
+  .library-web-motif .web-arrow polygon,
   .library-web-motif .web-rings polyline,
   .library-web-motif .web-spider {
     animation: none;
@@ -117,16 +145,23 @@
   }
 
   // animation: none freezes each element at its base (pre-animation) CSS
-  // state — for the spokes/rings/spider that base state is invisible
+  // state — for the bow/arrow/rings/target that base state is invisible
   // (mid-draw-in / opacity 0), so the end state has to be set explicitly
-  // or reduced-motion users would see no web at all.
-  .library-web-motif .web-spokes line,
+  // or reduced-motion users would see no motif at all.
+  .library-web-motif .web-bow path,
+  .library-web-motif .web-bow line,
   .library-web-motif .web-rings polyline {
     stroke-dashoffset: 0;
   }
 
+  .library-web-motif .web-arrow line,
+  .library-web-motif .web-arrow polygon {
+    opacity: 0.85;
+    transform: none;
+  }
+
   .library-web-motif .web-spider {
-    opacity: 0.7;
+    opacity: 0.85;
   }
 }
 

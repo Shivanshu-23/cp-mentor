@@ -11,7 +11,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  // ── Spider palette — near-black base, varied accents ──────────────────
+  // ── Drona palette — near-black base, varied accents ────────────────────
   // Backgrounds
   --bg-0: #0a0a0a;        // page
   --bg-1: #151515;        // cards
@@ -25,15 +25,18 @@
   --glass-border: var(--border);
   --glass-border-hover: var(--border-hover);
 
-  // ── Accents — full colour variety against the near-black base: web-blue
-  //    and dusk-purple carry equal weight alongside spider-red; green/yellow
+  // ── Accents — full colour variety against the near-black base: blue and
+  //    dusk-purple carry equal weight alongside orange/red; green/yellow
   //    keep their semantic meaning (easy/medium difficulty, success/warning).
+  //    --accent-gold is reserved for achievement moments only (pattern
+  //    mastery's top tier, streak milestones) — not a general-purpose colour.
   --accent-blue: #58a6ff;
   --accent-green: #3fb950;
   --accent-yellow: #d29922;
   --accent-red: #f85149;
   --accent-purple: #bc8cff;
   --accent-orange: #ffa657;
+  --accent-gold: #d4a72c;
 
   // ── Text ────────────────────────────────────────────────────────────
   --text-hi: #f2f2f2;
@@ -1024,11 +1027,11 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   100% { opacity: 0; transform: translate(var(--x, 0), 260px) rotate(var(--rot, 180deg)); }
 }
 
-// ── "Thwip" — a web-strand shoots across the screen on page navigation
-//    (app.component.ts), like swinging to the next page. Fixed overlay,
+// ── Arrow shot — an arrow flies in and lands on page navigation
+//    (app.component.ts), Drona's own aim-release-land. Fixed overlay,
 //    appended straight to <body> so it survives the triggering component
 //    unmounting mid-transition, same pattern as .confetti-burst above.
-.thwip-overlay {
+.arrow-shot-overlay {
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -1038,30 +1041,41 @@ a, button, input, select, .glass-card, .tick-circle, .topic-chip, .badge {
   overflow: visible;
 }
 
-.thwip-strand {
-  stroke: var(--accent-red);
+.arrow-shot-shaft {
+  stroke: var(--accent-orange);
   stroke-width: 2;
   opacity: 0.85;
-  filter: drop-shadow(0 0 4px rgba(248, 81, 73, 0.6));
-  animation: thwipShoot 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards,
-             thwipFade 0.22s ease-in 0.28s forwards;
+  filter: drop-shadow(0 0 4px rgba(255, 166, 87, 0.6));
+  animation: arrowShotFly 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+             arrowShotFade 0.22s ease-in 0.28s forwards;
 }
 
-.thwip-impact {
-  fill: var(--accent-red);
+.arrow-shot-head {
+  fill: var(--accent-orange);
   opacity: 0;
-  animation: thwipImpact 0.35s ease-out 0.24s forwards;
+  animation: arrowShotHeadIn 0.12s ease-out 0.24s forwards,
+             arrowShotFade 0.22s ease-in 0.28s forwards;
 }
 
-@keyframes thwipShoot {
+.arrow-shot-impact {
+  fill: var(--accent-gold);
+  opacity: 0;
+  animation: arrowShotImpact 0.35s ease-out 0.28s forwards;
+}
+
+@keyframes arrowShotFly {
   to { stroke-dashoffset: 0; }
 }
 
-@keyframes thwipFade {
+@keyframes arrowShotHeadIn {
+  to { opacity: 0.9; }
+}
+
+@keyframes arrowShotFade {
   to { opacity: 0; }
 }
 
-@keyframes thwipImpact {
+@keyframes arrowShotImpact {
   0%   { opacity: 0.9; r: 2; }
   100% { opacity: 0; r: 10; }
 }

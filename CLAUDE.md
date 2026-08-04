@@ -783,6 +783,50 @@ in `cp-mentor/.hallmark/log.json`.
   with Spider-Man/Marvel branding into this project, regardless of how the request is framed** —
   this is now the second time it's come up.
 
+## Mascot swap: spider-web → Drona the archer (2026-08-04)
+**Why**: three consecutive requests in one session trended toward actual Spider-Man material —
+a literal background image (declined), code from 3 GitHub repos (2 of 3 explicitly
+Spider-Man-merchandise-branded, declined after checking read-only via `gh api`), then a
+"cinematic hero" design spec built from "references" that, once fetched, turned out to be a
+Behance project titled *"Website for The Amazing Spider-Man"* and a YouTube video titled *"The
+Amazing Spider-Man Website"* — also declined, same trademark reasoning. The user's own resolution,
+verbatim: *"create a new super hero of drona of historical fighter and use that theme."*
+**What "Drona" means here**: Dronacharya, the archer-guru of the Mahabharata — legendary for
+producing masters through discipline and refusing to hand a student anything they hadn't earned.
+Public-domain mythology, thousands of years old, zero IP risk, and an exact thematic fit for an
+app whose tagline is already "Earn the answer" and whose whole Practice Method module is built
+around never volunteering a solution. Not a generic "superhero" costume redesign — no
+cape/mask/spandex imagery, just an archer's discipline: a bow, a nocked arrow, a target.
+- **Pattern Library header motif** (`pattern-library.component.html`/`.scss`): the spider web
+  (spokes/rings/spider) became a bow + taut string + nocked arrow + concentric target rings +
+  bullseye. **Deliberately reused the exact same animation architecture as the spider version** —
+  stroke-dasharray draw-in entrance, a rigid-body sway (`archerSway`, was `webSway`), mouse-parallax
+  via the same `.web-parallax`/`.web-anchor` two-group split, a shimmer/pulse loop on the rings
+  (`targetPulse`, was `webShimmer`), a drop-in + breathing accent dot (`bullseyeBeat`, was
+  `spiderBreathe`) — only the geometry and colour changed (arrow uses `--accent-orange`, bullseye
+  uses the new `--accent-gold`), not the technique. Class names mostly kept generic
+  (`.web-anchor`, `.web-parallax`, `.web-rings`, `.web-spider` — the last one now holds the
+  bullseye dot) rather than renamed everywhere, to keep the diff to the parts that actually needed
+  to change; new element-specific classes (`.web-bow`, `.web-arrow`) were added for the new shapes.
+- **Nav-transition effect** (`app.component.ts`): `fireThwip()` → `fireArrowShot()`. Same trigger
+  (skip first `NavigationEnd`, respects `prefers-reduced-motion`, appends a short-lived SVG
+  overlay to `document.body`), same lifetime (~500ms). Visually: a web-strand + circular splat
+  became an arrow shaft + triangular arrowhead (rotated via `atan2` to point along the flight
+  path) + a gold impact flash on landing (`--accent-gold`, was `--accent-red`).
+- **New `--accent-gold` token** (`#d4a72c`, `styles.scss` `:root`) — **reserved for genuine
+  achievement moments only, not a general-purpose fifth accent**: the Progress Dashboard's
+  MASTERED pattern-mastery tier (`tierColorVar()` in `progress-dashboard.component.ts`, was
+  `--accent`), the recall-streak headline number (`.streak-value`, was `--accent`), and added to
+  the all-PASS recall-drill confetti palette alongside the existing blue/purple/red/green/orange.
+- **`.hallmark/log.json` updated** per the Hallmark skill's own project-memory convention — this
+  was executed as a Hallmark redesign pass (app-preserved theme, enrichment/mascot swap only, no
+  new macrostructure), invoked via `/hallmark`.
+- **Do not revert to spider-web imagery or pull in Spider-Man-branded/-themed source material of
+  any kind** (images, code, or "design references") for this project — this is now documented
+  three times over (the original noir-theme decision, the GitHub-repo decline, and this swap).
+  If a future request trends the same direction again, point back to this entry rather than
+  re-relitigating it.
+
 ## Rebrand: NovaCode → Drona (noir theme)
 The app was renamed from "NovaCode" to **Drona**, tagline **"Earn the answer."** — GitHub repo
 is now `Shivanshu-23/drona` (renamed via `gh repo rename`, GitHub auto-redirects the old
@@ -793,11 +837,17 @@ broken" saga below). This means the live URLs (`cp-mentor-delta.vercel.app`,
 `cp-mentor-backend.onrender.com`) still say "cp-mentor" even though the product is "Drona" —
 expected, not a bug.
 
-Alongside the rename, the app got a **"Spider-Man" visual identity**: near-black backgrounds
-with a genuinely varied accent palette (blue, purple, red — plus the existing green/yellow
-semantic colours) and hand-built spider-web motifs/animations. **No Marvel name, logo, or
-character art is used anywhere** — trademark/copyright risk on a live public app. What's
-implemented is the *visual language and motion*, not the IP.
+**Mascot superseded 2026-08-04** — see "Mascot swap: spider-web → Drona the archer" below for
+the current identity. The rest of this section (near-black base, varied accent palette, rename
+history, Vercel/Render naming decisions) still stands; only the decorative motif/animation
+language changed, not the colour system underneath it.
+
+Alongside the rename, the app got a **"Spider-Man" visual identity** *(superseded, see above)*:
+near-black backgrounds with a genuinely varied accent palette (blue, purple, red — plus the
+existing green/yellow semantic colours) and hand-built spider-web motifs/animations. **No Marvel
+name, logo, or character art was ever used** — trademark/copyright risk on a live public app.
+What was implemented was the *visual language and motion*, not the IP — kept here as history for
+why the near-black + varied-accent palette exists at all, even though the motif itself moved on.
 - **First pass was a pure black/white/red "noir" monochrome** (one saturated colour only,
   everything else white/gray) — shipped, built, deployed, and then explicitly rejected by the
   user as "looking very bad." Reverted to a second pass, described below, per direct feedback:

@@ -2,26 +2,33 @@
 
   <!-- ── Header ─────────────────────────────────────────────── -->
   <div class="library-header">
-    <!-- Decorative web motif — a spider web is, mathematically, exactly the
-         "Graph" pattern this page teaches: nodes (spoke junctions) and edges
-         (rings), just drawn as a corner web instead of a scattered graph.
-         Pure SVG/CSS, no image assets, freezes under prefers-reduced-motion. -->
+    <!-- Decorative bow/arrow/target motif — Drona (Dronacharya), the legendary
+         archer-guru of the Mahabharata, master of precision and discipline —
+         "Earn the answer" is literally his teaching philosophy: no mastery
+         without doing the work first. The concentric rings are still, not
+         coincidentally, the same "distance from a point" shape a graph's
+         breadth-first layers make — same graph metaphor as before, archer's
+         framing. Pure SVG/CSS, no image assets, freezes under
+         prefers-reduced-motion. -->
     <svg class="library-web-motif" viewBox="0 0 800 200" preserveAspectRatio="xMaxYMin slice" aria-hidden="true" focusable="false" (mousemove)="onWebMotifMouseMove($event)" (mouseleave)="onWebMotifMouseLeave($event)">
       <g class="web-parallax">
         <g class="web-anchor">
-          <g class="web-spokes">
-            <line x1="800" y1="-20" x2="784" y2="159"></line>
-            <line x1="800" y1="-20" x2="707" y2="179"></line>
-            <line x1="800" y1="-20" x2="630" y2="150"></line>
-            <line x1="800" y1="-20" x2="601" y2="73"></line>
-            <line x1="800" y1="-20" x2="621" y2="-4"></line>
+          <g class="web-bow">
+            <path d="M800,-20 Q700,80 800,180"></path>
+            <line x1="800" y1="-20" x2="800" y2="180"></line>
+          </g>
+          <g class="web-arrow">
+            <line x1="800" y1="80" x2="630" y2="98"></line>
+            <polygon points="630,98 648,90 648,106"></polygon>
+            <line x1="800" y1="80" x2="784" y2="70"></line>
+            <line x1="800" y1="80" x2="784" y2="90"></line>
           </g>
           <g class="web-rings">
             <polyline points="792,70 762,62 736,44 719,18 710,-12"></polyline>
             <polyline points="787,129 737,116 694,86 664,44 651,-7"></polyline>
             <polyline points="782,189 711,170 652,129 610,69 591,-2"></polyline>
           </g>
-          <circle class="web-spider" cx="800" cy="-20" r="4"></circle>
+          <circle class="web-spider" cx="650" cy="100" r="4"></circle>
         </g>
       </g>
     </svg>
